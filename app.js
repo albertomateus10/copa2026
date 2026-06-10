@@ -80,7 +80,7 @@ const COPA_GROUPS = {
 // NOTA: Se você já tiver configurado as chaves no banco de dados, insira-as abaixo.
 // Se preferir, você pode inseri-las diretamente no painel de configurações na tela!
 let SUPABASE_URL = "https://wceamvewvirhqsobvpkg.supabase.co";
-let SUPABASE_ANON_KEY = "";
+let SUPABASE_ANON_KEY = "sb_publishable_7qCtIykWOaYjouibqqCjjg_n7g00rnw";
 
 let supabase = null;
 let selectedTeam = null;
