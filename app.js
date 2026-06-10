@@ -91,7 +91,8 @@ const tabsContainer = document.getElementById("groupTabs");
 const teamsGrid = document.getElementById("teamsGrid");
 const selectedTeamDisplay = document.getElementById("selectedTeamDisplay");
 const btnVote = document.getElementById("btnVote");
-const voterNameInput = document.getElementById("voterName");
+const voterFirstNameInput = document.getElementById("voterFirstName");
+const voterLastNameInput = document.getElementById("voterLastName");
 const totalVotesCount = document.getElementById("totalVotesCount");
 const topTeamsList = document.getElementById("topTeamsList");
 
@@ -118,6 +119,21 @@ function initApp() {
   if (btnVote) {
     btnVote.addEventListener("click", handleVoteSubmit);
   }
+
+  // Monitorar campos de nome/sobrenome para habilitar/desabilitar botão
+  function checkVoteButtonState() {
+    const firstName = voterFirstNameInput ? voterFirstNameInput.value.trim() : '';
+    const lastName = voterLastNameInput ? voterLastNameInput.value.trim() : '';
+    if (btnVote && selectedTeam) {
+      btnVote.disabled = !(firstName && lastName);
+    }
+  }
+
+  if (voterFirstNameInput) voterFirstNameInput.addEventListener("input", checkVoteButtonState);
+  if (voterLastNameInput) voterLastNameInput.addEventListener("input", checkVoteButtonState);
+
+  // Expor para uso externo
+  window._checkVoteButtonState = checkVoteButtonState;
 }
 
 // Executar imediatamente se o DOM já estiver carregado, ou registrar evento
@@ -231,7 +247,15 @@ async function handleVoteSubmit() {
     return;
   }
 
-  const voterName = voterNameInput.value.trim() || "Anônimo";
+  const firstName = voterFirstNameInput ? voterFirstNameInput.value.trim() : '';
+  const lastName = voterLastNameInput ? voterLastNameInput.value.trim() : '';
+
+  if (!firstName || !lastName) {
+    showToast("Preencha seu nome e sobrenome antes de votar!", "error");
+    return;
+  }
+
+  const voterName = `${firstName} ${lastName}`;
 
   btnVote.disabled = true;
   btnVote.innerHTML = '<span class="spinner" style="width:20px; height:20px; border-width:2px; display:inline-block"></span> Votando...';
@@ -257,7 +281,8 @@ async function handleVoteSubmit() {
       btnVote.disabled = true;
       btnVote.innerHTML = '<i data-lucide="award"></i> Confirmar Meu Voto';
       selectedTeam = null;
-      voterNameInput.value = '';
+      if (voterFirstNameInput) voterFirstNameInput.value = '';
+      if (voterLastNameInput) voterLastNameInput.value = '';
       document.querySelectorAll('.team-card').forEach(c => c.classList.remove('selected'));
       selectedTeamDisplay.innerHTML = `<i data-lucide="info" style="width:16px; height:16px; display:inline-block; vertical-align:middle; margin-right:4px;"></i> Após clicar na sua seleção, digite abaixo o seu nome e sobrenome e confirme seu voto.`;
       if (typeof lucide !== 'undefined') lucide.createIcons();
@@ -272,7 +297,8 @@ async function handleVoteSubmit() {
     btnVote.disabled = true;
     btnVote.innerHTML = '<i data-lucide="award"></i> Confirmar Meu Voto';
     selectedTeam = null;
-    voterNameInput.value = '';
+    if (voterFirstNameInput) voterFirstNameInput.value = '';
+    if (voterLastNameInput) voterLastNameInput.value = '';
     document.querySelectorAll('.team-card').forEach(c => c.classList.remove('selected'));
     selectedTeamDisplay.innerHTML = `<i data-lucide="info" style="width:16px; height:16px; display:inline-block; vertical-align:middle; margin-right:4px;"></i> Após clicar na sua seleção, digite abaixo o seu nome e sobrenome e confirme seu voto.`;
     if (typeof lucide !== 'undefined') lucide.createIcons();
@@ -417,7 +443,16 @@ function renderTeams(groupName) {
         </div>
       `;
       if (typeof lucide !== 'undefined') lucide.createIcons();
-      btnVote.disabled = false;
+
+      // Verificar estado do botão com base nos campos de nome/sobrenome
+      if (window._checkVoteButtonState) {
+        window._checkVoteButtonState();
+      } else {
+        // Fallback: só habilita se ambos os campos estiverem preenchidos
+        const firstName = voterFirstNameInput ? voterFirstNameInput.value.trim() : '';
+        const lastName = voterLastNameInput ? voterLastNameInput.value.trim() : '';
+        btnVote.disabled = !(firstName && lastName);
+      }
     });
   });
 }

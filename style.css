@@ -286,8 +286,8 @@ h1 {
 
 .form-group {
   display: flex;
-  flex-direction: column;
-  gap: 5px;
+  flex-direction: row;
+  gap: 4px;
 }
 
 .form-group label {
@@ -299,6 +299,7 @@ h1 {
 }
 
 .input-style {
+  width: 100%;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 8px;
