@@ -9,9 +9,7 @@
   <!-- Estilos e Fontes -->
   <link rel="stylesheet" href="style.css">
   
-  <!-- Bibliotecas de Terceiros (CDNs Seguros) -->
-  <!-- Chart.js para gráficos -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+
   <!-- Supabase JS Client para o banco em tempo real -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   <!-- Lucide Icons para iconografia moderna -->
@@ -22,33 +20,6 @@
   <!-- Toast Container para Notificações Dinâmicas -->
   <div id="toastContainer" style="position: fixed; bottom: 24px; left: 24px; z-index: 1200; display: flex; flex-direction: column; gap: 8px;"></div>
 
-  <!-- Cabeçalho Principal -->
-  <header>
-    <div class="logo-container">
-      <span class="logo-badge">FIFA World Cup 2026</span>
-    </div>
-    <h1>Monitor de Torcidas 🏆</h1>
-    <p class="subtitle">Faça parte da maior torcida digital do planeta! Vote na seleção do seu coração e deixe sua mensagem no mural.</p>
-    
-    <!-- Contagem Regressiva para a Copa -->
-    <div class="countdown-container" id="countdown">
-      <div class="countdown-item">
-        <span class="countdown-number" id="cdDays">00</span> dias
-      </div>
-      <span style="color:var(--text-muted)">•</span>
-      <div class="countdown-item">
-        <span class="countdown-number" id="cdHours">00</span>h
-      </div>
-      <span style="color:var(--text-muted)">•</span>
-      <div class="countdown-item">
-        <span class="countdown-number" id="cdMinutes">00</span>m
-      </div>
-      <span style="color:var(--text-muted)">•</span>
-      <div class="countdown-item">
-        <span class="countdown-number" id="cdSeconds">00</span>s
-      </div>
-    </div>
-  </header>
 
   <!-- Container de Conteúdo -->
   <main class="main-container">
@@ -61,7 +32,7 @@
           <i data-lucide="compass"></i> Escolha sua Seleção
         </h2>
         <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.95rem;">
-          Navegue pelos grupos oficiais da Copa do Mundo de 2026 e selecione o país para quem você vai torcer:
+          Navegue pelos grupos e selecione a seleção que você quer votar:
         </p>
         
         <!-- Navegação de Abas de Grupos -->
@@ -77,18 +48,11 @@
         <!-- Formulário para Voto -->
         <div class="vote-form">
           <div id="selectedTeamDisplay" style="font-size: 0.95rem; font-weight: 600; color: var(--text-secondary);">
-            <i data-lucide="info" style="width:16px; height:16px; display:inline-block; vertical-align:middle; margin-right:4px;"></i> Selecione um país no painel acima para habilitar o voto.
+            <i data-lucide="info" style="width:16px; height:16px; display:inline-block; vertical-align:middle; margin-right:4px;"></i> Após clicar na sua seleção, digite abaixo o seu nome e sobrenome e confirme seu voto.
           </div>
-          
-          <div class="form-row">
-            <div class="form-group">
-              <label for="voterName">Seu Nome / Nick</label>
-              <input type="text" id="voterName" class="input-style" placeholder="Ex: Torcedor Fanático" maxlength="30">
-            </div>
-            <div class="form-group">
-              <label for="voterComment">Sua Mensagem de Apoio (Opcional)</label>
-              <input type="text" id="voterComment" class="input-style" placeholder="Ex: Vamos buscar o Hexa! ⚽🔥" maxlength="100">
-            </div>
+          <div class="form-group">
+            <label for="voterName"></label>
+            <input type="text" id="voterName" class="input-style" placeholder="Ex: Alberto Mateus" maxlength="30">
           </div>
           
           <button id="btnVote" class="btn-vote" disabled>
@@ -103,31 +67,17 @@
       <!-- Estatísticas e Gráfico -->
       <div class="card-panel">
         <h2 class="card-title">
-          <i data-lucide="bar-chart-3"></i> Top Torcidas
+          <i data-lucide="users"></i> Ranking
         </h2>
-        <p style="color: var(--text-secondary); margin-bottom: 1rem; font-size: 0.88rem;">
-          Total de votos computados: <strong id="totalVotesCount" style="color: var(--primary)">0</strong>
+        <p style="color: var(--text-secondary); margin-bottom: 0.5rem; font-size: 0.88rem;">
+          Total de votos: <strong id="totalVotesCount" style="color: var(--primary)">0</strong>
         </p>
-        
-        <!-- Gráfico do Chart.js -->
-        <div class="chart-container">
-          <canvas id="votesChart"></canvas>
-        </div>
+        <p style="color: var(--text-muted); margin-bottom: 1.25rem; font-size: 0.82rem;">
+          Clique na seleção para ver o nome de quem votou.
+        </p>
 
         <!-- Lista Detalhada Top 5 -->
         <div class="top-teams-list" id="topTeamsList">
-          <div class="loader-wrapper">
-            <div class="spinner"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Mural da Copa -->
-      <div class="card-panel">
-        <h2 class="card-title">
-          <i data-lucide="messages-square"></i> Voz da Torcida
-        </h2>
-        <div class="wall-feed" id="wallFeed">
           <div class="loader-wrapper">
             <div class="spinner"></div>
           </div>
@@ -168,12 +118,8 @@
     </div>
   </div>
 
-  <!-- Rodapé -->
-  <footer style="text-align: center; padding: 2rem; color: var(--text-muted); font-size: 0.85rem; border-top: 1px solid var(--border-card); background: #070a11;">
-    <p>Monitor de Torcida Oficial 2026 - Desenvolvido para a comunidade do GitHub. Criado com ❤️ e código em tempo real.</p>
-  </footer>
 
   <!-- Carrega a lógica principal do app -->
-  <script src="app.js" defer></script>
+  <script src="app.js"></script>
 </body>
 </html>

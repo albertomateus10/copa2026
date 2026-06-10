@@ -79,12 +79,11 @@ const COPA_GROUPS = {
 // Configurações do Supabase
 // NOTA: Se você já tiver configurado as chaves no banco de dados, insira-as abaixo.
 // Se preferir, você pode inseri-las diretamente no painel de configurações na tela!
-let SUPABASE_URL = "";
+let SUPABASE_URL = "https://wceamvewvirhqsobvpkg.supabase.co";
 let SUPABASE_ANON_KEY = "";
 
 let supabase = null;
 let selectedTeam = null;
-let votesChart = null;
 let allVotes = [];
 
 // Elementos do DOM
@@ -93,13 +92,11 @@ const teamsGrid = document.getElementById("teamsGrid");
 const selectedTeamDisplay = document.getElementById("selectedTeamDisplay");
 const btnVote = document.getElementById("btnVote");
 const voterNameInput = document.getElementById("voterName");
-const voterCommentInput = document.getElementById("voterComment");
-const wallFeed = document.getElementById("wallFeed");
 const totalVotesCount = document.getElementById("totalVotesCount");
 const topTeamsList = document.getElementById("topTeamsList");
 
 // Inicialização
-document.addEventListener("DOMContentLoaded", () => {
+function initApp() {
   // Inicializar ícones Lucide
   if (typeof lucide !== 'undefined') {
     lucide.createIcons();
@@ -107,9 +104,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Carregar configurações salvas do LocalStorage (se houver)
   loadSavedConfig();
-
-  // Iniciar contagem regressiva
-  startCountdown("2026-06-11T00:00:00Z");
 
   // Renderizar abas dos Grupos
   renderGroupTabs();
@@ -121,8 +115,17 @@ document.addEventListener("DOMContentLoaded", () => {
   setupConfigModal();
 
   // Evento do botão de Votar
-  btnVote.addEventListener("click", handleVoteSubmit);
-});
+  if (btnVote) {
+    btnVote.addEventListener("click", handleVoteSubmit);
+  }
+}
+
+// Executar imediatamente se o DOM já estiver carregado, ou registrar evento
+if (document.readyState !== 'loading') {
+  initApp();
+} else {
+  document.addEventListener('DOMContentLoaded', initApp);
+}
 
 // Carregar chaves do local storage ou definir valores padrão fictícios se estiver testando sem banco
 function loadSavedConfig() {
@@ -166,12 +169,12 @@ function initSupabase() {
 // Iniciar com dados de demonstração interativos se não houver Supabase conectado
 function initMockData() {
   allVotes = [
-    { team_name: "Brasil", team_code: "br", user_name: "Alberto", comment: "Rumo ao Hexa! Ninguém segura!", created_at: new Date().toISOString() },
-    { team_name: "Argentina", team_code: "ar", user_name: "Mateo", comment: "Messi de nuevo en 2026!", created_at: new Date(Date.now() - 3600000).toISOString() },
-    { team_name: "Alemanha", team_code: "de", user_name: "Lars", comment: "Wir sind bereit!", created_at: new Date(Date.now() - 7200000).toISOString() },
-    { team_name: "Brasil", team_code: "br", user_name: "Carlos", comment: "Torcida brasileira unida!", created_at: new Date(Date.now() - 10800000).toISOString() },
-    { team_name: "Portugal", team_code: "pt", user_name: "Cristiano", comment: "Força Portugal! O último dançar!", created_at: new Date(Date.now() - 14400000).toISOString() },
-    { team_name: "México", team_code: "mx" , user_name: "Alejandro", comment: "¡Viva México! Jugamos en casa.", created_at: new Date(Date.now() - 18000000).toISOString() }
+    { team_name: "Brasil", team_code: "br", user_name: "Alberto", created_at: new Date().toISOString() },
+    { team_name: "Argentina", team_code: "ar", user_name: "Mateo", created_at: new Date(Date.now() - 3600000).toISOString() },
+    { team_name: "Alemanha", team_code: "de", user_name: "Lars", created_at: new Date(Date.now() - 7200000).toISOString() },
+    { team_name: "Brasil", team_code: "br", user_name: "Carlos", created_at: new Date(Date.now() - 10800000).toISOString() },
+    { team_name: "Portugal", team_code: "pt", user_name: "Cristiano", created_at: new Date(Date.now() - 14400000).toISOString() },
+    { team_name: "México", team_code: "mx" , user_name: "Alejandro", created_at: new Date(Date.now() - 18000000).toISOString() }
   ];
   updateUI();
 }
@@ -223,7 +226,6 @@ async function handleVoteSubmit() {
   }
 
   const voterName = voterNameInput.value.trim() || "Anônimo";
-  const voterComment = voterCommentInput.value.trim();
 
   btnVote.disabled = true;
   btnVote.innerHTML = '<span class="spinner" style="width:20px; height:20px; border-width:2px; display:inline-block"></span> Votando...';
@@ -231,8 +233,7 @@ async function handleVoteSubmit() {
   const newVote = {
     team_name: selectedTeam.name,
     team_code: selectedTeam.flag,
-    user_name: voterName,
-    comment: voterComment || null
+    user_name: voterName
   };
 
   if (supabase) {
@@ -243,9 +244,6 @@ async function handleVoteSubmit() {
       // O Supabase Realtime cuidará de atualizar o UI se o canal estiver ativo, 
       // mas se houver atraso ou falha, recarregamos.
       showToast("Seu voto foi registrado!", "success");
-      
-      // Resetar form
-      voterCommentInput.value = "";
     } catch (err) {
       console.error(err);
       showToast("Falha ao registrar voto no Supabase.", "error");
@@ -261,8 +259,6 @@ async function handleVoteSubmit() {
     updateUI();
     showToast("Voto computado no modo demonstração!", "success");
     
-    // Resetar form
-    voterCommentInput.value = "";
     btnVote.disabled = false;
     btnVote.innerHTML = '<i data-lucide="award"></i> Confirmar Meu Voto';
     if (typeof lucide !== 'undefined') lucide.createIcons();
@@ -273,15 +269,21 @@ async function handleVoteSubmit() {
 function updateUI() {
   totalVotesCount.textContent = allVotes.length;
 
-  // 1. Processar dados para estatísticas
+  // 1. Processar dados para estatísticas e votantes
   const votesCountByTeam = {};
+  const votersByTeam = {};
+
   allVotes.forEach(vote => {
-    votesCountByTeam[vote.team_name] = (votesCountByTeam[vote.team_name] || 0) + 1;
+    const team = vote.team_name;
+    votesCountByTeam[team] = (votesCountByTeam[team] || 0) + 1;
+    if (!votersByTeam[team]) {
+      votersByTeam[team] = [];
+    }
+    votersByTeam[team].push(vote.user_name || "Anônimo");
   });
 
   // Transformar em array e ordenar descrescente
   const sortedTeams = Object.keys(votesCountByTeam).map(name => {
-    // Encontrar código da bandeira
     let flag = "un";
     outerLoop:
     for (const group of Object.values(COPA_GROUPS)) {
@@ -295,146 +297,55 @@ function updateUI() {
     return {
       name,
       flag,
-      votes: votesCountByTeam[name]
+      votes: votesCountByTeam[name],
+      voters: votersByTeam[name] || []
     };
   }).sort((a, b) => b.votes - a.votes);
 
-  // 2. Renderizar lista dos Top 5 mais votados
-  renderTopTeamsList(sortedTeams.slice(0, 5));
-
-  // 3. Renderizar Gráfico
-  renderChart(sortedTeams.slice(0, 7));
-
-  // 4. Renderizar Mural de Torcida
-  renderWallFeed();
+  // 2. Renderizar lista das seleções que receberam voto (toda a lista!)
+  renderTopTeamsList(sortedTeams);
 }
 
-// Renderizar a lista de líderes no painel de estatísticas
+// Renderizar a lista de líderes no painel de estatísticas (com dropdown de votantes)
 function renderTopTeamsList(topTeams) {
   if (topTeams.length === 0) {
     topTeamsList.innerHTML = '<div class="empty-state">Nenhum voto registrado ainda.</div>';
     return;
   }
 
-  topTeamsList.innerHTML = topTeams.map((team, idx) => `
-    <div class="top-team-item">
-      <div class="rank-badge rank-${idx + 1}">${idx + 1}</div>
-      <img src="https://flagcdn.com/w80/${team.flag}.png" alt="${team.name}" class="top-team-flag" onerror="this.src='https://flagcdn.com/w80/un.png'">
-      <div class="top-team-name">${team.name}</div>
-      <div class="top-team-votes">${team.votes} ${team.votes === 1 ? 'voto' : 'votos'}</div>
-    </div>
-  `).join('');
-}
+  topTeamsList.innerHTML = topTeams.map((team, idx) => {
+    const votersHTML = team.voters.map(voter => `
+      <span class="voter-tag">${escapeHTML(voter)}</span>
+    `).join('');
 
-// Renderizar / atualizar o gráfico do Chart.js
-function renderChart(dataList) {
-  if (typeof Chart === 'undefined') {
-    console.warn("Chart.js não está disponível.");
-    const chartContainer = document.querySelector(".chart-container");
-    if (chartContainer) {
-      chartContainer.innerHTML = '<div class="empty-state" style="padding:4rem 1rem;">Gráfico indisponível offline (Sem conexão com Chart.js).</div>';
-    }
-    return;
-  }
-  const ctx = document.getElementById("votesChart").getContext("2d");
-
-  const labels = dataList.map(t => t.name);
-  const data = dataList.map(t => t.votes);
-
-  if (votesChart) {
-    // Se o gráfico já existe, atualizar dados
-    votesChart.data.labels = labels;
-    votesChart.data.datasets[0].data = data;
-    votesChart.update();
-  } else {
-    // Criar novo gráfico
-    votesChart = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: labels,
-        datasets: [{
-          label: 'Votos',
-          data: data,
-          backgroundColor: [
-            'rgba(251, 191, 36, 0.85)', // Dourado
-            'rgba(6, 182, 212, 0.85)',  // Cyan
-            'rgba(16, 185, 129, 0.85)', // Verde
-            'rgba(139, 92, 246, 0.85)', // Roxo
-            'rgba(236, 72, 153, 0.85)', // Rosa
-            'rgba(59, 130, 246, 0.85)',  // Azul
-            'rgba(244, 63, 94, 0.85)'   // Vermelho
-          ],
-          borderColor: 'rgba(255, 255, 255, 0.1)',
-          borderWidth: 1,
-          borderRadius: 8
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        indexAxis: 'y', // Gráfico de barras horizontal
-        plugins: {
-          legend: {
-            display: false
-          },
-          tooltip: {
-            backgroundColor: '#111827',
-            titleColor: '#fff',
-            bodyColor: '#cbd5e1',
-            borderColor: 'rgba(255, 255, 255, 0.1)',
-            borderWidth: 1
-          }
-        },
-        scales: {
-          x: {
-            grid: {
-              color: 'rgba(255, 255, 255, 0.05)'
-            },
-            ticks: {
-              color: '#94a3b8',
-              font: { family: 'Inter' },
-              stepSize: 1
-            }
-          },
-          y: {
-            grid: {
-              display: false
-            },
-            ticks: {
-              color: '#f8fafc',
-              font: { family: 'Inter', weight: 'bold' }
-            }
-          }
-        }
-      }
-    });
-  }
-}
-
-// Renderizar o mural de mensagens (filtrando registros sem comentários para destacar as mensagens)
-function renderWallFeed() {
-  const feedItems = allVotes.filter(v => v.comment && v.comment.trim() !== "");
-
-  if (feedItems.length === 0) {
-    wallFeed.innerHTML = '<div class="empty-state">As mensagens de torcida aparecerão aqui. Deixe a sua abaixo!</div>';
-    return;
-  }
-
-  wallFeed.innerHTML = feedItems.map(vote => {
-    const timeFormatted = formatDate(vote.created_at);
     return `
-      <div class="message-card">
-        <div class="message-header">
-          <img src="https://flagcdn.com/w40/${vote.team_code}.png" class="message-avatar" alt="${vote.team_name}" onerror="this.src='https://flagcdn.com/w40/un.png'">
-          <span class="message-user">${escapeHTML(vote.user_name)}</span>
-          <span class="message-team">${vote.team_name}</span>
+      <div class="top-team-item" onclick="toggleVotersDropdown(this)">
+        <div class="top-team-header">
+          <div class="rank-badge rank-${idx + 1}">${idx + 1}</div>
+          <img src="https://flagcdn.com/w80/${team.flag}.png" alt="${team.name}" class="top-team-flag" onerror="this.src='https://flagcdn.com/w80/un.png'">
+          <div class="top-team-name">${team.name}</div>
+          <div class="top-team-votes">${team.votes} ${team.votes === 1 ? 'voto' : 'votos'}</div>
+          <i data-lucide="chevron-down" class="dropdown-icon"></i>
         </div>
-        <div class="message-body">"${escapeHTML(vote.comment)}"</div>
-        <div class="message-time">${timeFormatted}</div>
+        <div class="voters-dropdown">
+          <div class="voters-list">
+            ${votersHTML}
+          </div>
+        </div>
       </div>
     `;
   }).join('');
+
+  // Recriar ícones Lucide nos dropdowns
+  if (typeof lucide !== 'undefined') {
+    lucide.createIcons();
+  }
 }
+
+// Alternar a visualização dos votantes
+window.toggleVotersDropdown = function(element) {
+  element.classList.toggle("active");
+};
 
 // Renderizar Abas dos Grupos
 function renderGroupTabs() {
@@ -493,34 +404,6 @@ function renderTeams(groupName) {
   });
 }
 
-// Contagem regressiva
-function startCountdown(targetDateStr) {
-  const targetDate = new Date(targetDateStr).getTime();
-
-  function updateCountdown() {
-    const now = new Date().getTime();
-    const difference = targetDate - now;
-
-    if (difference <= 0) {
-      document.getElementById("countdown").innerHTML = "A Copa do Mundo de 2026 Começou! ⚽";
-      return;
-    }
-
-    const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((difference % (1000 * 60)) / 1000);
-
-    document.getElementById("cdDays").textContent = String(days).padStart(2, '0');
-    document.getElementById("cdHours").textContent = String(hours).padStart(2, '0');
-    document.getElementById("cdMinutes").textContent = String(minutes).padStart(2, '0');
-    document.getElementById("cdSeconds").textContent = String(seconds).padStart(2, '0');
-  }
-
-  updateCountdown();
-  setInterval(updateCountdown, 1000);
-}
-
 // Configurações do painel do modal
 function setupConfigModal() {
   const btnTrigger = document.getElementById("btnConfigTrigger");
@@ -549,10 +432,6 @@ function setupConfigModal() {
     modal.classList.remove("open");
 
     // Reinicializar conexão
-    if (votesChart) {
-      votesChart.destroy();
-      votesChart = null;
-    }
     initSupabase();
   });
 }
