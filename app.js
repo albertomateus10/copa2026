@@ -1,4 +1,4 @@
-// 🏆 LÓGICA DO FRONTEND - MONITOR DE TORCIDA COPA 2026
+// 🏆 LÓGICA DO FRONTEND - Bolão do Quintal - Copa 2026
 
 // Definição dos grupos oficiais da Copa de 2026 com base nas eliminatórias e grupos definidos
 const COPA_GROUPS = {
