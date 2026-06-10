@@ -653,6 +653,12 @@ h1 {
     height: 18px;
   }
 
+  /* Centraliza o título principal no mobile */
+  .header-title {
+    justify-content: center;
+    text-align: center;
+  }
+
   /* Abas de Grupos — 2 linhas: A-F em cima, G-L embaixo */
   .group-tabs {
     display: grid;
