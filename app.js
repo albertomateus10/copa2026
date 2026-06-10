@@ -157,7 +157,6 @@ function initSupabase() {
     }
     try {
       supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-      showToast("Supabase conectado com sucesso!", "success");
       loadVotesData();
       subscribeToRealtime();
     } catch (e) {
