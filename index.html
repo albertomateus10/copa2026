@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monitor de Torcida - Copa do Mundo 2026</title>
+  <meta name="description" content="Vote no seu país favorito e acompanhe o percentual de torcedores da Copa do Mundo FIFA 2026 em tempo real.">
+  
+  <!-- Estilos e Fontes -->
+  <link rel="stylesheet" href="style.css">
+  
+  <!-- Bibliotecas de Terceiros (CDNs Seguros) -->
+  <!-- Chart.js para gráficos -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+  <!-- Supabase JS Client para o banco em tempo real -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <!-- Lucide Icons para iconografia moderna -->
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.321.0/dist/umd/lucide.min.js" defer></script>
+</head>
+<body>
+
+  <!-- Toast Container para Notificações Dinâmicas -->
+  <div id="toastContainer" style="position: fixed; bottom: 24px; left: 24px; z-index: 1200; display: flex; flex-direction: column; gap: 8px;"></div>
+
+  <!-- Cabeçalho Principal -->
+  <header>
+    <div class="logo-container">
+      <span class="logo-badge">FIFA World Cup 2026</span>
+    </div>
+    <h1>Monitor de Torcidas 🏆</h1>
+    <p class="subtitle">Faça parte da maior torcida digital do planeta! Vote na seleção do seu coração e deixe sua mensagem no mural.</p>
+    
+    <!-- Contagem Regressiva para a Copa -->
+    <div class="countdown-container" id="countdown">
+      <div class="countdown-item">
+        <span class="countdown-number" id="cdDays">00</span> dias
+      </div>
+      <span style="color:var(--text-muted)">•</span>
+      <div class="countdown-item">
+        <span class="countdown-number" id="cdHours">00</span>h
+      </div>
+      <span style="color:var(--text-muted)">•</span>
+      <div class="countdown-item">
+        <span class="countdown-number" id="cdMinutes">00</span>m
+      </div>
+      <span style="color:var(--text-muted)">•</span>
+      <div class="countdown-item">
+        <span class="countdown-number" id="cdSeconds">00</span>s
+      </div>
+    </div>
+  </header>
+
+  <!-- Container de Conteúdo -->
+  <main class="main-container">
+    
+    <!-- Lado Esquerdo: Área de Votação -->
+    <section>
+      <!-- Seção da Votação de Grupos -->
+      <div class="card-panel">
+        <h2 class="card-title">
+          <i data-lucide="compass"></i> Escolha sua Seleção
+        </h2>
+        <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.95rem;">
+          Navegue pelos grupos oficiais da Copa do Mundo de 2026 e selecione o país para quem você vai torcer:
+        </p>
+        
+        <!-- Navegação de Abas de Grupos -->
+        <nav class="group-tabs" id="groupTabs" aria-label="Grupos da Copa"></nav>
+        
+        <!-- Grid de Países do Grupo Selecionado -->
+        <div class="teams-grid" id="teamsGrid">
+          <div class="loader-wrapper">
+            <div class="spinner"></div>
+          </div>
+        </div>
+
+        <!-- Formulário para Voto -->
+        <div class="vote-form">
+          <div id="selectedTeamDisplay" style="font-size: 0.95rem; font-weight: 600; color: var(--text-secondary);">
+            <i data-lucide="info" style="width:16px; height:16px; display:inline-block; vertical-align:middle; margin-right:4px;"></i> Selecione um país no painel acima para habilitar o voto.
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="voterName">Seu Nome / Nick</label>
+              <input type="text" id="voterName" class="input-style" placeholder="Ex: Torcedor Fanático" maxlength="30">
+            </div>
+            <div class="form-group">
+              <label for="voterComment">Sua Mensagem de Apoio (Opcional)</label>
+              <input type="text" id="voterComment" class="input-style" placeholder="Ex: Vamos buscar o Hexa! ⚽🔥" maxlength="100">
+            </div>
+          </div>
+          
+          <button id="btnVote" class="btn-vote" disabled>
+            <i data-lucide="award"></i> Confirmar Meu Voto
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Lado Direito: Gráficos e Mural -->
+    <aside>
+      <!-- Estatísticas e Gráfico -->
+      <div class="card-panel">
+        <h2 class="card-title">
+          <i data-lucide="bar-chart-3"></i> Top Torcidas
+        </h2>
+        <p style="color: var(--text-secondary); margin-bottom: 1rem; font-size: 0.88rem;">
+          Total de votos computados: <strong id="totalVotesCount" style="color: var(--primary)">0</strong>
+        </p>
+        
+        <!-- Gráfico do Chart.js -->
+        <div class="chart-container">
+          <canvas id="votesChart"></canvas>
+        </div>
+
+        <!-- Lista Detalhada Top 5 -->
+        <div class="top-teams-list" id="topTeamsList">
+          <div class="loader-wrapper">
+            <div class="spinner"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mural da Copa -->
+      <div class="card-panel">
+        <h2 class="card-title">
+          <i data-lucide="messages-square"></i> Voz da Torcida
+        </h2>
+        <div class="wall-feed" id="wallFeed">
+          <div class="loader-wrapper">
+            <div class="spinner"></div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+  </main>
+
+  <!-- Botão Flutuante de Configurações -->
+  <button id="btnConfigTrigger" class="config-btn-trigger" title="Configurar Conexão do Supabase" aria-haspopup="dialog">
+    <i data-lucide="settings"></i>
+  </button>
+
+  <!-- Modal de Configuração de Chaves (Supabase) -->
+  <div id="configModal" class="config-modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="config-content">
+      <div class="config-header">
+        <h2 id="modalTitle" style="font-family:'Outfit'; font-size:1.4rem;"><i data-lucide="database" style="color:var(--primary); vertical-align:middle; margin-right:8px;"></i> Configurar Supabase</h2>
+        <button id="btnConfigClose" class="config-close" aria-label="Fechar">&times;</button>
+      </div>
+      <p style="color: var(--text-secondary); font-size:0.9rem; margin-bottom:1.5rem; line-height:1.4;">
+        Para salvar os votos na nuvem e atualizar a tela em tempo real, crie um projeto no Supabase, crie a tabela rodando o script <code>setup.sql</code> no seu SQL Editor e insira suas credenciais abaixo:
+      </p>
+      
+      <div class="form-group" style="margin-bottom:1rem;">
+        <label for="inputSupaUrl">Supabase URL</label>
+        <input type="text" id="inputSupaUrl" class="input-style" placeholder="https://xxxxxx.supabase.co">
+      </div>
+      <div class="form-group" style="margin-bottom:1.5rem;">
+        <label for="inputSupaKey">Supabase Anon Key</label>
+        <input type="password" id="inputSupaKey" class="input-style" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
+      </div>
+      
+      <button id="btnSaveConfig" class="btn-vote" style="width:100%;">
+        <i data-lucide="check-circle-2"></i> Salvar e Conectar
+      </button>
+    </div>
+  </div>
+
+  <!-- Rodapé -->
+  <footer style="text-align: center; padding: 2rem; color: var(--text-muted); font-size: 0.85rem; border-top: 1px solid var(--border-card); background: #070a11;">
+    <p>Monitor de Torcida Oficial 2026 - Desenvolvido para a comunidade do GitHub. Criado com ❤️ e código em tempo real.</p>
+  </footer>
+
+  <!-- Carrega a lógica principal do app -->
+  <script src="app.js" defer></script>
+</body>
+</html>
