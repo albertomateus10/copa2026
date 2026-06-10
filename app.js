@@ -254,8 +254,12 @@ async function handleVoteSubmit() {
       console.error(err);
       showToast("Falha ao registrar voto no Supabase.", "error");
     } finally {
-      btnVote.disabled = false;
+      btnVote.disabled = true;
       btnVote.innerHTML = '<i data-lucide="award"></i> Confirmar Meu Voto';
+      selectedTeam = null;
+      voterNameInput.value = '';
+      document.querySelectorAll('.team-card').forEach(c => c.classList.remove('selected'));
+      selectedTeamDisplay.innerHTML = `<i data-lucide="info" style="width:16px; height:16px; display:inline-block; vertical-align:middle; margin-right:4px;"></i> Após clicar na sua seleção, digite abaixo o seu nome e sobrenome e confirme seu voto.`;
       if (typeof lucide !== 'undefined') lucide.createIcons();
     }
   } else {
@@ -264,9 +268,13 @@ async function handleVoteSubmit() {
     allVotes.unshift(newVote);
     updateUI();
     showToast("Voto computado no modo demonstração!", "success");
-    
-    btnVote.disabled = false;
+
+    btnVote.disabled = true;
     btnVote.innerHTML = '<i data-lucide="award"></i> Confirmar Meu Voto';
+    selectedTeam = null;
+    voterNameInput.value = '';
+    document.querySelectorAll('.team-card').forEach(c => c.classList.remove('selected'));
+    selectedTeamDisplay.innerHTML = `<i data-lucide="info" style="width:16px; height:16px; display:inline-block; vertical-align:middle; margin-right:4px;"></i> Após clicar na sua seleção, digite abaixo o seu nome e sobrenome e confirme seu voto.`;
     if (typeof lucide !== 'undefined') lucide.createIcons();
   }
 }
@@ -398,13 +406,17 @@ function renderTeams(groupName) {
         flag: card.dataset.flag
       };
       
-      // Habilitar display
+      // Manter instrução visível e adicionar seleção abaixo
       selectedTeamDisplay.innerHTML = `
-        <div style="display:flex; align-items:center; gap:8px;">
+        <div style="font-size: 0.95rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px;">
+          <i data-lucide="info" style="width:16px; height:16px; display:inline-block; vertical-align:middle; margin-right:4px;"></i> Após clicar na sua seleção, digite abaixo o seu nome e sobrenome e confirme seu voto.
+        </div>
+        <div style="display:flex; align-items:center; gap:8px; margin-top:4px;">
           <img src="https://flagcdn.com/w80/${selectedTeam.flag}.png" style="width:24px; height:18px; border-radius:2px; object-fit:cover; border:1px solid rgba(255,255,255,0.1)">
           Torcendo para: <strong style="color:var(--primary); margin-left:4px;">${selectedTeam.name}</strong>
         </div>
       `;
+      if (typeof lucide !== 'undefined') lucide.createIcons();
       btnVote.disabled = false;
     });
   });
