@@ -129,15 +129,21 @@ if (document.readyState !== 'loading') {
 
 // Carregar chaves do local storage ou definir valores padrão fictícios se estiver testando sem banco
 function loadSavedConfig() {
-  const savedUrl = localStorage.getItem("supabase_url");
-  const savedKey = localStorage.getItem("supabase_anon_key");
+  try {
+    const savedUrl = localStorage.getItem("supabase_url");
+    const savedKey = localStorage.getItem("supabase_anon_key");
 
-  if (savedUrl) SUPABASE_URL = savedUrl;
-  if (savedKey) SUPABASE_ANON_KEY = savedKey;
+    if (savedUrl) SUPABASE_URL = savedUrl;
+    if (savedKey) SUPABASE_ANON_KEY = savedKey;
+  } catch (e) {
+    console.warn("Não foi possível ler chaves do localStorage:", e);
+  }
 
-  // Atualizar inputs no modal de configurações
-  document.getElementById("inputSupaUrl").value = SUPABASE_URL;
-  document.getElementById("inputSupaKey").value = SUPABASE_ANON_KEY;
+  // Atualizar inputs no modal de configurações com segurança
+  const inputUrl = document.getElementById("inputSupaUrl");
+  const inputKey = document.getElementById("inputSupaKey");
+  if (inputUrl) inputUrl.value = SUPABASE_URL;
+  if (inputKey) inputKey.value = SUPABASE_ANON_KEY;
 }
 
 // Inicializar o Cliente Supabase
@@ -194,8 +200,9 @@ async function loadVotesData() {
     allVotes = data || [];
     updateUI();
   } catch (err) {
-    console.error("Erro ao carregar dados:", err);
-    showToast("Erro ao carregar os dados de votos do Supabase.", "error");
+    console.error("Erro ao carregar dados do Supabase. Usando dados locais como fallback:", err);
+    showToast("Erro ao carregar dados do Supabase. Carregando dados locais.", "warning");
+    initMockData();
   }
 }
 
@@ -423,8 +430,12 @@ function setupConfigModal() {
     const urlVal = document.getElementById("inputSupaUrl").value.trim();
     const keyVal = document.getElementById("inputSupaKey").value.trim();
 
-    localStorage.setItem("supabase_url", urlVal);
-    localStorage.setItem("supabase_anon_key", keyVal);
+    try {
+      localStorage.setItem("supabase_url", urlVal);
+      localStorage.setItem("supabase_anon_key", keyVal);
+    } catch (e) {
+      console.warn("Não foi possível salvar chaves no localStorage:", e);
+    }
 
     SUPABASE_URL = urlVal;
     SUPABASE_ANON_KEY = keyVal;

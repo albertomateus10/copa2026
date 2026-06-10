@@ -6,14 +6,46 @@
   <title>Monitor de Torcida - Copa do Mundo 2026</title>
   <meta name="description" content="Vote no seu país favorito e acompanhe o percentual de torcedores da Copa do Mundo FIFA 2026 em tempo real.">
   
+  <!-- Capturador de Erros de Rede/Script para diagnóstico -->
+  <script>
+    window.addEventListener('error', function(e) {
+      // Ignorar erros sem mensagem útil que ocorrem de extensões do navegador
+      if (e.message && e.message.includes('ResizeObserver')) return;
+      
+      const msg = e.message || 'Erro de carregamento de recurso/CDN (Verifique sua conexão com a internet)';
+      const file = e.filename || (e.target && e.target.src) || (e.target && e.target.href) || 'desconhecido';
+      
+      // Se for apenas uma falha de carregamento de recurso externo (ex: script CDN)
+      const isResource = !e.message;
+      const displayMsg = isResource 
+        ? 'Falha ao carregar arquivo de script externo. Certifique-se de que está conectado à internet ou que CDNs não estão bloqueados.' 
+        : msg;
+      
+      const errDiv = document.createElement('div');
+      errDiv.style.position = 'fixed';
+      errDiv.style.top = '0';
+      errDiv.style.left = '0';
+      errDiv.style.width = '100%';
+      errDiv.style.background = '#e63946';
+      errDiv.style.color = 'white';
+      errDiv.style.padding = '12px';
+      errDiv.style.zIndex = '10000';
+      errDiv.style.fontFamily = 'sans-serif';
+      errDiv.style.fontSize = '13px';
+      errDiv.style.boxShadow = '0 2px 10px rgba(0,0,0,0.5)';
+      errDiv.innerHTML = '⚠️ <strong>Erro detectado:</strong> ' + displayMsg + ' <br><small style="opacity:0.8">Origem: ' + file + '</small>';
+      document.body.appendChild(errDiv);
+    }, true);
+  </script>
+  
   <!-- Estilos e Fontes -->
   <link rel="stylesheet" href="style.css">
   
 
-  <!-- Supabase JS Client para o banco em tempo real -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
-  <!-- Lucide Icons para iconografia moderna -->
-  <script src="https://cdn.jsdelivr.net/npm/lucide@0.321.0/dist/umd/lucide.min.js" defer></script>
+  <!-- Supabase JS Client para o banco em tempo real (Carregamento Local) -->
+  <script src="supabase.js" defer></script>
+  <!-- Lucide Icons para iconografia moderna (Carregamento Local) -->
+  <script src="lucide.min.js" defer></script>
 </head>
 <body>
 
