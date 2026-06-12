@@ -152,7 +152,7 @@ function initApp() {
       voteForm.innerHTML = `
         <div class="votation-closed-container" style="display: flex; flex-direction: column; align-items: center; gap: 0.75rem; width: 100%;">
           <div style="font-size: 1.05rem; font-weight: 700; color: #f87171; display: flex; align-items: center; gap: 8px; justify-content: center; font-family: 'Outfit', sans-serif; padding: 0.25rem 0;">
-            <i data-lucide="lock" style="width: 20px; height: 20px;"></i> A votação está oficialmente encerrada!
+            <i data-lucide="lock" style="width: 20px; height: 20px;"></i> A votação está oficialmente encerrada, quem votou votou, quem não votou, não vota mais!
           </div>
           <div class="closed-photo-wrapper" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; width: 100%; padding: 0.75rem; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); max-height: 300px; overflow: hidden;">
             <img src="fotofez.png" alt="Votação Encerrada" style="max-height: 280px; width: auto; max-width: 100%; display: block; object-fit: contain;">
