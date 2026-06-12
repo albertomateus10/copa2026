@@ -1,5 +1,8 @@
 // 🏆 LÓGICA DO FRONTEND - Bolão do Quintal - Copa 2026
 
+// Configuração de travamento da votação
+const VOTING_CLOSED = true; // Defina como true para encerrar a votação e travar o botão
+
 // Definição dos grupos oficiais da Copa de 2026 com base nas eliminatórias e grupos definidos
 const COPA_GROUPS = {
   "Grupo A": [
@@ -122,6 +125,13 @@ function initApp() {
 
   // Monitorar campos de nome/sobrenome para habilitar/desabilitar botão
   function checkVoteButtonState() {
+    if (VOTING_CLOSED) {
+      if (btnVote) {
+        btnVote.disabled = true;
+        btnVote.innerHTML = '<i data-lucide="lock"></i> Votação Encerrada';
+      }
+      return;
+    }
     const firstName = voterFirstNameInput ? voterFirstNameInput.value.trim() : '';
     const lastName = voterLastNameInput ? voterLastNameInput.value.trim() : '';
     if (btnVote && selectedTeam) {
@@ -134,6 +144,27 @@ function initApp() {
 
   // Expor para uso externo
   window._checkVoteButtonState = checkVoteButtonState;
+
+  // Se a votação estiver fechada, aplicar substituição do layout de voto pelo aviso e a foto
+  if (VOTING_CLOSED) {
+    const voteForm = document.querySelector(".vote-form");
+    if (voteForm) {
+      voteForm.innerHTML = `
+        <div class="votation-closed-container" style="display: flex; flex-direction: column; align-items: center; gap: 0.75rem; width: 100%;">
+          <div style="font-size: 1.05rem; font-weight: 700; color: #f87171; display: flex; align-items: center; gap: 8px; justify-content: center; font-family: 'Outfit', sans-serif; padding: 0.25rem 0;">
+            <i data-lucide="lock" style="width: 20px; height: 20px;"></i> Quem votou votou, quem não votou, não vota mais!
+          </div>
+          <div class="closed-photo-wrapper" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; width: 100%; padding: 0.75rem; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); max-height: 300px; overflow: hidden;">
+            <img src="fotofez.png" alt="Votação Encerrada" style="max-height: 280px; width: auto; max-width: 100%; display: block; object-fit: contain;">
+          </div>
+        </div>
+      `;
+      // Recriar os ícones Lucide no novo conteúdo inserido
+      if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+      }
+    }
+  }
 }
 
 // Executar imediatamente se o DOM já estiver carregado, ou registrar evento
@@ -242,6 +273,11 @@ function subscribeToRealtime() {
 
 // Submeter o voto do usuário
 async function handleVoteSubmit() {
+  if (VOTING_CLOSED) {
+    showToast("A votação do bolão está encerrada!", "error");
+    return;
+  }
+
   if (!selectedTeam) {
     showToast("Selecione um país primeiro!", "error");
     return;
@@ -424,6 +460,10 @@ function renderTeams(groupName) {
   // Evento de seleção do card de país
   document.querySelectorAll(".team-card").forEach(card => {
     card.addEventListener("click", () => {
+      if (VOTING_CLOSED) {
+        showToast("A votação está encerrada! Não é possível votar.", "warning");
+        return;
+      }
       document.querySelectorAll(".team-card").forEach(c => c.classList.remove("selected"));
       card.classList.add("selected");
       
