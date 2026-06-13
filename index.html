@@ -123,13 +123,37 @@
 
     .header-sub {
       color: var(--text-secondary);
-      font-size: 0.95rem;
-      font-weight: 400;
+      font-size: 1.15rem;
+      font-weight: 500;
     }
 
-    .header-sub span {
+    .header-title-text {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .header-meta {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      font-weight: 400;
+      margin-left: 6px;
+    }
+
+    .header-meta i {
+      font-style: italic;
+    }
+
+    .header-meta i:first-of-type {
       color: var(--gold);
       font-weight: 600;
+    }
+
+    .timer-style {
+      color: var(--primary);
+      font-weight: 700;
+      font-family: 'Outfit', sans-serif;
+      font-style: italic;
     }
 
     /* ===== INFO CARDS ===== */
@@ -153,7 +177,6 @@
     }
 
     .info-card:hover {
-      transform: translateY(-2px);
       border-color: var(--border-glow);
     }
 
@@ -176,7 +199,7 @@
 
     .info-card .label {
       font-size: 0.65rem;
-      color: var(--text-muted);
+      color: var(--text-secondary);
       text-transform: uppercase;
       letter-spacing: 0.05em;
       margin-top: 1px;
@@ -278,7 +301,6 @@
     }
 
     .info-card.premio-card:hover {
-      transform: scale(1.02) translateY(-2px);
       box-shadow: 0 6px 15px rgba(133, 187, 101, 0.25), inset 0 1px 3px rgba(255,255,255,0.3);
     }
 
@@ -377,7 +399,6 @@
     .ranking-item:hover {
       background: rgba(255,255,255,0.06);
       border-color: var(--border);
-      transform: translateX(4px);
     }
 
     .ranking-item:hover::before { opacity: 1; }
@@ -810,7 +831,7 @@
       border-radius: 6px;
       padding: 6px 10px;
       font-size: 0.72rem;
-      color: var(--text-secondary);
+      color: #cbd5e1;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -1003,6 +1024,32 @@
       font-weight: 500;
     }
 
+    /* ===== COLLAPSIBLE CARDS ===== */
+    .card-chevron {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      transition: transform 0.25s ease;
+      display: inline-block;
+      transform: rotate(180deg);
+    }
+
+    .card.collapsed .card-chevron {
+      transform: rotate(0deg);
+    }
+
+    .card-body-collapse {
+      max-height: 2000px;
+      overflow: hidden;
+      transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+      opacity: 1;
+    }
+
+    .card.collapsed .card-body-collapse {
+      max-height: 0;
+      opacity: 0;
+      pointer-events: none;
+    }
+
     /* Mobile-first enhancements for smartphone screen widths */
     @media (max-width: 520px) {
       .page-wrapper {
@@ -1022,7 +1069,7 @@
         padding: 0.5rem 0.75rem;
         gap: 8px;
       }
-      .info-card:nth-child(3) {
+      .info-card.premio-card {
         grid-column: span 2;
       }
       .info-card .value {
@@ -1158,11 +1205,23 @@
 
   <!-- Header -->
   <div class="header">
-    <p class="header-sub">Bolão da Turma do Quintal · <span>realtime</span> · <span id="updateTimer" style="color: var(--primary); font-weight: 700; font-family: 'Outfit', sans-serif; font-size: 0.82rem; margin-left: 4px;">—</span></p>
+    <p class="header-sub">
+      <span class="header-title-text">Bolão da Turma do Quintal</span>
+      <span class="header-meta">
+        (<i>realtime</i> · <i id="updateTimer" class="timer-style">—</i>)
+      </span>
+    </p>
   </div>
 
   <!-- Info Cards -->
   <div class="info-grid">
+    <div class="info-card premio-card">
+      <span class="decor-right">🏛️</span>
+      <div class="kpi-text">
+        <div class="value" id="premioValor">—</div>
+        <div class="label" id="premioLider">Premiação Parcial</div>
+      </div>
+    </div>
     <div class="info-card">
       <div class="icon">⚽</div>
       <div class="kpi-text">
@@ -1175,13 +1234,6 @@
       <div class="kpi-text">
         <div class="value" id="jogosRestantes">—</div>
         <div class="label">Jogos que Faltam</div>
-      </div>
-    </div>
-    <div class="info-card premio-card">
-      <span class="decor-right">🏛️</span>
-      <div class="kpi-text">
-        <div class="value" id="premioValor">—</div>
-        <div class="label" id="premioLider">Premiação Parcial</div>
       </div>
     </div>
   </div>
@@ -1212,43 +1264,54 @@
   <div class="main-layout">
 
     <!-- Ranking List (left) -->
-    <div class="card">
-      <div class="card-header">
+    <div class="card collapsed" id="rankingCard">
+      <div class="card-header" onclick="toggleCard('rankingCard')" style="cursor: pointer;">
         <div class="card-title">
           <span class="icon">🥇</span> Ranking Parcial
         </div>
-        <button class="refresh-btn" id="refreshBtn" onclick="refreshData()" style="display: none;">
-          <span class="refresh-icon" id="refreshIcon">↻</span> Atualizar
-        </button>
+        <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+          <button class="refresh-btn" id="refreshBtn" onclick="refreshData(event)" style="display: none;">
+            <span class="refresh-icon" id="refreshIcon">↻</span> Atualizar
+          </button>
+          <span class="card-chevron">▼</span>
+        </div>
       </div>
-      <div class="ranking-list" id="rankingList">
-        <div class="empty-state">Carregando dados da Copa...</div>
+      <div class="card-body-collapse">
+        <div class="ranking-list" id="rankingList">
+          <div class="empty-state">Carregando dados da Copa...</div>
+        </div>
+        <div class="last-update" id="lastUpdate">—</div>
       </div>
-      <div class="last-update" id="lastUpdate">—</div>
     </div>
 
     <!-- Right column -->
     <div class="chart-section">
 
       <!-- Chart Card -->
-      <div class="card">
-        <div class="card-header">
+      <div class="card collapsed" id="chartCard">
+        <div class="card-header" onclick="toggleCard('chartCard')" style="cursor: pointer;">
           <div class="card-title"><span class="icon">📊</span> Desempenho das votadas</div>
+          <span class="card-chevron">▼</span>
         </div>
-        <div class="chart-wrap">
-          <div class="chart-bars" id="chartBars">
-            <div class="empty-state">Carregando...</div>
+        <div class="card-body-collapse">
+          <div class="chart-wrap">
+            <div class="chart-bars" id="chartBars">
+              <div class="empty-state">Carregando...</div>
+            </div>
           </div>
         </div>
       </div>
 
       <!-- Seleções Mais Votadas -->
-      <div class="card">
-        <div class="card-header">
+      <div class="card collapsed" id="mostVotedCard">
+        <div class="card-header" onclick="toggleCard('mostVotedCard')" style="cursor: pointer;">
           <div class="card-title"><span class="icon">🗳️</span> Seleções Mais Votadas</div>
+          <span class="card-chevron">▼</span>
         </div>
-        <div class="most-voted-list" id="mostVotedList">
-          <div class="empty-state">Carregando...</div>
+        <div class="card-body-collapse">
+          <div class="most-voted-list" id="mostVotedList">
+            <div class="empty-state">Carregando...</div>
+          </div>
         </div>
       </div>
 
@@ -1658,7 +1721,13 @@
   }
 
   window.changeGamesStage = function(stage) {
-    renderGamesForStage(stage);
+    const gamesCard = document.getElementById('gamesCard');
+    const isCurrentlyOpen = gamesCard && gamesCard.style.display !== 'none';
+    if (currentSelectedStage === stage && isCurrentlyOpen) {
+      renderGamesForStage(null);
+    } else {
+      renderGamesForStage(stage);
+    }
   };
 
   // =========================================================
@@ -1772,7 +1841,8 @@
   // =========================================================
   // REFRESH
   // =========================================================
-  async function refreshData() {
+  async function refreshData(e) {
+    if (e) e.stopPropagation();
     const btn = document.getElementById('refreshBtn');
     const icon = document.getElementById('refreshIcon');
     btn.classList.add('spinning');
@@ -1824,6 +1894,11 @@
   document.addEventListener('DOMContentLoaded', () => {
     refreshData();
   });
+
+  window.toggleCard = function(cardId) {
+    const card = document.getElementById(cardId);
+    if (card) card.classList.toggle('collapsed');
+  };
 </script>
 
 </body>
