@@ -3,135 +3,1828 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bolão da Copa - Amigos do Quintal</title>
-  <meta name="description" content="Vamos participar tigrada">
+  <title>🏆 Ranking do Bolão - Copa 2026</title>
+  <meta name="description" content="Bolão da turma do Quintal - Copa do Mundo 2026">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-  <!-- Open Graph - Preview no WhatsApp, redes sociais, etc. -->
-  <meta property="og:title" content="Bolão da Copa - Amigos do Quintal">
-  <meta property="og:description" content="Vamos participar tigrada">
-  <meta property="og:type" content="website">
-  
+  <style>
+    :root {
+      --bg-base: #0a0e1a;
+      --bg-card: #111827;
+      --bg-card2: #1a2235;
+      --bg-glass: rgba(255,255,255,0.04);
+      --border: rgba(255,255,255,0.08);
+      --border-glow: rgba(99,102,241,0.3);
+      --primary: #6366f1;
+      --primary-glow: rgba(99,102,241,0.25);
+      --gold: #f59e0b;
+      --gold-glow: rgba(245,158,11,0.3);
+      --silver: #94a3b8;
+      --bronze: #cd7c4b;
+      --text: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #475569;
+      --green: #10b981;
+      --green-glow: rgba(16,185,129,0.2);
+      --red: #ef4444;
+      --yellow: #eab308;
+    }
 
-  <!-- Estilos e Fontes -->
-  <link rel="stylesheet" href="style.css">
-  
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
-  <!-- Supabase JS Client para o banco em tempo real (Carregamento Local) -->
-  <script src="supabase.js" defer></script>
-  <!-- Lucide Icons para iconografia moderna (Carregamento Local) -->
-  <script src="lucide.min.js" defer></script>
+    body {
+      background: var(--bg-base);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Animated background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: 
+        radial-gradient(ellipse at 20% 20%, rgba(99,102,241,0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(245,158,11,0.05) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(16,185,129,0.04) 0%, transparent 60%);
+      animation: bgPulse 8s ease-in-out infinite alternate;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    @keyframes bgPulse {
+      0% { transform: scale(1) rotate(0deg); }
+      100% { transform: scale(1.05) rotate(1deg); }
+    }
+
+    .page-wrapper {
+      position: relative;
+      z-index: 1;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+    }
+
+    /* ===== HEADER ===== */
+    .header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+      position: relative;
+    }
+
+    .header-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(245,158,11,0.12);
+      border: 1px solid rgba(245,158,11,0.3);
+      border-radius: 50px;
+      padding: 6px 16px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--gold);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--green);
+      border-radius: 50%;
+      animation: livePulse 1.5s ease-in-out infinite;
+      box-shadow: 0 0 6px var(--green);
+    }
+
+    @keyframes livePulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(0.8); }
+    }
+
+    .header h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 900;
+      background: linear-gradient(135deg, #f59e0b 0%, #f1f5f9 40%, #6366f1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.1;
+      margin-bottom: 0.5rem;
+    }
+
+    .header-sub {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      font-weight: 400;
+    }
+
+    .header-sub span {
+      color: var(--gold);
+      font-weight: 600;
+    }
+
+    /* ===== INFO CARDS ===== */
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 0.6rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .info-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.65rem 1rem;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .info-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--border-glow);
+    }
+
+    .info-card .icon {
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+
+    .info-card .kpi-text {
+      text-align: left;
+    }
+
+    .info-card .value {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--primary);
+      line-height: 1.1;
+    }
+
+    .info-card .label {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-top: 1px;
+    }
+
+    .info-card.premio-card {
+      position: relative;
+      background: radial-gradient(circle, #e2ebd9 0%, #cbd9c0 100%) !important;
+      border: 3px solid #2d3748 !important;
+      border-radius: 999px !important;
+      padding: 0.35rem 2rem !important;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 68px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4), inset 0 1px 3px rgba(255,255,255,0.2);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Borda interna dourada ornamental */
+    .info-card.premio-card::before {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      right: 3px;
+      bottom: 3px;
+      border: 1px solid #a88a38;
+      outline: 1px solid #a88a38;
+      outline-offset: -2px;
+      border-radius: 999px;
+      pointer-events: none;
+      opacity: 0.85;
+      z-index: 0;
+    }
+
+    /* Cifrão decorativo à esquerda */
+    .info-card.premio-card::after {
+      content: '$';
+      position: absolute;
+      left: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: 'Georgia', serif;
+      font-size: 2.2rem;
+      font-weight: bold;
+      color: #3b5336;
+      opacity: 0.12;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Ícone decorativo de banco/capitólio à direita */
+    .info-card.premio-card .decor-right {
+      position: absolute;
+      right: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1.4rem;
+      color: #3b5336;
+      opacity: 0.12;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .info-card.premio-card .kpi-text {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      z-index: 1;
+    }
+
+    .info-card.premio-card .value {
+      font-family: 'Outfit', 'Georgia', serif;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #3b5437 !important; /* Verde dólar escuro */
+      text-shadow: 1px 1px 0px rgba(255,255,255,0.4);
+      letter-spacing: -0.01em;
+      line-height: 1.1;
+      margin-bottom: 1px;
+    }
+
+    .info-card.premio-card .label {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.62rem !important;
+      font-weight: 700;
+      color: #2b3a27 !important;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .info-card.premio-card:hover {
+      transform: scale(1.02) translateY(-2px);
+      box-shadow: 0 6px 15px rgba(133, 187, 101, 0.25), inset 0 1px 3px rgba(255,255,255,0.3);
+    }
+
+    /* ===== MAIN LAYOUT ===== */
+    .main-layout {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 1.5rem;
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      .main-layout { grid-template-columns: 1fr; }
+    }
+
+    /* ===== RANKING CARD ===== */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .card-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-title .icon { font-size: 1.2rem; }
+
+    .refresh-btn {
+      background: rgba(99,102,241,0.15);
+      border: 1px solid rgba(99,102,241,0.3);
+      color: var(--primary);
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .refresh-btn:hover {
+      background: rgba(99,102,241,0.25);
+      transform: scale(1.03);
+    }
+
+    .refresh-icon { transition: transform 0.6s ease; }
+    .refresh-btn.spinning .refresh-icon { transform: rotate(360deg); }
+
+    /* ===== RANKING LIST ===== */
+    .ranking-list {
+      padding: 1rem;
+    }
+
+    .ranking-item {
+      display: grid;
+      grid-template-columns: 40px 36px auto 1fr auto;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 12px;
+      border-radius: 14px;
+      margin-bottom: 8px;
+      background: var(--bg-glass);
+      border: 1px solid transparent;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .ranking-item::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, var(--item-glow, transparent));
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .ranking-item:hover {
+      background: rgba(255,255,255,0.06);
+      border-color: var(--border);
+      transform: translateX(4px);
+    }
+
+    .ranking-item:hover::before { opacity: 1; }
+
+    .ranking-item.rank-1 {
+      background: linear-gradient(135deg, rgba(245,158,11,0.12), rgba(245,158,11,0.04));
+      border-color: rgba(245,158,11,0.2);
+      --item-glow: rgba(245,158,11,0.1);
+    }
+
+    .ranking-item.rank-2 {
+      background: linear-gradient(135deg, rgba(148,163,184,0.1), rgba(148,163,184,0.03));
+      border-color: rgba(148,163,184,0.15);
+      --item-glow: rgba(148,163,184,0.1);
+    }
+
+    .ranking-item.rank-3 {
+      background: linear-gradient(135deg, rgba(205,124,75,0.1), rgba(205,124,75,0.03));
+      border-color: rgba(205,124,75,0.15);
+      --item-glow: rgba(205,124,75,0.1);
+    }
+
+    .rank-badge {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    .rank-badge.r1 { background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; box-shadow: 0 4px 12px rgba(245,158,11,0.4); }
+    .rank-badge.r2 { background: linear-gradient(135deg, #94a3b8, #64748b); color: #fff; box-shadow: 0 4px 12px rgba(148,163,184,0.3); }
+    .rank-badge.r3 { background: linear-gradient(135deg, #cd7c4b, #a05a30); color: #fff; box-shadow: 0 4px 12px rgba(205,124,75,0.3); }
+    .rank-badge.rN { background: rgba(255,255,255,0.07); color: var(--text-muted); border: 1px solid var(--border); }
+
+    .flag-img {
+      width: 36px;
+      height: 26px;
+      object-fit: cover;
+      border-radius: 5px;
+      border: 1px solid rgba(255,255,255,0.1);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      flex-shrink: 0;
+    }
+
+    .item-info { min-width: 0; }
+
+    .item-name {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .item-team {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 2px;
+    }
+
+    .item-team .wins-badge {
+      background: rgba(16,185,129,0.15);
+      color: var(--green);
+      border: 1px solid rgba(16,185,129,0.2);
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-size: 0.68rem;
+      font-weight: 600;
+    }
+
+    .item-team .eliminated-badge {
+      background: rgba(239,68,68,0.12);
+      color: var(--red);
+      border: 1px solid rgba(239,68,68,0.2);
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-size: 0.68rem;
+      font-weight: 600;
+    }
+
+    /* Progress bar */
+    .progress-col {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .progress-bar-wrap {
+      background: rgba(255,255,255,0.06);
+      border-radius: 50px;
+      height: 8px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: 50px;
+      transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+    }
+
+    .progress-bar-fill::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 20px;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4));
+      border-radius: 50px;
+      animation: shimmer 2s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { opacity: 0; }
+      50% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    .progress-pct {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: 1.05rem;
+      text-align: right;
+      flex-shrink: 0;
+      min-width: 52px;
+    }
+
+    /* ===== CHART CARD ===== */
+    .chart-section {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .chart-wrap {
+      padding: 1.5rem;
+      position: relative;
+      min-height: 320px;
+    }
+
+    .chart-bars {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .chart-bar-row {
+      display: grid;
+      grid-template-columns: 110px 1fr 58px;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .chart-bar-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-align: right;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      justify-content: flex-end;
+    }
+
+    .chart-bar-label img {
+      width: 22px;
+      height: 16px;
+      object-fit: cover;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+
+    .chart-bar-outer {
+      background: rgba(255,255,255,0.05);
+      border-radius: 50px;
+      height: 22px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .chart-bar-inner {
+      height: 100%;
+      border-radius: 50px;
+      transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 8px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: rgba(255,255,255,0.9);
+    }
+
+    .chart-bar-pct {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    /* ===== RECENT RESULTS ===== */
+    .results-list {
+      padding: 0.75rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .result-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      background: var(--bg-glass);
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      font-size: 0.82rem;
+    }
+
+    .result-teams {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 600;
+    }
+
+    .result-teams img {
+      width: 22px;
+      height: 16px;
+      object-fit: cover;
+      border-radius: 3px;
+    }
+
+    .score-badge {
+      background: rgba(99,102,241,0.2);
+      color: var(--primary);
+      border: 1px solid rgba(99,102,241,0.3);
+      border-radius: 6px;
+      padding: 3px 10px;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: 0.9rem;
+      letter-spacing: 2px;
+    }
+
+    .result-status {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.73rem;
+      color: var(--text-muted);
+    }
+
+    .status-dot-green {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 5px var(--green);
+    }
+
+    /* ===== VOTERS POPUP ===== */
+    .voters-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(8px);
+      z-index: 100;
+      place-items: center;
+    }
+
+    .voters-modal.open {
+      display: grid;
+      animation: fadeIn 0.2s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .voters-content {
+      background: var(--bg-card);
+      border: 1px solid var(--border-glow);
+      border-radius: 20px;
+      padding: 2rem;
+      max-width: 400px;
+      width: 90%;
+      animation: slideUp 0.25s ease;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .voters-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 800;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .voter-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      padding: 6px 12px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      margin: 4px;
+    }
+
+    .voter-chip .avatar {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), #a855f7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .close-btn {
+      margin-top: 1.5rem;
+      width: 100%;
+      background: rgba(99,102,241,0.15);
+      border: 1px solid rgba(99,102,241,0.3);
+      color: var(--primary);
+      border-radius: 10px;
+      padding: 10px;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .close-btn:hover {
+      background: rgba(99,102,241,0.25);
+    }
+
+    /* ===== LAST UPDATE ===== */
+    .last-update {
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      padding: 0.75rem;
+    }
+
+    /* ===== FOOTER LINK ===== */
+    .footer-link {
+      text-align: center;
+      margin-top: 2rem;
+      padding: 1rem;
+    }
+
+    .footer-link a {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.85rem;
+      transition: color 0.2s;
+    }
+
+    .footer-link a:hover { color: var(--primary); }
+
+    /* ===== LOADING STATE ===== */
+    .skeleton {
+      background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%);
+      background-size: 200% 100%;
+      animation: skeleton 1.5s infinite;
+      border-radius: 8px;
+    }
+
+    @keyframes skeleton {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* ===== CROWN ANIMATION ===== */
+    .crown-spin {
+      display: inline-block;
+      animation: crownspin 4s ease-in-out infinite;
+    }
+
+    @keyframes crownspin {
+      0%, 100% { transform: rotate(-5deg) scale(1); }
+      50% { transform: rotate(5deg) scale(1.1); }
+    }
+
+    /* ===== COPA STAGE INFO ===== */
+    .stage-info {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+    }
+
+    .stage-chip {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      flex: 1 1 140px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .stage-chip:hover {
+      background: rgba(255,255,255,0.08);
+      color: var(--text);
+      border-color: var(--border-glow);
+    }
+
+    .stage-chip.active {
+      background: rgba(99,102,241,0.12);
+      border-color: rgba(99,102,241,0.3);
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .stage-chip.done {
+      background: rgba(16,185,129,0.08);
+      border-color: rgba(16,185,129,0.2);
+      color: var(--green);
+    }
+
+    /* Tooltip on hover */
+    .tooltip-wrap {
+      position: relative;
+    }
+
+    .tooltip-wrap:hover .tooltip-box {
+      display: block;
+    }
+
+    .tooltip-box {
+      display: none;
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1e293b;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    /* NO CHANCE state */
+    .no-chance {
+      opacity: 0.4;
+    }
+
+    /* Animação entrada items */
+    @keyframes slideInLeft {
+      from { opacity: 0; transform: translateX(-20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .ranking-item {
+      animation: slideInLeft 0.4s ease both;
+    }
+
+    .ranking-item:nth-child(1) { animation-delay: 0.05s; }
+    .ranking-item:nth-child(2) { animation-delay: 0.1s; }
+    .ranking-item:nth-child(3) { animation-delay: 0.15s; }
+    .ranking-item:nth-child(4) { animation-delay: 0.2s; }
+    .ranking-item:nth-child(5) { animation-delay: 0.25s; }
+    .ranking-item:nth-child(6) { animation-delay: 0.3s; }
+    .ranking-item:nth-child(7) { animation-delay: 0.35s; }
+    .ranking-item:nth-child(8) { animation-delay: 0.4s; }
+    .ranking-item:nth-child(9) { animation-delay: 0.45s; }
+    .ranking-item:nth-child(10) { animation-delay: 0.5s; }
+
+    .empty-state {
+      text-align: center;
+      color: var(--text-muted);
+      padding: 2rem;
+      font-size: 0.9rem;
+    }
+
+    .tag-jogos {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    /* ===== MOST VOTED LIST ===== */
+    .most-voted-list {
+      padding: 0.75rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .mv-item {
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+
+    .mv-item:hover {
+      border-color: var(--border-glow);
+    }
+
+    .mv-header {
+      display: grid;
+      grid-template-columns: 28px 30px 1fr auto 28px;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 12px;
+      cursor: pointer;
+      background: var(--bg-glass);
+      transition: background 0.2s;
+    }
+
+    .mv-header:hover { background: rgba(255,255,255,0.07); }
+
+    .mv-rank {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    .mv-rank.gold   { color: var(--gold); }
+    .mv-rank.silver { color: var(--silver); }
+    .mv-rank.bronze { color: var(--bronze); }
+
+    .mv-flag {
+      width: 30px;
+      height: 21px;
+      object-fit: cover;
+      border-radius: 4px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .mv-name {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 0.88rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .mv-votes {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: 0.85rem;
+      color: var(--primary);
+      white-space: nowrap;
+    }
+
+    .mv-chevron {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      transition: transform 0.25s;
+      text-align: center;
+    }
+
+    .mv-item.open .mv-chevron { transform: rotate(180deg); }
+
+    .mv-voters {
+      display: none;
+      padding: 8px 12px 10px;
+      background: rgba(0,0,0,0.2);
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .mv-item.open .mv-voters { display: flex; }
+
+    .mv-voter-tag {
+      background: rgba(99,102,241,0.12);
+      border: 1px solid rgba(99,102,241,0.2);
+      color: var(--text-secondary);
+      border-radius: 50px;
+      padding: 3px 10px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    /* Mobile-first enhancements for smartphone screen widths */
+    @media (max-width: 520px) {
+      .page-wrapper {
+        padding: 1rem 0.5rem;
+      }
+      .header {
+        margin-bottom: 1.5rem;
+      }
+      .header h1 {
+        font-size: 2.2rem;
+      }
+      .info-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 0.5rem;
+      }
+      .info-card {
+        padding: 0.5rem 0.75rem;
+        gap: 8px;
+      }
+      .info-card:nth-child(3) {
+        grid-column: span 2;
+      }
+      .info-card .value {
+        font-size: 1.15rem;
+      }
+      .info-card .label {
+        font-size: 0.6rem;
+      }
+      
+      .ranking-list {
+        padding: 0.5rem;
+      }
+      .ranking-item {
+        grid-template-columns: 32px 32px 1fr auto;
+        gap: 8px;
+        padding: 10px 8px;
+        border-radius: 10px;
+      }
+      .rank-badge {
+        width: 30px;
+        height: 30px;
+        font-size: 0.85rem;
+      }
+      .flag-img {
+        width: 32px;
+        height: 22px;
+      }
+      .item-name {
+        font-size: 0.85rem;
+      }
+      .item-team {
+        font-size: 0.7rem;
+      }
+      .item-team .wins-badge, .item-team .eliminated-badge {
+        font-size: 0.62rem;
+        padding: 0 4px;
+      }
+      .progress-col {
+        display: none;
+      }
+      .progress-pct {
+        font-size: 0.95rem;
+        min-width: auto;
+      }
+
+      .stage-info {
+        gap: 4px;
+        margin-bottom: 1rem;
+      }
+      .stage-chip {
+        padding: 4px 6px;
+        font-size: 0.68rem;
+        gap: 2px;
+        flex: 1 1 110px;
+      }
+
+      #stageGamesList {
+        grid-template-columns: 1fr !important;
+        padding: 0.75rem !important;
+        max-height: 340px;
+      }
+      
+      .result-item {
+        padding: 10px 8px !important;
+        gap: 4px !important;
+      }
+      
+      .result-teams {
+        font-size: 0.78rem !important;
+        gap: 4px !important;
+      }
+      
+      .result-teams img {
+        width: 18px;
+        height: 12px;
+      }
+      
+      .score-badge {
+        font-size: 0.72rem !important;
+        padding: 2px 6px !important;
+        min-width: 68px;
+      }
+
+      .chart-wrap {
+        padding: 1rem;
+        min-height: auto;
+      }
+      .chart-bar-row {
+        grid-template-columns: 85px 1fr 48px;
+        gap: 6px;
+      }
+      .chart-bar-label {
+        font-size: 0.72rem;
+      }
+      .chart-bar-label img {
+        width: 18px;
+        height: 13px;
+      }
+      .chart-bar-outer {
+        height: 18px;
+      }
+      .chart-bar-pct {
+        font-size: 0.75rem;
+      }
+      
+      .voters-content {
+        padding: 1.25rem;
+        width: 95%;
+      }
+      .voter-chip {
+        font-size: 0.78rem;
+        padding: 4px 10px;
+      }
+    }
+  </style>
 </head>
+
 <body>
 
-  <!-- Toast Container para Notificações Dinâmicas -->
-  <div id="toastContainer" style="position: fixed; bottom: 24px; left: 24px; z-index: 1200; display: flex; flex-direction: column; gap: 8px;"></div>
+<!-- Voters Modal -->
+<div class="voters-modal" id="votersModal" onclick="closeModal(event)">
+  <div class="voters-content">
+    <div class="voters-title">
+      <span id="modalFlag"></span>
+      <span id="modalTeamName"></span>
+    </div>
+    <div id="modalVotersList"></div>
+    <button class="close-btn" onclick="document.getElementById('votersModal').classList.remove('open')">Fechar</button>
+  </div>
+</div>
 
+<div class="page-wrapper">
 
-  <!-- Container de Conteúdo -->
-  <main class="main-container">
-    
-    <!-- Lado Esquerdo: Área de Votação -->
-    <section>
-      <!-- Seção da Votação de Grupos -->
-      <div class="card-panel">
-        <h2 class="card-title header-title">
-          Bolão da turma do Quintal
-        </h2>
-        <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.85rem;">
-          Clique nos grupos e escolha sua seleção, valor R$ 30,00 por pessoa:
-        </p>
-        
-        <!-- Navegação de Abas de Grupos -->
-        <nav class="group-tabs" id="groupTabs" aria-label="Grupos da Copa"></nav>
-        
-        <!-- Grid de Países do Grupo Selecionado -->
-        <div class="teams-grid" id="teamsGrid">
-          <div class="loader-wrapper">
-            <div class="spinner"></div>
+  <!-- Header -->
+  <div class="header">
+    <p class="header-sub">Bolão da Turma do Quintal · <span>realtime</span> · <span id="updateTimer" style="color: var(--primary); font-weight: 700; font-family: 'Outfit', sans-serif; font-size: 0.82rem; margin-left: 4px;">—</span></p>
+  </div>
+
+  <!-- Info Cards -->
+  <div class="info-grid">
+    <div class="info-card">
+      <div class="icon">⚽</div>
+      <div class="kpi-text">
+        <div class="value" id="totalJogos">—</div>
+        <div class="label">Jogos Encerrados</div>
+      </div>
+    </div>
+    <div class="info-card">
+      <div class="icon">⏳</div>
+      <div class="kpi-text">
+        <div class="value" id="jogosRestantes">—</div>
+        <div class="label">Jogos que Faltam</div>
+      </div>
+    </div>
+    <div class="info-card premio-card">
+      <span class="decor-right">🏛️</span>
+      <div class="kpi-text">
+        <div class="value" id="premioValor">—</div>
+        <div class="label" id="premioLider">Premiação Parcial</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stage info -->
+  <div class="stage-info" id="stageInfo">
+    <button class="stage-chip" data-stage="groups" onclick="changeGamesStage('groups')">✅ Fase de Grupos</button>
+    <button class="stage-chip" data-stage="r32" onclick="changeGamesStage('r32')">→ Segunda Fase</button>
+    <button class="stage-chip" data-stage="oitavas" onclick="changeGamesStage('oitavas')">→ Oitavas</button>
+    <button class="stage-chip" data-stage="quartas" onclick="changeGamesStage('quartas')">→ Quartas</button>
+    <button class="stage-chip" data-stage="semi" onclick="changeGamesStage('semi')">→ Semi</button>
+    <button class="stage-chip" data-stage="final" onclick="changeGamesStage('final')">→ Final</button>
+  </div>
+
+  <!-- Games Container (controlled by Stage Chips) -->
+  <div class="card" id="gamesCard" style="margin-bottom: 1.5rem; display: none;">
+    <div class="card-header">
+      <div class="card-title">
+        <span class="icon">⚽</span> Jogos da Copa · <span id="activeStageTitle" style="color: var(--primary);">Fase de Grupos</span>
+      </div>
+    </div>
+    <div class="results-list" id="stageGamesList" style="max-height: 380px; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; padding: 1.25rem;">
+      <div class="empty-state">Carregando jogos...</div>
+    </div>
+  </div>
+
+  <!-- Main Layout -->
+  <div class="main-layout">
+
+    <!-- Ranking List (left) -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <span class="icon">🥇</span> Ranking Parcial
+        </div>
+        <button class="refresh-btn" id="refreshBtn" onclick="refreshData()" style="display: none;">
+          <span class="refresh-icon" id="refreshIcon">↻</span> Atualizar
+        </button>
+      </div>
+      <div class="ranking-list" id="rankingList">
+        <div class="empty-state">Carregando dados da Copa...</div>
+      </div>
+      <div class="last-update" id="lastUpdate">—</div>
+    </div>
+
+    <!-- Right column -->
+    <div class="chart-section">
+
+      <!-- Chart Card -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><span class="icon">📊</span> Desempenho das votadas</div>
+        </div>
+        <div class="chart-wrap">
+          <div class="chart-bars" id="chartBars">
+            <div class="empty-state">Carregando...</div>
           </div>
         </div>
+      </div>
 
-        <!-- Formulário para Voto -->
-        <div class="vote-form">
-          <div id="selectedTeamDisplay" style="font-size: 0.95rem; font-weight: 600; color: var(--text-secondary);">
-            <i data-lucide="info" style="width:16px; height:16px; display:inline-block; vertical-align:middle; margin-right:4px;"></i> Após clicar na sua seleção, digite abaixo o seu nome e sobrenome e confirme seu voto.
-          </div>
-          <div class="form-group" style="display: flex; gap: 4px;">
-            <div style="flex: 1;">
-              <label for="voterFirstName" style="display:block; font-size:0.78rem; color:var(--text-muted); margin-bottom:4px;">Nome</label>
-              <input type="text" id="voterFirstName" class="input-style" placeholder="" maxlength="30">
-            </div>
-            <div style="flex: 1;">
-              <label for="voterLastName" style="display:block; font-size:0.78rem; color:var(--text-muted); margin-bottom:4px;">Sobrenome</label>
-              <input type="text" id="voterLastName" class="input-style" placeholder="" maxlength="30">
-            </div>
-          </div>
-          
-          <button id="btnVote" class="btn-vote" disabled>
-            <i data-lucide="award"></i> Confirmar Meu Voto
-          </button>
+      <!-- Seleções Mais Votadas -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><span class="icon">🗳️</span> Seleções Mais Votadas</div>
+        </div>
+        <div class="most-voted-list" id="mostVotedList">
+          <div class="empty-state">Carregando...</div>
         </div>
       </div>
-    </section>
 
-    <!-- Lado Direito: Gráficos e Mural -->
-    <aside>
-      <!-- Estatísticas e Gráfico -->
-      <div class="card-panel">
-        <h2 class="card-title">
-          <i data-lucide="users"></i> Ranking
-        </h2>
-        <p style="color: var(--text-secondary); margin-bottom: 0.5rem; font-size: 0.88rem;">
-          Total de votos: <strong id="totalVotesCount" style="color: var(--primary)">0</strong>
-        </p>
-        <p style="color: var(--text-muted); margin-bottom: 1.25rem; font-size: 0.82rem;">
-          Clique na seleção para ver o nome de quem votou.
-        </p>
 
-        <!-- Lista Detalhada Top 5 -->
-        <div class="top-teams-list" id="topTeamsList">
-          <div class="loader-wrapper">
-            <div class="spinner"></div>
-          </div>
-        </div>
-      </div>
-    </aside>
 
-  </main>
-
-  <!-- Botão Flutuante de Configurações (oculto) -->
-  <button id="btnConfigTrigger" class="config-btn-trigger" title="Configurar Conexão do Supabase" aria-haspopup="dialog" style="display: none;">
-    <i data-lucide="settings"></i>
-  </button>
-
-  <!-- Modal de Configuração de Chaves (Supabase) -->
-  <div id="configModal" class="config-modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-    <div class="config-content">
-      <div class="config-header">
-        <h2 id="modalTitle" style="font-family:'Outfit'; font-size:1.4rem;"><i data-lucide="database" style="color:var(--primary); vertical-align:middle; margin-right:8px;"></i> Configurar Supabase</h2>
-        <button id="btnConfigClose" class="config-close" aria-label="Fechar">&times;</button>
-      </div>
-      <p style="color: var(--text-secondary); font-size:0.9rem; margin-bottom:1.5rem; line-height:1.4;">
-        Para salvar os votos na nuvem e atualizar a tela em tempo real, crie um projeto no Supabase, crie a tabela rodando o script <code>setup.sql</code> no seu SQL Editor e insira suas credenciais abaixo:
-      </p>
-      
-      <div class="form-group" style="margin-bottom:1rem;">
-        <label for="inputSupaUrl">Supabase URL</label>
-        <input type="text" id="inputSupaUrl" class="input-style" placeholder="https://xxxxxx.supabase.co">
-      </div>
-      <div class="form-group" style="margin-bottom:1.5rem;">
-        <label for="inputSupaKey">Supabase Anon Key</label>
-        <input type="password" id="inputSupaKey" class="input-style" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
-      </div>
-      
-      <button id="btnSaveConfig" class="btn-vote" style="width:100%;">
-        <i data-lucide="check-circle-2"></i> Salvar e Conectar
-      </button>
     </div>
   </div>
 
 
-  <!-- Carrega a lógica principal do app -->
-  <script src="app.js"></script>
+
+</div>
+
+<script>
+  // =========================================================
+  // DADOS DOS PARTICIPANTES (do votos.csv)
+  // =========================================================
+  const PARTICIPANTES = [
+    { name: "Denis Guarda",           team: "Espanha",         code: "es" },
+    { name: "Vinicius Grassi",        team: "Senegal",         code: "sn" },
+    { name: "Roberto Joinvile",       team: "Espanha",         code: "es" },
+    { name: "Carlo Bigo",             team: "Brasil",          code: "br" },
+    { name: "Matheus Santos bigode",  team: "Portugal",        code: "pt" },
+    { name: "Tiago Bicuira",          team: "Holanda",         code: "nl" },
+    { name: "Maicon Espetinho",       team: "França",          code: "fr" },
+    { name: "Federico Renda",         team: "Argentina",       code: "ar" },
+    { name: "Leonardo Foesten",       team: "Brasil",          code: "br" },
+    { name: "Vinicius Reis",          team: "Alemanha",        code: "de" },
+    { name: "João Pacheco",           team: "Argentina",       code: "ar" },
+    { name: "Rodrigo Bender",         team: "Espanha",         code: "es" },
+    { name: "André Trento",           team: "Holanda",         code: "nl" },
+    { name: "Vicente Filho",          team: "Portugal",        code: "pt" },
+    { name: "Gustavo Cunha",          team: "Brasil",          code: "br" },
+    { name: "Francisco Lamaison",     team: "Uruguai",         code: "uy" },
+    { name: "Edu Alcará",             team: "França",          code: "fr" },
+    { name: "Gustavo Bassegio",       team: "Holanda",         code: "nl" },
+    { name: "Deivid Mendes",          team: "Holanda",         code: "nl" },
+    { name: "Felipe Pacheco",         team: "Argentina",       code: "ar" },
+    { name: "Alexandre Chaves",       team: "Espanha",         code: "es" },
+    { name: "Edson Fehlauer",         team: "Brasil",          code: "br" },
+    { name: "Omar Conversa Fiada",    team: "França",          code: "fr" },
+    { name: "Guilherme Pruinelli",    team: "Portugal",        code: "pt" },
+    { name: "Alberto Mateus",         team: "Portugal",        code: "pt" },
+    { name: "Seco",                   team: "Espanha",         code: "es" },
+    { name: "Rafael Pruinelli",       team: "Inglaterra",      code: "gb-eng" },
+    { name: "Diego Fraga",            team: "Estados Unidos",  code: "us" },
+  ];
+
+  // Mapeamento de nomes de times da API (inglês) para português e código de bandeira
+  const TEAM_MAP = {
+    "mexico":                   { pt: "México",         code: "mx" },
+    "south africa":             { pt: "África do Sul",  code: "za" },
+    "south korea":              { pt: "Coreia do Sul",  code: "kr" },
+    "czech republic":           { pt: "Tchéquia",       code: "cz" },
+    "canada":                   { pt: "Canadá",         code: "ca" },
+    "bosnia and herzegovina":   { pt: "Bósnia",         code: "ba" },
+    "qatar":                    { pt: "Catar",          code: "qa" },
+    "switzerland":              { pt: "Suíça",          code: "ch" },
+    "brazil":                   { pt: "Brasil",         code: "br" },
+    "morocco":                  { pt: "Marrocos",       code: "ma" },
+    "haiti":                    { pt: "Haiti",          code: "ht" },
+    "scotland":                 { pt: "Escócia",        code: "gb-sct" },
+    "united states":            { pt: "Estados Unidos", code: "us" },
+    "paraguay":                 { pt: "Paraguai",       code: "py" },
+    "australia":                { pt: "Austrália",      code: "au" },
+    "turkey":                   { pt: "Turquia",        code: "tr" },
+    "germany":                  { pt: "Alemanha",       code: "de" },
+    "curaçao":                  { pt: "Curaçao",        code: "cw" },
+    "ivory coast":              { pt: "Costa do Marfim",code: "ci" },
+    "ecuador":                  { pt: "Equador",        code: "ec" },
+    "netherlands":              { pt: "Holanda",        code: "nl" },
+    "japan":                    { pt: "Japão",          code: "jp" },
+    "sweden":                   { pt: "Suécia",         code: "se" },
+    "tunisia":                  { pt: "Tunísia",        code: "tn" },
+    "belgium":                  { pt: "Bélgica",        code: "be" },
+    "egypt":                    { pt: "Egito",          code: "eg" },
+    "iran":                     { pt: "Irã",            code: "ir" },
+    "new zealand":              { pt: "Nova Zelândia",  code: "nz" },
+    "spain":                    { pt: "Espanha",        code: "es" },
+    "cape verde":               { pt: "Cabo Verde",     code: "cv" },
+    "saudi arabia":             { pt: "Arábia Saudita", code: "sa" },
+    "uruguay":                  { pt: "Uruguai",        code: "uy" },
+    "france":                   { pt: "França",         code: "fr" },
+    "senegal":                  { pt: "Senegal",        code: "sn" },
+    "iraq":                     { pt: "Iraque",         code: "iq" },
+    "norway":                   { pt: "Noruega",        code: "no" },
+    "argentina":                { pt: "Argentina",      code: "ar" },
+    "algeria":                  { pt: "Argélia",        code: "dz" },
+    "austria":                  { pt: "Áustria",        code: "at" },
+    "jordan":                   { pt: "Jordânia",       code: "jo" },
+    "portugal":                 { pt: "Portugal",       code: "pt" },
+    "democratic republic of the congo": { pt: "RD Congo", code: "cd" },
+    "uzbekistan":               { pt: "Uzbequistão",    code: "uz" },
+    "colombia":                 { pt: "Colômbia",       code: "co" },
+    "england":                  { pt: "Inglaterra",     code: "gb-eng" },
+    "croatia":                  { pt: "Croácia",        code: "hr" },
+    "ghana":                    { pt: "Gana",           code: "gh" },
+    "panama":                   { pt: "Panamá",         code: "pa" },
+  };
+
+  // Fase da copa → número da fase (0-indexed, máximo 7 fases de eliminação)
+  // Grupo (3 jogos) + R32 + R16 + QF + SF + Final = 8 fases contáveis
+  // Cada fase vale 12.5%
+
+  // Quantas fases de eliminação essa copa tem:
+  // Grupos (1ª, 2ª, 3ª rodada) = 3 jogos antes de avançar → conta como 1 vitória de grupo
+  // SIMPLIFICAÇÃO DO BOLÃO: cada vitória (qualquer jogo) = 12.5%
+  // Total de fases possíveis: 8 (grupo fase 1, fase 2, fase 3, R32, R16, QF, SF, Final)
+  // Logo: cada fase = 12.5%
+  
+  // Para o bolão: contamos TODAS as vitórias da seleção na copa
+  // = número de vitórias × 12.5%
+
+  const CHANCE_PER_WIN = 12.5;
+
+  let gamesData = [];
+  let currentSelectedStage = null;
+  let teamWins = {}; // { teamNameEN: { wins: N, games: [...] } }
+  let countdownSeconds = 60;
+  let countdownInterval = null;
+
+  // =========================================================
+  // BUSCAR DADOS DA API
+  // =========================================================
+  async function fetchGames() {
+    try {
+      const resp = await fetch('https://worldcup26.ir/get/games', {
+        mode: 'cors',
+        headers: { 'Accept': 'application/json' }
+      });
+      if (!resp.ok) throw new Error('API indisponível');
+      const json = await resp.json();
+      return json.games || [];
+    } catch (e) {
+      console.error('Erro na API da Copa:', e);
+      return null;
+    }
+  }
+
+  // =========================================================
+  // PROCESSAR RESULTADOS
+  // =========================================================
+  function processGames(games) {
+    teamWins = {};
+    let finishedGames = [];
+    let upcomingGames = [];
+
+    games.forEach(g => {
+      if (g.finished !== 'TRUE') {
+        upcomingGames.push(g);
+        return;
+      }
+      
+      const homeEN = (g.home_team_name_en || '').toLowerCase();
+      const awayEN = (g.away_team_name_en || '').toLowerCase();
+      const homeScore = parseInt(g.home_score) || 0;
+      const awayScore = parseInt(g.away_score) || 0;
+
+      finishedGames.push(g);
+
+      // Calcular vencedor
+      if (homeScore > awayScore) {
+        // Home venceu
+        if (!teamWins[homeEN]) teamWins[homeEN] = { wins: 0, games: [] };
+        teamWins[homeEN].wins++;
+        teamWins[homeEN].games.push(g);
+      } else if (awayScore > homeScore) {
+        // Away venceu
+        if (!teamWins[awayEN]) teamWins[awayEN] = { wins: 0, games: [] };
+        teamWins[awayEN].wins++;
+        teamWins[awayEN].games.push(g);
+      }
+      // Empate = nenhum ganha ponto
+    });
+
+    return { finishedGames, upcomingGames };
+  }
+
+  // =========================================================
+  // CALCULAR CHANCES DOS PARTICIPANTES
+  // =========================================================
+  function calcChances() {
+    // Para cada participante, pega as vitórias da seleção escolhida
+    return PARTICIPANTES.map(p => {
+      const teamEN = Object.entries(TEAM_MAP).find(([k, v]) => v.pt === p.team)?.[0] || '';
+      const winsData = teamWins[teamEN] || { wins: 0, games: [] };
+      const chance = Math.min(100, winsData.wins * CHANCE_PER_WIN);
+      return {
+        ...p,
+        teamEN,
+        wins: winsData.wins,
+        chance,
+        recentGames: winsData.games
+      };
+    }).sort((a, b) => b.chance - a.chance || a.name.localeCompare(b.name));
+  }
+
+  // =========================================================
+  // RENDER RANKING
+  // =========================================================
+  function renderRanking(ranked) {
+    const container = document.getElementById('rankingList');
+
+    if (ranked.length === 0) {
+      container.innerHTML = '<div class="empty-state">⏳ Carregando ranking...</div>';
+      return;
+    }
+
+    const colors = [
+      'linear-gradient(90deg,#f59e0b,#f97316)',
+      'linear-gradient(90deg,#94a3b8,#64748b)',
+      'linear-gradient(90deg,#cd7c4b,#a05a30)',
+    ];
+    const defaultColors = [
+      'linear-gradient(90deg,#6366f1,#8b5cf6)',
+      'linear-gradient(90deg,#06b6d4,#6366f1)',
+      'linear-gradient(90deg,#10b981,#059669)',
+      'linear-gradient(90deg,#3b82f6,#6366f1)',
+    ];
+
+    container.innerHTML = ranked.map((p, i) => {
+      const rank = i + 1;
+      const badgeClass = rank === 1 ? 'r1' : rank === 2 ? 'r2' : rank === 3 ? 'r3' : 'rN';
+      const itemClass = rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : rank === 3 ? 'rank-3' : '';
+      
+      const color = i < 3 ? colors[i] : defaultColors[(i - 3) % defaultColors.length];
+      const pctColor = p.chance >= 50 ? '#10b981' : p.chance >= 25 ? '#f59e0b' : p.chance > 0 ? '#6366f1' : '#475569';
+
+      const winsLabel = p.wins === 1 ? '1 vitória' : `${p.wins} vitórias`;
+      const badge = p.chance === 0 
+        ? `<span class="eliminated-badge">0%</span>` 
+        : `<span class="wins-badge">+${winsLabel}</span>`;
+
+      const votersPayload = `onclick="showVotersModal('${p.team}', '${p.code}', ${JSON.stringify(getVotersForTeam(p.team)).replace(/'/g, '&apos;')})"`;
+
+      return `
+        <div class="ranking-item ${itemClass} ${p.chance === 0 ? 'no-chance' : ''}" ${votersPayload}>
+          <div class="rank-badge ${badgeClass}">${rank}</div>
+          <img src="https://flagcdn.com/w80/${p.code}.png" class="flag-img" alt="${p.team}" onerror="this.src='https://flagcdn.com/w80/un.png'">
+          <div class="item-info">
+            <div class="item-name">${escapeHTML(p.name)}</div>
+            <div class="item-team">
+              ${escapeHTML(p.team)} ${badge}
+            </div>
+          </div>
+          <div class="progress-col">
+            <div class="progress-bar-wrap">
+              <div class="progress-bar-fill" style="width:${p.chance}%; background:${color}"></div>
+            </div>
+          </div>
+          <div class="progress-pct" style="color:${pctColor}">${p.chance.toFixed(1)}%</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // =========================================================
+  // RENDER CHART
+  // =========================================================
+  function renderChart(ranked) {
+    const container = document.getElementById('chartBars');
+    
+    // Agrupar por seleção
+    const byTeam = {};
+    ranked.forEach(p => {
+      if (!byTeam[p.team]) byTeam[p.team] = { chance: p.chance, code: p.code, count: 0 };
+      byTeam[p.team].count++;
+    });
+
+    const teams = Object.entries(byTeam)
+      .sort((a, b) => b[1].chance - a[1].chance)
+      .slice(0, 10);
+
+    const maxChance = teams[0]?.[1].chance || 100;
+    const displayMax = Math.max(maxChance, 25);
+
+    const teamColors = [
+      '#f59e0b', '#6366f1', '#10b981', '#ef4444', '#3b82f6',
+      '#8b5cf6', '#f97316', '#06b6d4', '#84cc16', '#ec4899'
+    ];
+
+    container.innerHTML = teams.map(([teamName, data], i) => {
+      const barWidth = displayMax > 0 ? (data.chance / displayMax) * 100 : 0;
+      const color = teamColors[i % teamColors.length];
+      return `
+        <div class="chart-bar-row">
+          <div class="chart-bar-label">
+            <img src="https://flagcdn.com/w80/${data.code}.png" alt="${teamName}" onerror="this.src='https://flagcdn.com/w80/un.png'">
+            ${escapeHTML(teamName.length > 10 ? teamName.substring(0,10)+'…' : teamName)}
+          </div>
+          <div class="chart-bar-outer">
+            <div class="chart-bar-inner" style="width:${barWidth}%; background:linear-gradient(90deg,${color}cc,${color})">
+              ${data.chance > 15 ? data.chance.toFixed(0)+'%' : ''}
+            </div>
+          </div>
+          <div class="chart-bar-pct">${data.chance.toFixed(1)}%</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // =========================================================
+  // RENDER JOGOS POR FASE (GRUPO / MATA-MATA)
+  // =========================================================
+  function renderGamesForStage(stage) {
+    currentSelectedStage = stage;
+    const container = document.getElementById('stageGamesList');
+    const gamesCard = document.getElementById('gamesCard');
+    if (!container) return;
+
+    if (!stage) {
+      if (gamesCard) gamesCard.style.display = 'none';
+      document.querySelectorAll('.stage-info .stage-chip').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      return;
+    }
+
+    if (gamesCard) gamesCard.style.display = 'block';
+
+    // Atualizar classe active nos chips
+    document.querySelectorAll('.stage-info .stage-chip').forEach(btn => {
+      if (btn.dataset.stage === stage) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
+
+    // Atualizar título
+    const titles = {
+      'groups': 'Fase de Grupos',
+      'r32': 'Segunda Fase',
+      'oitavas': 'Oitavas de Final',
+      'quartas': 'Quartas de Final',
+      'semi': 'Semifinais',
+      'final': 'Final e 3º Lugar'
+    };
+    document.getElementById('activeStageTitle').textContent = titles[stage] || 'Jogos';
+
+    // Filtrar jogos
+    if (!gamesData || gamesData.length === 0) {
+      container.innerHTML = '<div class="empty-state">⏳ Carregando jogos da Copa...</div>';
+      return;
+    }
+
+    let filtered = [];
+    if (stage === 'groups') {
+      filtered = gamesData.filter(g => g.type === 'group');
+    } else if (stage === 'r32') {
+      filtered = gamesData.filter(g => g.type === 'r32');
+    } else if (stage === 'oitavas') {
+      filtered = gamesData.filter(g => g.type === 'r16');
+    } else if (stage === 'quartas') {
+      filtered = gamesData.filter(g => g.type === 'qf');
+    } else if (stage === 'semi') {
+      filtered = gamesData.filter(g => g.type === 'sf');
+    } else if (stage === 'final') {
+      filtered = gamesData.filter(g => g.type === 'final' || g.type === 'third');
+    }
+
+    if (filtered.length === 0) {
+      container.innerHTML = '<div class="empty-state">Nenhum jogo cadastrado para esta fase.</div>';
+      return;
+    }
+
+    // Renderizar jogos filtrados
+    container.innerHTML = filtered.map(g => {
+      const homeCode = getTeamCode(g.home_team_name_en);
+      const awayCode = getTeamCode(g.away_team_name_en);
+      const homePt = getTeamPt(g.home_team_name_en);
+      const awayPt = getTeamPt(g.away_team_name_en);
+
+      const homeName = g.home_team_name_en ? homePt : (g.home_team_label || 'A definir');
+      const awayName = g.away_team_name_en ? awayPt : (g.away_team_label || 'A definir');
+
+      let dateDisplay = g.local_date || '';
+      if (dateDisplay.includes(' ')) {
+        const parts = dateDisplay.split(' ');
+        const dateParts = parts[0].split('/');
+        if (dateParts.length === 3) {
+          dateDisplay = `${dateParts[1]}/${dateParts[0]} · ${parts[1]}`;
+        }
+      }
+
+      // Se o jogo terminou, mostramos o placar
+      const isFinished = g.finished === 'TRUE';
+      const scoreHtml = isFinished 
+        ? `<div class="score-badge" style="background: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.3); color: var(--green); font-size: 0.8rem;">${g.home_score} × ${g.away_score}</div>`
+        : `<div class="score-badge" style="font-size: 0.72rem; letter-spacing: 0; padding: 4px 8px; font-weight: 600; background: rgba(99, 102, 241, 0.12); border-color: rgba(99, 102, 241, 0.2); color: var(--primary);">${dateDisplay}</div>`;
+
+      return `
+        <div class="result-item" style="padding: 12px; background: rgba(255,255,255,0.03); display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+          <div class="result-teams" style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; flex: 1; min-width: 0; justify-content: flex-start;">
+            ${g.home_team_name_en ? `<img src="https://flagcdn.com/w80/${homeCode}.png" onerror="this.src='https://flagcdn.com/w80/un.png'" style="width: 20px; height: 14px; object-fit: cover; flex-shrink: 0;">` : '<span style="flex-shrink: 0;">❓</span>'}
+            <span title="${homeName}" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600;">${escapeHTML(homeName)}</span>
+          </div>
+          <div style="flex-shrink: 0; min-width: 80px; display: flex; justify-content: center; align-items: center; text-align: center;">
+            ${scoreHtml}
+          </div>
+          <div class="result-teams" style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; flex: 1; min-width: 0; justify-content: flex-end; text-align: right;">
+            <span title="${awayName}" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; text-align: right;">${escapeHTML(awayName)}</span>
+            ${g.away_team_name_en ? `<img src="https://flagcdn.com/w80/${awayCode}.png" onerror="this.src='https://flagcdn.com/w80/un.png'" style="width: 20px; height: 14px; object-fit: cover; flex-shrink: 0;">` : '<span style="flex-shrink: 0;">❓</span>'}
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  window.changeGamesStage = function(stage) {
+    renderGamesForStage(stage);
+  };
+
+  // =========================================================
+  // RENDER SELEÇÕES MAIS VOTADAS
+  // =========================================================
+  function renderMostVoted() {
+    const container = document.getElementById('mostVotedList');
+
+    // Contar votos por seleção a partir de PARTICIPANTES
+    const byTeam = {};
+    PARTICIPANTES.forEach(p => {
+      if (!byTeam[p.team]) byTeam[p.team] = { code: p.code, voters: [] };
+      byTeam[p.team].voters.push(p.name);
+    });
+
+    const sorted = Object.entries(byTeam)
+      .sort((a, b) => b[1].voters.length - a[1].voters.length);
+
+    const maxVotes = sorted[0]?.[1].voters.length || 1;
+    const rankColors = ['gold', 'silver', 'bronze'];
+    const rankEmojis = ['🥇', '🥈', '🥉'];
+
+    container.innerHTML = sorted.map(([teamName, data], i) => {
+      const rank = i + 1;
+      const rankClass = rankColors[i] || '';
+      const rankLabel = i < 3 ? rankEmojis[i] : rank;
+      const pct = Math.round((data.voters.length / maxVotes) * 100);
+      const voterTags = data.voters.map(v =>
+        `<span class="mv-voter-tag">${escapeHTML(v)}</span>`
+      ).join('');
+
+      return `
+        <div class="mv-item" id="mv-${i}">
+          <div class="mv-header" onclick="toggleMvDropdown('mv-${i}')">
+            <div class="mv-rank ${rankClass}">${rankLabel}</div>
+            <img class="mv-flag" src="https://flagcdn.com/w80/${data.code}.png"
+                 alt="${teamName}" onerror="this.src='https://flagcdn.com/w80/un.png'">
+            <div class="mv-name">${escapeHTML(teamName)}</div>
+            <div class="mv-votes">${data.voters.length} ${data.voters.length === 1 ? 'voto' : 'votos'}</div>
+            <div class="mv-chevron">▼</div>
+          </div>
+          <div class="mv-voters">
+            ${voterTags}
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  window.toggleMvDropdown = function(id) {
+    const el = document.getElementById(id);
+    if (el) el.classList.toggle('open');
+  };
+
+  // =========================================================
+  // HELPERS
+  // =========================================================
+  function getTeamCode(nameEN) {
+    return TEAM_MAP[(nameEN || '').toLowerCase()]?.code || 'un';
+  }
+
+  function getTeamPt(nameEN) {
+    return TEAM_MAP[(nameEN || '').toLowerCase()]?.pt || nameEN;
+  }
+
+  function getVotersForTeam(teamPt) {
+    return PARTICIPANTES.filter(p => p.team === teamPt).map(p => p.name);
+  }
+
+  function escapeHTML(str) {
+    if (!str) return '';
+    return String(str).replace(/[&<>'"`]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":"&#39;",'"':'&quot;','`':'&#96;'}[c]||c));
+  }
+
+  // =========================================================
+  // MODAL
+  // =========================================================
+  window.showVotersModal = function(teamName, code, voters) {
+    document.getElementById('modalFlag').innerHTML = `<img src="https://flagcdn.com/w80/${code}.png" style="width:32px;height:22px;border-radius:5px;object-fit:cover;">`;
+    document.getElementById('modalTeamName').textContent = teamName;
+    document.getElementById('modalVotersList').innerHTML = voters.map(v => {
+      const initials = v.split(' ').map(n => n[0]).slice(0,2).join('').toUpperCase();
+      return `<div class="voter-chip"><div class="avatar">${initials}</div>${escapeHTML(v)}</div>`;
+    }).join('');
+    document.getElementById('votersModal').classList.add('open');
+  };
+
+  window.closeModal = function(e) {
+    if (e.target.id === 'votersModal') {
+      document.getElementById('votersModal').classList.remove('open');
+    }
+  };
+
+  // =========================================================
+  // COUNTDOWN TIMER
+  // =========================================================
+  function startCountdown() {
+    clearInterval(countdownInterval);
+    countdownSeconds = 60;
+    const el = document.getElementById('updateTimer');
+    countdownInterval = setInterval(() => {
+      countdownSeconds--;
+      if (el) el.textContent = `${countdownSeconds}s`;
+      if (countdownSeconds <= 0) {
+        clearInterval(countdownInterval);
+        refreshData();
+      }
+    }, 1000);
+  }
+
+  // =========================================================
+  // REFRESH
+  // =========================================================
+  async function refreshData() {
+    const btn = document.getElementById('refreshBtn');
+    const icon = document.getElementById('refreshIcon');
+    btn.classList.add('spinning');
+    btn.disabled = true;
+
+    const games = await fetchGames();
+
+    btn.classList.remove('spinning');
+    btn.disabled = false;
+
+    if (!games) {
+      document.getElementById('lastUpdate').textContent = '⚠️ Erro ao conectar com a API. Tentando novamente em 60s...';
+      startCountdown();
+      return;
+    }
+
+    gamesData = games;
+    const { finishedGames, upcomingGames } = processGames(games);
+    const ranked = calcChances();
+
+    // Update UI
+    renderRanking(ranked);
+    renderChart(ranked);
+    renderGamesForStage(currentSelectedStage);
+    renderMostVoted();
+
+    // Update cards
+    document.getElementById('totalJogos').textContent = finishedGames.length;
+    document.getElementById('jogosRestantes').textContent = upcomingGames.length;
+
+    // Atualizar Premiação Parcial
+    const lider = ranked[0];
+    if (lider) {
+      const valorPremio = (PARTICIPANTES.length - 1) * 30;
+      document.getElementById('premioValor').textContent = `R$ ${valorPremio.toFixed(2).replace('.', ',')}`;
+      document.getElementById('premioLider').innerHTML = `Premiação Parcial (${lider.name} <img src="https://flagcdn.com/w80/${lider.code}.png" style="width: 16px; height: 11px; object-fit: cover; border-radius: 2px; vertical-align: middle; margin-left: 2px; margin-top: -2px;" alt="${lider.team}">)`;
+    }
+
+    const now = new Date();
+    document.getElementById('lastUpdate').textContent = 
+      `Atualizado às ${now.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit',second:'2-digit'})}`;
+
+    startCountdown();
+  }
+
+  // =========================================================
+  // INIT
+  // =========================================================
+  document.addEventListener('DOMContentLoaded', () => {
+    refreshData();
+  });
+</script>
+
 </body>
 </html>
