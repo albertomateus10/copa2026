@@ -207,63 +207,18 @@
 
     .info-card.premio-card {
       position: relative;
-      background: radial-gradient(circle, #e2ebd9 0%, #cbd9c0 100%) !important;
-      border: 3px solid #2d3748 !important;
+      background: url('botao.png') no-repeat center center !important;
+      background-size: 100% 100% !important;
+      border: none !important;
       border-radius: 999px !important;
       padding: 0.35rem 2rem !important;
       display: flex;
       align-items: center;
       justify-content: center;
-      min-height: 68px;
+      min-height: 76px;
       overflow: hidden;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.4), inset 0 1px 3px rgba(255,255,255,0.2);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    /* Borda interna dourada ornamental */
-    .info-card.premio-card::before {
-      content: '';
-      position: absolute;
-      top: 3px;
-      left: 3px;
-      right: 3px;
-      bottom: 3px;
-      border: 1px solid #a88a38;
-      outline: 1px solid #a88a38;
-      outline-offset: -2px;
-      border-radius: 999px;
-      pointer-events: none;
-      opacity: 0.85;
-      z-index: 0;
-    }
-
-    /* Cifrão decorativo à esquerda */
-    .info-card.premio-card::after {
-      content: '$';
-      position: absolute;
-      left: 18px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-family: 'Georgia', serif;
-      font-size: 2.2rem;
-      font-weight: bold;
-      color: #3b5336;
-      opacity: 0.12;
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    /* Ícone decorativo de banco/capitólio à direita */
-    .info-card.premio-card .decor-right {
-      position: absolute;
-      right: 18px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 1.4rem;
-      color: #3b5336;
-      opacity: 0.12;
-      pointer-events: none;
-      z-index: 0;
     }
 
     .info-card.premio-card .kpi-text {
@@ -273,7 +228,34 @@
       align-items: center;
       justify-content: center;
       width: 100%;
+      max-width: 480px;
+      background: linear-gradient(90deg, rgba(174,186,162,0) 0%, rgba(174,186,162,1) 15%, rgba(174,186,162,1) 85%, rgba(174,186,162,0) 100%);
+      padding: 6px 30px;
       z-index: 1;
+    }
+
+    .info-card.premio-card .decor-right-bg {
+      position: absolute;
+      right: 9.2%;
+      top: 50%;
+      transform: translate(50%, -50%);
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #94a582 0%, #879774 100%);
+      z-index: 1;
+      filter: blur(1px);
+    }
+
+    .info-card.premio-card .decor-right-taca {
+      position: absolute;
+      right: 9.2%;
+      top: 50%;
+      transform: translate(50%, -50%);
+      height: 54px;
+      width: auto;
+      z-index: 2;
+      opacity: 0.95;
     }
 
     .info-card.premio-card .value {
@@ -325,7 +307,7 @@
     }
 
     .card-header {
-      padding: 1.25rem 1.5rem;
+      padding: 0.8rem 1.25rem;
       border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
@@ -1071,6 +1053,16 @@
       }
       .info-card.premio-card {
         grid-column: span 2;
+        min-height: 60px !important;
+      }
+      .info-card.premio-card .decor-right-bg {
+        width: 32px !important;
+        height: 32px !important;
+        right: 9.2% !important;
+      }
+      .info-card.premio-card .decor-right-taca {
+        height: 42px !important;
+        right: 9.2% !important;
       }
       .info-card .value {
         font-size: 1.15rem;
@@ -1216,7 +1208,8 @@
   <!-- Info Cards -->
   <div class="info-grid">
     <div class="info-card premio-card">
-      <span class="decor-right">🏛️</span>
+      <div class="decor-right-bg"></div>
+      <img src="taca_oliva.png" class="decor-right-taca" alt="Taça">
       <div class="kpi-text">
         <div class="value" id="premioValor">—</div>
         <div class="label" id="premioLider">Premiação Parcial</div>
@@ -1288,7 +1281,7 @@
     <div class="chart-section">
 
       <!-- Chart Card -->
-      <div class="card collapsed" id="chartCard">
+      <div class="card" id="chartCard">
         <div class="card-header" onclick="toggleCard('chartCard')" style="cursor: pointer;">
           <div class="card-title"><span class="icon">📊</span> Desempenho das votadas</div>
           <span class="card-chevron">▼</span>
