@@ -274,7 +274,7 @@
       font-size: 0.62rem !important;
       font-weight: 700;
       color: #2b3a27 !important;
-      text-transform: uppercase;
+      text-transform: none !important;
       letter-spacing: 0.05em;
       display: flex;
       align-items: center;
@@ -1212,7 +1212,7 @@
       <img src="taca_oliva.png" class="decor-right-taca" alt="Taça">
       <div class="kpi-text">
         <div class="value" id="premioValor">—</div>
-        <div class="label" id="premioLider">Premiação Parcial</div>
+        <div class="label" id="premioLider">premiação parcial</div>
       </div>
     </div>
     <div class="info-card">
@@ -1233,6 +1233,7 @@
 
   <!-- Stage info -->
   <div class="stage-info" id="stageInfo">
+    <button class="stage-chip" data-stage="today" onclick="changeGamesStage('today')">📅 Jogos de Hoje</button>
     <button class="stage-chip" data-stage="groups" onclick="changeGamesStage('groups')">✅ Fase de Grupos</button>
     <button class="stage-chip" data-stage="r32" onclick="changeGamesStage('r32')">→ Segunda Fase</button>
     <button class="stage-chip" data-stage="oitavas" onclick="changeGamesStage('oitavas')">→ Oitavas</button>
@@ -1304,6 +1305,30 @@
         <div class="card-body-collapse">
           <div class="most-voted-list" id="mostVotedList">
             <div class="empty-state">Carregando...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Regras do Bolão -->
+      <div class="card collapsed" id="rulesCard">
+        <div class="card-header" onclick="toggleCard('rulesCard')" style="cursor: pointer;">
+          <div class="card-title"><span class="icon">📜</span> Regras do Bolão</div>
+          <span class="card-chevron">▼</span>
+        </div>
+        <div class="card-body-collapse">
+          <div style="padding: 1.25rem; font-size: 0.85rem; line-height: 1.6; color: var(--text-secondary); display: flex; flex-direction: column; gap: 12px;">
+            <div style="display: flex; gap: 10px; align-items: flex-start;">
+              <span style="color: var(--primary); font-weight: bold; font-size: 1rem; line-height: 1.2;">•</span>
+              <span>O vencedor do bolão será o participante que votou na seleção que melhor ficar colocada caso nenhuma das escolhidas seja a campeã.</span>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: flex-start;">
+              <span style="color: var(--primary); font-weight: bold; font-size: 1rem; line-height: 1.2;">•</span>
+              <span>Caso nenhuma das seleções escolhidas passe de fase, o vencedor será quem escolheu a seleção que fizer melhor saldo de gols.</span>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: flex-start;">
+              <span style="color: var(--primary); font-weight: bold; font-size: 1rem; line-height: 1.2;">•</span>
+              <span>Caso não tenha nenhum critério de desempate, pegamos o 30 pila de cada um e fizemos um churrasco. 🍖</span>
+            </div>
           </div>
         </div>
       </div>
@@ -1422,6 +1447,7 @@
   let gamesData = [];
   let currentSelectedStage = null;
   let teamWins = {}; // { teamNameEN: { wins: N, games: [...] } }
+  let teamStats = {}; // { teamNameEN: { wins: N, goalDifference: N, goalsFor: N } }
   let countdownSeconds = 60;
   let countdownInterval = null;
 
@@ -1448,6 +1474,7 @@
   // =========================================================
   function processGames(games) {
     teamWins = {};
+    teamStats = {};
     let finishedGames = [];
     let upcomingGames = [];
 
@@ -1464,19 +1491,38 @@
 
       finishedGames.push(g);
 
-      // Calcular vencedor
-      if (homeScore > awayScore) {
-        // Home venceu
-        if (!teamWins[homeEN]) teamWins[homeEN] = { wins: 0, games: [] };
-        teamWins[homeEN].wins++;
-        teamWins[homeEN].games.push(g);
-      } else if (awayScore > homeScore) {
-        // Away venceu
-        if (!teamWins[awayEN]) teamWins[awayEN] = { wins: 0, games: [] };
-        teamWins[awayEN].wins++;
-        teamWins[awayEN].games.push(g);
+      // Inicializar estatísticas de saldo de gols para ambos os times
+      if (homeEN) {
+        if (!teamStats[homeEN]) teamStats[homeEN] = { wins: 0, goalDifference: 0, goalsFor: 0 };
+        teamStats[homeEN].goalDifference += (homeScore - awayScore);
+        teamStats[homeEN].goalsFor += homeScore;
       }
-      // Empate = nenhum ganha ponto
+      if (awayEN) {
+        if (!teamStats[awayEN]) teamStats[awayEN] = { wins: 0, goalDifference: 0, goalsFor: 0 };
+        teamStats[awayEN].goalDifference += (awayScore - homeScore);
+        teamStats[awayEN].goalsFor += awayScore;
+      }
+
+      // Calcular vencedor e registrar vitórias
+      if (homeScore > awayScore) {
+        if (homeEN) {
+          if (!teamWins[homeEN]) teamWins[homeEN] = { wins: 0, games: [] };
+          teamWins[homeEN].wins++;
+          teamWins[homeEN].games.push(g);
+          
+          if (!teamStats[homeEN]) teamStats[homeEN] = { wins: 0, goalDifference: 0, goalsFor: 0 };
+          teamStats[homeEN].wins++;
+        }
+      } else if (awayScore > homeScore) {
+        if (awayEN) {
+          if (!teamWins[awayEN]) teamWins[awayEN] = { wins: 0, games: [] };
+          teamWins[awayEN].wins++;
+          teamWins[awayEN].games.push(g);
+          
+          if (!teamStats[awayEN]) teamStats[awayEN] = { wins: 0, goalDifference: 0, goalsFor: 0 };
+          teamStats[awayEN].wins++;
+        }
+      }
     });
 
     return { finishedGames, upcomingGames };
@@ -1490,15 +1536,33 @@
     return PARTICIPANTES.map(p => {
       const teamEN = Object.entries(TEAM_MAP).find(([k, v]) => v.pt === p.team)?.[0] || '';
       const winsData = teamWins[teamEN] || { wins: 0, games: [] };
+      const stats = teamStats[teamEN] || { wins: 0, goalDifference: 0, goalsFor: 0 };
       const chance = Math.min(100, winsData.wins * CHANCE_PER_WIN);
       return {
         ...p,
         teamEN,
         wins: winsData.wins,
         chance,
+        goalDifference: stats.goalDifference,
+        goalsFor: stats.goalsFor,
         recentGames: winsData.games
       };
-    }).sort((a, b) => b.chance - a.chance || a.name.localeCompare(b.name));
+    }).sort((a, b) => {
+      // Ordenação decrescente de chances
+      if (b.chance !== a.chance) {
+        return b.chance - a.chance;
+      }
+      // Se empatar na porcentagem, desempata pelo melhor saldo de gols da seleção
+      if (b.goalDifference !== a.goalDifference) {
+        return b.goalDifference - a.goalDifference;
+      }
+      // Se ainda assim empatar, desempata pelo número de gols marcados
+      if (b.goalsFor !== a.goalsFor) {
+        return b.goalsFor - a.goalsFor;
+      }
+      // Último critério de desempate: ordem alfabética do nome do participante
+      return a.name.localeCompare(b.name);
+    });
   }
 
   // =========================================================
@@ -1569,12 +1633,35 @@
     // Agrupar por seleção
     const byTeam = {};
     ranked.forEach(p => {
-      if (!byTeam[p.team]) byTeam[p.team] = { chance: p.chance, code: p.code, count: 0 };
+      if (!byTeam[p.team]) {
+        byTeam[p.team] = { 
+          chance: p.chance, 
+          code: p.code, 
+          count: 0,
+          goalDifference: p.goalDifference || 0,
+          goalsFor: p.goalsFor || 0
+        };
+      }
       byTeam[p.team].count++;
     });
 
     const teams = Object.entries(byTeam)
-      .sort((a, b) => b[1].chance - a[1].chance)
+      .sort((a, b) => {
+        // Ordenar por chance (desempenho)
+        if (b[1].chance !== a[1].chance) {
+          return b[1].chance - a[1].chance;
+        }
+        // Em caso de empate, ordena pelo melhor saldo de gols da seleção
+        if (b[1].goalDifference !== a[1].goalDifference) {
+          return b[1].goalDifference - a[1].goalDifference;
+        }
+        // Se empatar no saldo, desempata pelo número de gols marcados
+        if (b[1].goalsFor !== a[1].goalsFor) {
+          return b[1].goalsFor - a[1].goalsFor;
+        }
+        // Último caso: ordem alfabética do nome da seleção
+        return a[0].localeCompare(b[0]);
+      })
       .slice(0, 10);
 
     const maxChance = teams[0]?.[1].chance || 100;
@@ -1635,6 +1722,7 @@
 
     // Atualizar título
     const titles = {
+      'today': 'Jogos de Hoje',
       'groups': 'Fase de Grupos',
       'r32': 'Segunda Fase',
       'oitavas': 'Oitavas de Final',
@@ -1651,7 +1739,19 @@
     }
 
     let filtered = [];
-    if (stage === 'groups') {
+    if (stage === 'today') {
+      const now = new Date();
+      const utcTime = now.getTime() + (now.getTimezoneOffset() * 60 * 1000);
+      const brasiliaTime = new Date(utcTime + (-3 * 60 * 60 * 1000));
+      const todayDD = String(brasiliaTime.getDate()).padStart(2, '0');
+      const todayMM = String(brasiliaTime.getMonth() + 1).padStart(2, '0');
+      const todayStr = `${todayDD}/${todayMM}`;
+
+      filtered = gamesData.filter(g => {
+        const bDateStr = getBrasiliaDateStr(g.local_date, g.stadium_id);
+        return bDateStr.startsWith(todayStr);
+      });
+    } else if (stage === 'groups') {
       filtered = gamesData.filter(g => g.type === 'group');
     } else if (stage === 'r32') {
       filtered = gamesData.filter(g => g.type === 'r32');
@@ -1664,6 +1764,11 @@
     } else if (stage === 'final') {
       filtered = gamesData.filter(g => g.type === 'final' || g.type === 'third');
     }
+
+    // Ordenar os jogos cronologicamente (crescente)
+    filtered.sort((a, b) => {
+      return getGameUtcTimestamp(a.local_date, a.stadium_id) - getGameUtcTimestamp(b.local_date, b.stadium_id);
+    });
 
     if (filtered.length === 0) {
       container.innerHTML = '<div class="empty-state">Nenhum jogo cadastrado para esta fase.</div>';
@@ -1680,14 +1785,7 @@
       const homeName = g.home_team_name_en ? homePt : (g.home_team_label || 'A definir');
       const awayName = g.away_team_name_en ? awayPt : (g.away_team_label || 'A definir');
 
-      let dateDisplay = g.local_date || '';
-      if (dateDisplay.includes(' ')) {
-        const parts = dateDisplay.split(' ');
-        const dateParts = parts[0].split('/');
-        if (dateParts.length === 3) {
-          dateDisplay = `${dateParts[1]}/${dateParts[0]} · ${parts[1]}`;
-        }
-      }
+      const dateDisplay = getBrasiliaDateStr(g.local_date, g.stadium_id);
 
       // Se o jogo terminou, mostramos o placar
       const isFinished = g.finished === 'TRUE';
@@ -1778,6 +1876,78 @@
   // =========================================================
   // HELPERS
   // =========================================================
+  function getGameUtcTimestamp(localDateStr, stadiumId) {
+    const STADIUM_OFFSETS = {
+      "1": -6,  // Estadio Azteca, Mexico City (CST)
+      "2": -6,  // Estadio Akron, Guadalajara (CST)
+      "3": -6,  // Estadio BBVA, Monterrey (CST)
+      "4": -5,  // AT&T Stadium, Dallas (CDT)
+      "5": -5,  // NRG Stadium, Houston (CDT)
+      "6": -5,  // Arrowhead Stadium, Kansas City (CDT)
+      "7": -4,  // Mercedes-Benz Stadium, Atlanta (EDT)
+      "8": -4,  // Hard Rock Stadium, Miami (EDT)
+      "9": -4,  // Gillette Stadium, Boston (EDT)
+      "10": -4, // Lincoln Financial Field, Philadelphia (EDT)
+      "11": -4, // MetLife Stadium, NY/NJ (EDT)
+      "12": -4, // BMO Field, Toronto (EDT)
+      "13": -7, // BC Place, Vancouver (PDT)
+      "14": -7, // Lumen Field, Seattle (PDT)
+      "15": -7, // Levi's Stadium, San Francisco (PDT)
+      "16": -7  // SoFi Stadium, Los Angeles (PDT)
+    };
+
+    let dateDisplay = localDateStr || '';
+    if (dateDisplay.includes(' ')) {
+      try {
+        const parts = dateDisplay.split(' ');
+        const dateParts = parts[0].split('/');
+        const timeParts = parts[1].split(':');
+        
+        if (dateParts.length === 3 && timeParts.length === 2) {
+          const month = parseInt(dateParts[0], 10) - 1;
+          const day = parseInt(dateParts[1], 10);
+          const year = parseInt(dateParts[2], 10);
+          const hour = parseInt(timeParts[0], 10);
+          const minute = parseInt(timeParts[1], 10);
+
+          const offset = STADIUM_OFFSETS[String(stadiumId)] || -5; // default CDT
+          
+          const localMs = Date.UTC(year, month, day, hour, minute);
+          return localMs - (offset * 60 * 60 * 1000);
+        }
+      } catch (e) {
+        console.error("Erro ao obter timestamp UTC do jogo:", e);
+      }
+    }
+    return 0;
+  }
+
+  function getBrasiliaDateStr(localDateStr, stadiumId) {
+    const utcMs = getGameUtcTimestamp(localDateStr, stadiumId);
+    if (utcMs === 0) {
+      let dateDisplay = localDateStr || '';
+      if (dateDisplay.includes(' ')) {
+        const parts = dateDisplay.split(' ');
+        const dateParts = parts[0].split('/');
+        if (dateParts.length === 3) {
+          return `${dateParts[1]}/${dateParts[0]} · ${parts[1]}`;
+        }
+      }
+      return dateDisplay;
+    }
+    
+    // Converte para Brasília (GMT-3)
+    const brasiliaMs = utcMs + (-3 * 60 * 60 * 1000);
+    const brasiliaDate = new Date(brasiliaMs);
+    
+    const bDay = String(brasiliaDate.getUTCDate()).padStart(2, '0');
+    const bMonth = String(brasiliaDate.getUTCMonth() + 1).padStart(2, '0');
+    const bHour = String(brasiliaDate.getUTCHours()).padStart(2, '0');
+    const bMinute = String(brasiliaDate.getUTCMinutes()).padStart(2, '0');
+
+    return `${bDay}/${bMonth} · ${bHour}:${bMinute}`;
+  }
+
   function getTeamCode(nameEN) {
     return TEAM_MAP[(nameEN || '').toLowerCase()]?.code || 'un';
   }
@@ -1871,7 +2041,7 @@
     if (lider) {
       const valorPremio = (PARTICIPANTES.length - 1) * 30;
       document.getElementById('premioValor').textContent = `R$ ${valorPremio.toFixed(2).replace('.', ',')}`;
-      document.getElementById('premioLider').innerHTML = `Premiação Parcial (${lider.name} <img src="https://flagcdn.com/w80/${lider.code}.png" style="width: 16px; height: 11px; object-fit: cover; border-radius: 2px; vertical-align: middle; margin-left: 2px; margin-top: -2px;" alt="${lider.team}">)`;
+      document.getElementById('premioLider').innerHTML = `premiação parcial (${lider.name} <img src="https://flagcdn.com/w80/${lider.code}.png" style="width: 16px; height: 11px; object-fit: cover; border-radius: 2px; vertical-align: middle; margin-left: 2px; margin-top: -2px;" alt="${lider.team}">)`;
     }
 
     const now = new Date();
