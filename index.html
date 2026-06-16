@@ -1443,11 +1443,12 @@
   // = número de vitórias × 12.5%
 
   const CHANCE_PER_WIN = 12.5;
+  const CHANCE_PER_DRAW = 6.0;
 
   let gamesData = [];
   let currentSelectedStage = null;
-  let teamWins = {}; // { teamNameEN: { wins: N, games: [...] } }
-  let teamStats = {}; // { teamNameEN: { wins: N, goalDifference: N, goalsFor: N } }
+  let teamWins = {}; // { teamNameEN: { wins: N, draws: D, games: [...] } }
+  let teamStats = {}; // { teamNameEN: { wins: N, draws: D, goalDifference: N, goalsFor: N } }
   let countdownSeconds = 60;
   let countdownInterval = null;
 
@@ -1493,34 +1494,52 @@
 
       // Inicializar estatísticas de saldo de gols para ambos os times
       if (homeEN) {
-        if (!teamStats[homeEN]) teamStats[homeEN] = { wins: 0, goalDifference: 0, goalsFor: 0 };
+        if (!teamStats[homeEN]) teamStats[homeEN] = { wins: 0, draws: 0, goalDifference: 0, goalsFor: 0 };
         teamStats[homeEN].goalDifference += (homeScore - awayScore);
         teamStats[homeEN].goalsFor += homeScore;
       }
       if (awayEN) {
-        if (!teamStats[awayEN]) teamStats[awayEN] = { wins: 0, goalDifference: 0, goalsFor: 0 };
+        if (!teamStats[awayEN]) teamStats[awayEN] = { wins: 0, draws: 0, goalDifference: 0, goalsFor: 0 };
         teamStats[awayEN].goalDifference += (awayScore - homeScore);
         teamStats[awayEN].goalsFor += awayScore;
       }
 
-      // Calcular vencedor e registrar vitórias
+      // Calcular vencedor e registrar vitórias ou empates
       if (homeScore > awayScore) {
         if (homeEN) {
-          if (!teamWins[homeEN]) teamWins[homeEN] = { wins: 0, games: [] };
+          if (!teamWins[homeEN]) teamWins[homeEN] = { wins: 0, draws: 0, games: [] };
           teamWins[homeEN].wins++;
           teamWins[homeEN].games.push(g);
           
-          if (!teamStats[homeEN]) teamStats[homeEN] = { wins: 0, goalDifference: 0, goalsFor: 0 };
+          if (!teamStats[homeEN]) teamStats[homeEN] = { wins: 0, draws: 0, goalDifference: 0, goalsFor: 0 };
           teamStats[homeEN].wins++;
         }
       } else if (awayScore > homeScore) {
         if (awayEN) {
-          if (!teamWins[awayEN]) teamWins[awayEN] = { wins: 0, games: [] };
+          if (!teamWins[awayEN]) teamWins[awayEN] = { wins: 0, draws: 0, games: [] };
           teamWins[awayEN].wins++;
           teamWins[awayEN].games.push(g);
           
-          if (!teamStats[awayEN]) teamStats[awayEN] = { wins: 0, goalDifference: 0, goalsFor: 0 };
+          if (!teamStats[awayEN]) teamStats[awayEN] = { wins: 0, draws: 0, goalDifference: 0, goalsFor: 0 };
           teamStats[awayEN].wins++;
+        }
+      } else {
+        // Empate
+        if (homeEN) {
+          if (!teamWins[homeEN]) teamWins[homeEN] = { wins: 0, draws: 0, games: [] };
+          teamWins[homeEN].draws++;
+          teamWins[homeEN].games.push(g);
+          
+          if (!teamStats[homeEN]) teamStats[homeEN] = { wins: 0, draws: 0, goalDifference: 0, goalsFor: 0 };
+          teamStats[homeEN].draws++;
+        }
+        if (awayEN) {
+          if (!teamWins[awayEN]) teamWins[awayEN] = { wins: 0, draws: 0, games: [] };
+          teamWins[awayEN].draws++;
+          teamWins[awayEN].games.push(g);
+          
+          if (!teamStats[awayEN]) teamStats[awayEN] = { wins: 0, draws: 0, goalDifference: 0, goalsFor: 0 };
+          teamStats[awayEN].draws++;
         }
       }
     });
@@ -1535,13 +1554,14 @@
     // Para cada participante, pega as vitórias da seleção escolhida
     return PARTICIPANTES.map(p => {
       const teamEN = Object.entries(TEAM_MAP).find(([k, v]) => v.pt === p.team)?.[0] || '';
-      const winsData = teamWins[teamEN] || { wins: 0, games: [] };
-      const stats = teamStats[teamEN] || { wins: 0, goalDifference: 0, goalsFor: 0 };
-      const chance = Math.min(100, winsData.wins * CHANCE_PER_WIN);
+      const winsData = teamWins[teamEN] || { wins: 0, draws: 0, games: [] };
+      const stats = teamStats[teamEN] || { wins: 0, draws: 0, goalDifference: 0, goalsFor: 0 };
+      const chance = Math.min(100, (winsData.wins * CHANCE_PER_WIN) + ((winsData.draws || 0) * CHANCE_PER_DRAW));
       return {
         ...p,
         teamEN,
         wins: winsData.wins,
+        draws: winsData.draws || 0,
         chance,
         goalDifference: stats.goalDifference,
         goalsFor: stats.goalsFor,
@@ -1596,10 +1616,23 @@
       const color = i < 3 ? colors[i] : defaultColors[(i - 3) % defaultColors.length];
       const pctColor = p.chance >= 50 ? '#10b981' : p.chance >= 25 ? '#f59e0b' : p.chance > 0 ? '#6366f1' : '#475569';
 
-      const winsLabel = p.wins === 1 ? '1 vitória' : `${p.wins} vitórias`;
-      const badge = p.chance === 0 
-        ? `<span class="eliminated-badge">0%</span>` 
-        : `<span class="wins-badge">+${winsLabel}</span>`;
+      let badge = '';
+      if (p.chance === 0) {
+        badge = `<span class="eliminated-badge">0%</span>`;
+      } else {
+        let labelParts = [];
+        if (p.wins > 0) {
+          labelParts.push(p.wins === 1 ? '1 vit' : `${p.wins} vit`);
+        }
+        if (p.draws > 0) {
+          labelParts.push(p.draws === 1 ? '1 emp' : `${p.draws} emp`);
+        }
+        if (labelParts.length > 0) {
+          badge = `<span class="wins-badge">+${labelParts.join(' / ')}</span>`;
+        } else {
+          badge = `<span class="wins-badge">0%</span>`;
+        }
+      }
 
       const votersPayload = `onclick="showVotersModal('${p.team}', '${p.code}', ${JSON.stringify(getVotersForTeam(p.team)).replace(/'/g, '&apos;')})"`;
 
@@ -1615,7 +1648,7 @@
           </div>
           <div class="progress-col">
             <div class="progress-bar-wrap">
-              <div class="progress-bar-fill" style="width:${p.chance}%; background:${color}"></div>
+              <div class="progress-bar-fill" style="width:${p.chance}%; background:${color}; ${p.chance === 0 ? 'display: none;' : ''}"></div>
             </div>
           </div>
           <div class="progress-pct" style="color:${pctColor}">${p.chance.toFixed(1)}%</div>
@@ -1667,22 +1700,19 @@
     const maxChance = teams[0]?.[1].chance || 100;
     const displayMax = Math.max(maxChance, 25);
 
-    const teamColors = [
-      '#f59e0b', '#6366f1', '#10b981', '#ef4444', '#3b82f6',
-      '#8b5cf6', '#f97316', '#06b6d4', '#84cc16', '#ec4899'
-    ];
+    const barColor = '#10b981';
 
-    container.innerHTML = teams.map(([teamName, data], i) => {
+    container.innerHTML = teams.map(([teamName, data]) => {
       const barWidth = displayMax > 0 ? (data.chance / displayMax) * 100 : 0;
-      const color = teamColors[i % teamColors.length];
+      const isZero = data.chance === 0;
       return `
         <div class="chart-bar-row">
           <div class="chart-bar-label">
             <img src="https://flagcdn.com/w80/${data.code}.png" alt="${teamName}" onerror="this.src='https://flagcdn.com/w80/un.png'">
             ${escapeHTML(teamName.length > 10 ? teamName.substring(0,10)+'…' : teamName)}
           </div>
-          <div class="chart-bar-outer">
-            <div class="chart-bar-inner" style="width:${barWidth}%; background:linear-gradient(90deg,${color}cc,${color})">
+          <div class="chart-bar-outer" style="${isZero ? 'visibility: hidden;' : ''}">
+            <div class="chart-bar-inner" style="width:${barWidth}%; background:linear-gradient(90deg,${barColor}cc,${barColor})">
               ${data.chance > 15 ? data.chance.toFixed(0)+'%' : ''}
             </div>
           </div>
