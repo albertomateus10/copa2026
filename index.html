@@ -1697,13 +1697,10 @@
       })
       .slice(0, 10);
 
-    const maxChance = teams[0]?.[1].chance || 100;
-    const displayMax = Math.max(maxChance, 25);
-
     const barColor = '#10b981';
 
     container.innerHTML = teams.map(([teamName, data]) => {
-      const barWidth = displayMax > 0 ? (data.chance / displayMax) * 100 : 0;
+      const barWidth = data.chance;
       const isZero = data.chance === 0;
       return `
         <div class="chart-bar-row">
