@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🏆 Chaveamento Copa 2026 · Bolão do Quintal</title>
+  <meta name="description" content="Chaveamento completo do mata-mata da Copa do Mundo 2026 - Bolão da Turma do Quintal">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-base: #080c18;
+      --bg-card: #111827;
+      --bg-glass: rgba(255,255,255,0.04);
+      --border: rgba(255,255,255,0.08);
+      --border-glow: rgba(99,102,241,0.3);
+      --primary: #6366f1;
+      --gold: #f59e0b;
+      --bronze: #cd7c4b;
+      --text: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #475569;
+      --green: #10b981;
+      --connector-color: rgba(99,102,241,0.3);
+      --match-w: 188px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg-base);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background:
+        radial-gradient(ellipse at 10% 10%, rgba(99,102,241,0.07) 0%, transparent 40%),
+        radial-gradient(ellipse at 90% 80%, rgba(245,158,11,0.05) 0%, transparent 40%);
+      animation: bgPulse 10s ease-in-out infinite alternate;
+      pointer-events: none;
+      z-index: 0;
+    }
+    @keyframes bgPulse {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.03); }
+    }
+
+    /* ===== STICKY HEADER ===== */
+    .page-header {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(8,12,24,0.95);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .header-left { display: flex; align-items: center; gap: 12px; }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      text-decoration: none;
+      padding: 6px 13px;
+      border-radius: 10px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .back-btn:hover { border-color: var(--border-glow); color: var(--primary); }
+
+    .header-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #f59e0b 0%, #f1f5f9 50%, #6366f1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .header-sub { font-size: 0.74rem; color: var(--text-muted); margin-top: 1px; }
+
+
+
+    /* ===== LEGEND ===== */
+    .legend {
+      display: flex; gap: 14px; align-items: center;
+      padding: 0.5rem 1.5rem; flex-wrap: wrap;
+      position: relative; z-index: 2;
+    }
+    .legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.7rem; color: var(--text-secondary); }
+    .legend-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+    /* ===== BRACKET OUTER ===== */
+    .bracket-outer {
+      position: relative; z-index: 1;
+      padding: 1.5rem;
+      overflow-x: auto;
+      overflow-y: auto;
+      min-height: calc(100vh - 150px);
+    }
+
+    /* ===== ROUND COLUMN ===== */
+    .round-col {
+      display: flex; flex-direction: column;
+      align-items: stretch; flex-shrink: 0;
+    }
+
+    .round-label {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.68rem; font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 0.08em;
+      text-align: center; padding: 6px 8px; margin-bottom: 8px;
+      white-space: nowrap;
+    }
+
+    /* ===== MATCH CARD ===== */
+    .match-card {
+      width: var(--match-w);
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 11px; overflow: hidden;
+      cursor: pointer;
+      transition: all 0.22s cubic-bezier(0.4,0,0.2,1);
+      position: relative; flex-shrink: 0;
+    }
+    .match-card::after {
+      content: '';
+      position: absolute; top: 0; left: 0;
+      width: 100%; height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(99,102,241,0), transparent);
+      transition: background 0.3s;
+    }
+    .match-card:hover {
+      border-color: rgba(99,102,241,0.35);
+      box-shadow: 0 6px 22px -6px rgba(99,102,241,0.25);
+      transform: translateY(-2px);
+    }
+    .match-card:hover::after {
+      background: linear-gradient(90deg, transparent, rgba(99,102,241,0.6), transparent);
+    }
+    .match-card.final-card {
+      width: 210px;
+      border-color: rgba(245,158,11,0.3);
+      background: linear-gradient(135deg, rgba(245,158,11,0.05), var(--bg-card));
+    }
+    .match-card.final-card::after {
+      background: linear-gradient(90deg, transparent, rgba(245,158,11,0.5), transparent);
+    }
+    .match-card.final-card:hover { border-color: rgba(245,158,11,0.5); box-shadow: 0 6px 22px -6px rgba(245,158,11,0.3); }
+
+    .match-num {
+      padding: 3px 9px;
+      font-size: 0.6rem; font-weight: 700;
+      color: var(--text-muted); text-align: right;
+      letter-spacing: 0.04em;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      background: rgba(0,0,0,0.12);
+    }
+    .final-card .match-num { color: var(--gold); }
+
+    .match-team {
+      display: flex; align-items: center; gap: 7px;
+      padding: 6px 9px;
+      font-size: 0.77rem; font-weight: 600; color: var(--text);
+      transition: background 0.2s;
+    }
+    .match-team:first-of-type { border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .match-team.winner { background: rgba(16,185,129,0.07); color: var(--green); }
+    .match-team.loser { opacity: 0.42; }
+    .match-team.bolao-hl { background: rgba(245,158,11,0.07); }
+    .match-team.bolao-hl .team-name { color: var(--gold); }
+
+    .team-flag {
+      width: 24px; height: 16px; object-fit: cover;
+      border-radius: 3px; border: 1px solid rgba(255,255,255,0.1);
+      flex-shrink: 0;
+    }
+    .flag-ph {
+      width: 24px; height: 16px;
+      background: rgba(255,255,255,0.05);
+      border: 1px dashed rgba(255,255,255,0.12);
+      border-radius: 3px; flex-shrink: 0;
+    }
+    .team-name { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+    .voted-tag {
+      font-size: 0.56rem; font-weight: 700;
+      background: rgba(245,158,11,0.18); color: var(--gold);
+      border: 1px solid rgba(245,158,11,0.3);
+      border-radius: 4px; padding: 1px 3px; flex-shrink: 0;
+    }
+    .team-score {
+      font-family: 'Outfit', sans-serif; font-weight: 800;
+      font-size: 0.85rem; min-width: 14px; text-align: right; flex-shrink: 0;
+    }
+    .score-win { color: var(--green); }
+    .score-lose { color: var(--text-muted); }
+
+    .match-date {
+      padding: 3px 9px;
+      font-size: 0.59rem; color: var(--text-muted);
+      border-top: 1px solid rgba(255,255,255,0.04);
+      background: rgba(0,0,0,0.08);
+    }
+
+    /* ===== BRACKET ROW LAYOUT ===== */
+    .bracket-row {
+      display: flex; align-items: flex-start; gap: 0;
+      min-width: max-content;
+    }
+
+    /* Vertical connector between match pairs */
+    .v-connector { background: var(--connector-color); }
+    .h-connector { background: var(--connector-color); }
+
+    /* ===== CHAMPION ===== */
+    .champion-col {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 0 12px; min-width: 130px;
+    }
+    .champion-trophy { font-size: 2.2rem; margin-bottom: 6px; animation: tFloat 3s ease-in-out infinite; }
+    @keyframes tFloat {
+      0%,100% { transform: translateY(0) rotate(-3deg); }
+      50% { transform: translateY(-7px) rotate(3deg); }
+    }
+    .champion-label {
+      font-family: 'Outfit', sans-serif; font-size: 0.66rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.1em; color: var(--gold); margin-bottom: 5px;
+    }
+    .champion-name { font-family: 'Outfit', sans-serif; font-size: 0.88rem; font-weight: 700; color: var(--text-muted); }
+
+    /* ===== THIRD PLACE ===== */
+    .third-label {
+      font-family: 'Outfit', sans-serif; font-size: 0.67rem; font-weight: 700;
+      color: var(--bronze); text-align: center;
+      padding: 3px 7px; margin-bottom: 5px;
+      background: rgba(205,124,75,0.08);
+      border: 1px solid rgba(205,124,75,0.2);
+      border-radius: 5px;
+    }
+
+    /* ===== PHASE GRID (for single-phase views) ===== */
+    .phase-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 14px; padding: 1rem 0; max-width: 900px;
+    }
+
+    /* ===== MATCH MODAL ===== */
+    .match-modal {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.72); backdrop-filter: blur(10px);
+      z-index: 500; place-items: center;
+    }
+    .match-modal.open { display: grid; }
+    .modal-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-glow);
+      border-radius: 20px; padding: 1.5rem;
+      max-width: 360px; width: 90%;
+      animation: modalIn 0.22s ease;
+    }
+    @keyframes modalIn {
+      from { transform: translateY(18px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .modal-num { font-size: 0.68rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1rem; }
+    .modal-teams { display: flex; align-items: center; gap: 10px; margin-bottom: 0.75rem; }
+    .modal-team { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; }
+    .modal-flag { width: 52px; height: 36px; object-fit: cover; border-radius: 5px; border: 1px solid rgba(255,255,255,0.12); }
+    .modal-tname { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 0.85rem; }
+    .modal-vs { font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 1rem; color: var(--text-muted); flex-shrink: 0; }
+    .modal-score { text-align: center; font-family: 'Outfit', sans-serif; font-size: 1.8rem; font-weight: 900; letter-spacing: 4px; margin-bottom: 0.5rem; }
+    .modal-date { font-size: 0.74rem; color: var(--text-muted); text-align: center; margin-bottom: 0.75rem; }
+    .modal-voters { background: rgba(245,158,11,0.06); border: 1px solid rgba(245,158,11,0.15); border-radius: 10px; padding: 10px; margin-bottom: 0.75rem; }
+    .modal-voters-title { font-size: 0.68rem; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+    .modal-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+    .modal-chip {
+      background: rgba(245,158,11,0.09); border: 1px solid rgba(245,158,11,0.2);
+      color: var(--text-secondary); border-radius: 50px; padding: 2px 9px; font-size: 0.7rem;
+    }
+    .modal-close {
+      width: 100%; background: rgba(99,102,241,0.1);
+      border: 1px solid rgba(99,102,241,0.25); color: var(--primary);
+      border-radius: 10px; padding: 9px;
+      font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 0.85rem;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .modal-close:hover { background: rgba(99,102,241,0.2); }
+
+    @media (max-width: 640px) {
+      .page-header { padding: 0.75rem 1rem; }
+      .header-title { font-size: 1.1rem; }
+      :root { --match-w: 162px; }
+      .bracket-outer { padding: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Match Modal -->
+<div class="match-modal" id="matchModal" onclick="closeModalBg(event)">
+  <div class="modal-box">
+    <div class="modal-num" id="mNum">Partida —</div>
+    <div class="modal-teams" id="mTeams"></div>
+    <div class="modal-score" id="mScore"></div>
+    <div class="modal-date" id="mDate"></div>
+    <div class="modal-voters" id="mVoters" style="display:none"></div>
+    <button class="modal-close" onclick="document.getElementById('matchModal').classList.remove('open')">Fechar</button>
+  </div>
+</div>
+
+<!-- Header -->
+<div class="page-header">
+  <div class="header-left">
+    <a href="index.html" class="back-btn">← Voltar ao Bolão</a>
+    <div>
+      <div class="header-title">🏆 Chaveamento Copa 2026</div>
+      <div class="header-sub">48 seleções · 104 jogos · EUA, Canadá, México</div>
+    </div>
+  </div>
+  <div id="headerRight" style="font-size:0.7rem;color:var(--text-muted);text-align:right;line-height:1.6;">
+    Carregando dados...
+  </div>
+</div>
+
+
+
+<!-- Legend -->
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>Classificado</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--gold)"></div>★ Votado no bolão</div>
+  <div class="legend-item"><div class="legend-dot" style="background:rgba(255,255,255,0.2)"></div>A definir</div>
+  <div style="margin-left:auto;font-size:0.68rem;color:var(--text-muted);">← deslize para ver o chaveamento →</div>
+</div>
+
+<!-- Bracket Area -->
+<div class="bracket-outer" id="bracketOuter">
+  <div id="bracketContent" style="min-width:max-content;">
+    <p style="color:var(--text-muted);padding:2rem;text-align:center;">Carregando...</p>
+  </div>
+</div>
+
+<script>
+// ===========================================================
+// TIMES DO BOLÃO
+// ===========================================================
+const BOLAO = {
+  "Brasil":          { code:"br", v:["Carlo Bigo","Leonardo Foesten","Gustavo Cunha","Edson Fehlauer"] },
+  "Espanha":         { code:"es", v:["Denis Guarda","Roberto Joinvile","Alexandre Chaves","Seco"] },
+  "Argentina":       { code:"ar", v:["Federico Renda","João Pacheco","Felipe Pacheco"] },
+  "Portugal":        { code:"pt", v:["Matheus Santos bigode","Vicente Filho","Guilherme Pruinelli","Alberto Mateus"] },
+  "Holanda":         { code:"nl", v:["Tiago Bicuira","André Trento","Gustavo Bassegio","Deivid Mendes"] },
+  "França":          { code:"fr", v:["Maicon Espetinho","Edu Alcará","Omar Conversa Fiada"] },
+  "Alemanha":        { code:"de", v:["Vinicius Reis"] },
+  "Uruguai":         { code:"uy", v:["Francisco Lamaison"] },
+  "Senegal":         { code:"sn", v:["Vinicius Grassi"] },
+  "Inglaterra":      { code:"gb-eng", v:["Rafael Pruinelli"] },
+  "Estados Unidos":  { code:"us", v:["Diego Fraga"] },
+};
+
+// ===========================================================
+// DADOS DO CHAVEAMENTO
+// ===========================================================
+const R32 = [
+  // Linha 1 (superior)
+  { id:74,  date:"29 jun · 17:30", h:{n:"Alemanha",         c:"de"},  a:{n:"3° A/B/C/D/F",   c:null} },
+  { id:77,  date:"30 jun · 18:00", h:{n:"1° I",             c:null},  a:{n:"3° C/D/F/G/H",   c:null} },
+  { id:73,  date:"28 jun · 16:00", h:{n:"África do Sul",    c:"za"},  a:{n:"Canadá",          c:"ca"} },
+  { id:75,  date:"29 jun · 22:00", h:{n:"Holanda",          c:"nl"},  a:{n:"Marrocos",        c:"ma"} },
+  { id:83,  date:"2 jul · 20:00",  h:{n:"2° K",             c:null},  a:{n:"2° L",            c:null} },
+  { id:84,  date:"2 jul · 16:00",  h:{n:"1° H",             c:null},  a:{n:"2° J",            c:null} },
+  { id:81,  date:"1 jul · 21:00",  h:{n:"Estados Unidos",   c:"us"},  a:{n:"Bósnia e Herz.",  c:"ba"} },
+  { id:82,  date:"2 jul · 00:00",  h:{n:"1° G",             c:null},  a:{n:"3° E/H/I/J/K",   c:null} },
+  // Linha 2 (inferior)
+  { id:76,  date:"29 jun · 14:00", h:{n:"Brasil",           c:"br"},  a:{n:"Japão",           c:"jp"} },
+  { id:78,  date:"30 jun · 14:00", h:{n:"Costa do Marfim",  c:"ci"},  a:{n:"2° I",            c:null} },
+  { id:79,  date:"30 jun · 22:00", h:{n:"México",           c:"mx"},  a:{n:"3° C/E/F/H/I",   c:null} },
+  { id:80,  date:"1 jul · 13:00",  h:{n:"1° L",             c:null},  a:{n:"3° E/H/I/J/K",   c:null} },
+  { id:86,  date:"3 jul · 19:00",  h:{n:"Argentina",        c:"ar"},  a:{n:"2° H",            c:null} },
+  { id:88,  date:"3 jul · 15:00",  h:{n:"Austrália",        c:"au"},  a:{n:"2° G",            c:null} },
+  { id:85,  date:"3 jul · 00:00",  h:{n:"Suíça",            c:"ch"},  a:{n:"3° E/F/G/I/J",   c:null} },
+  { id:87,  date:"3 jul · 22:30",  h:{n:"1° K",             c:null},  a:{n:"3° D/E/I/J/L",   c:null} },
+];
+
+const OITAVAS = [
+  // Metade Superior (conectada a R32 0-7)
+  { id:90, date:"4 jul · 14:00",  h:{n:"Vencedor J74", c:null}, a:{n:"Vencedor J73", c:null} },
+  { id:89, date:"4 jul · 18:00",  h:{n:"Vencedor J77", c:null}, a:{n:"Vencedor J83", c:null} },
+  { id:91, date:"5 jul · 17:00",  h:{n:"Vencedor J75", c:null}, a:{n:"Vencedor J84", c:null} },
+  { id:92, date:"5 jul · 21:00",  h:{n:"Vencedor J81", c:null}, a:{n:"Vencedor J82", c:null} },
+  // Metade Inferior (conectada a R32 8-15)
+  { id:94, date:"6 jul · 21:00",  h:{n:"Vencedor J76", c:null}, a:{n:"Vencedor J78", c:null} },
+  { id:93, date:"6 jul · 16:00",  h:{n:"Vencedor J79", c:null}, a:{n:"Vencedor J80", c:null} },
+  { id:96, date:"7 jul · 17:00",  h:{n:"Vencedor J86", c:null}, a:{n:"Vencedor J85", c:null} },
+  { id:95, date:"7 jul · 13:00",  h:{n:"Vencedor J88", c:null}, a:{n:"Vencedor J87", c:null} },
+];
+
+const QUARTAS = [
+  // Metade Superior (conectada a Oitavas 90, 89, 91, 92)
+  { id:97,  date:"9 jul · 17:00",  h:{n:"Vencedor J90", c:null}, a:{n:"Vencedor J89", c:null} },
+  { id:98,  date:"10 jul · 16:00", h:{n:"Vencedor J91", c:null}, a:{n:"Vencedor J92", c:null} },
+  // Metade Inferior (conectada a Oitavas 94, 93, 96, 95)
+  { id:99,  date:"11 jul · 18:00", h:{n:"Vencedor J94", c:null}, a:{n:"Vencedor J93", c:null} },
+  { id:100, date:"11 jul · 22:00", h:{n:"Vencedor J96", c:null}, a:{n:"Vencedor J95", c:null} },
+];
+
+const SEMI = [
+  { id:101, date:"14 jul · 16:00", h:{n:"Vencedor J97", c:null}, a:{n:"Vencedor J98", c:null} },
+  { id:102, date:"15 jul · 16:00", h:{n:"Vencedor J99", c:null}, a:{n:"Vencedor J100", c:null} },
+];
+
+const TERCEIRO = { id:103, date:"18 jul · 18:00 · Miami Gardens", h:{n:"Perdedor SF1",c:null}, a:{n:"Perdedor SF2",c:null} };
+const FINAL    = { id:104, date:"19 jul · 16:00 · East Rutherford", h:{n:"SF V1",c:null}, a:{n:"SF V2",c:null} };
+
+// ===========================================================
+// BUILD MATCH CARD HTML
+// ===========================================================
+function bolaoKey(name) {
+  return Object.keys(BOLAO).find(k => k.toLowerCase() === (name||'').toLowerCase()) || null;
+}
+
+function buildCard(m, extraCls='') {
+  const h = m.h, a = m.a;
+  const hasScore = m.hs != null && m.as != null;
+  const hWin = hasScore && m.hs > m.as;
+  const aWin = hasScore && m.as > m.hs;
+
+  const hKey = bolaoKey(h.n), aKey = bolaoKey(a.n);
+
+  const hCls = (hWin?'winner':'') + (aWin?' loser':'') + (hKey?' bolao-hl':'');
+  const aCls = (aWin?'winner':'') + (hWin?' loser':'') + (aKey?' bolao-hl':'');
+
+  const hFlag = h.c
+    ? `<img class="team-flag" src="https://flagcdn.com/w80/${h.c}.png" alt="${esc(h.n)}" onerror="this.style.display='none'">`
+    : `<div class="flag-ph"></div>`;
+  const aFlag = a.c
+    ? `<img class="team-flag" src="https://flagcdn.com/w80/${a.c}.png" alt="${esc(a.n)}" onerror="this.style.display='none'">`
+    : `<div class="flag-ph"></div>`;
+
+  const hScore = hasScore ? `<span class="team-score ${hWin?'score-win':'score-lose'}">${m.hs}</span>` : '';
+  const aScore = hasScore ? `<span class="team-score ${aWin?'score-win':'score-lose'}">${m.as}</span>` : '';
+
+  const hVoted = hKey ? `<span class="voted-tag">★${BOLAO[hKey].v.length}</span>` : '';
+  const aVoted = aKey ? `<span class="voted-tag">★${BOLAO[aKey].v.length}</span>` : '';
+
+  const payload = esc(JSON.stringify({id:m.id,date:m.date,h,a,hs:m.hs||null,as:m.as||null}));
+
+  return `<div class="match-card ${extraCls}" onclick='openModal(${JSON.stringify({id:m.id,date:m.date,h,a,hs:m.hs||null,as:m.as||null})})'>
+    <div class="match-num">Partida ${m.id}</div>
+    <div class="match-team ${hCls.trim()}">${hFlag}<span class="team-name">${esc(h.n)}</span>${hVoted}${hScore}</div>
+    <div class="match-team ${aCls.trim()}">${aFlag}<span class="team-name">${esc(a.n)}</span>${aVoted}${aScore}</div>
+    <div class="match-date">📅 ${esc(m.date)}</div>
+  </div>`;
+}
+
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// ===========================================================
+// RENDER FULL BRACKET
+// ===========================================================
+function renderBracket() {
+  const el = document.getElementById('bracketContent');
+
+  // Each round spaced to align vertically: gap between cards doubles each round
+  const CARD_H = 94; // approx card height px
+  const GAP_R32 = 6;
+  const GAP_OIT = (CARD_H + GAP_R32) * 2 - CARD_H; // double spacing
+  const GAP_QUA = (CARD_H + GAP_OIT) * 2 - CARD_H;
+  const GAP_SEM = 757;
+
+  // Connector column
+  const conn = (w=28) => `<div style="width:${w}px;flex-shrink:0;align-self:stretch;position:relative;">
+    <div style="position:absolute;top:0;left:50%;width:1px;height:100%;background:var(--connector-color);"></div>
+  </div>`;
+
+  // Build a vertical column of match cards with given gap between them
+  function col(label, matches, gapPx, paddingTop=0, extraCls='') {
+    let inner = '';
+    for(let i=0; i<matches.length; i++) {
+      if(i>0) inner += `<div style="height:${gapPx}px;flex-shrink:0;"></div>`;
+      inner += buildCard(matches[i], extraCls);
+    }
+    return `<div style="display:flex;flex-direction:column;flex-shrink:0;align-items:center;">
+      <div style="font-family:'Outfit',sans-serif;font-size:0.66rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;text-align:center;padding:5px 8px;margin-bottom:6px;white-space:nowrap;">${label}</div>
+      <div style="display:flex;flex-direction:column;align-items:center;padding-top:${paddingTop}px;">${inner}</div>
+    </div>`;
+  }
+
+  // R32: split upper/lower 8 with visual separator
+  const r32upper = col('16 Avos de Final', R32.slice(0,8), GAP_R32, 0);
+  const r32lower = col('', R32.slice(8,16), GAP_R32, 0);
+  const r32Block = `<div style="display:flex;flex-direction:column;gap:0;flex-shrink:0;">
+    ${r32upper}
+    <div style="height:40px;display:flex;align-items:center;justify-content:center;">
+      <div style="width:80%;height:1px;background:rgba(255,255,255,0.04);"></div>
+    </div>
+    ${r32lower}
+  </div>`;
+
+  // Oitavas: 8 → 2 groups of 4
+  const oit1 = col('Oitavas de Final', OITAVAS.slice(0,4), GAP_OIT, (CARD_H+GAP_R32)/2);
+  const oit2 = col('', OITAVAS.slice(4,8), GAP_OIT, (CARD_H+GAP_R32)/2);
+  const oitBlock = `<div style="display:flex;flex-direction:column;gap:0;flex-shrink:0;">
+    ${oit1}
+    <div style="height:90px;"></div>
+    ${oit2}
+  </div>`;
+
+  // Quartas: 4 → 2 groups of 2
+  const qua1 = col('Quartas de Final', QUARTAS.slice(0,2), GAP_QUA, (CARD_H+GAP_OIT+GAP_R32)/2 + (CARD_H+GAP_R32)/2);
+  const qua2 = col('', QUARTAS.slice(2,4), GAP_QUA, (CARD_H+GAP_OIT+GAP_R32)/2 + (CARD_H+GAP_R32)/2);
+  const quaBlock = `<div style="display:flex;flex-direction:column;gap:0;flex-shrink:0;">
+    ${qua1}
+    <div style="height:187px;"></div>
+    ${qua2}
+  </div>`;
+
+  // Semis: 2 cards vertically spaced
+  const semiPaddingTop = 353;
+  const semiBlock = col('Semifinais', SEMI, GAP_SEM, semiPaddingTop);
+
+  // Final + 3rd place
+  const finalPaddingTop = semiPaddingTop + (CARD_H + GAP_SEM) / 2;
+  const finalBlock = `<div style="display:flex;flex-direction:column;flex-shrink:0;align-items:center;">
+    <div style="font-family:'Outfit',sans-serif;font-size:0.66rem;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.08em;text-align:center;padding:5px 8px;margin-bottom:6px;">🏆 Final</div>
+    <div style="display:flex;flex-direction:column;align-items:center;padding-top:${finalPaddingTop}px;">
+      ${buildCard(FINAL,'final-card')}
+      <div style="height:60px;"></div>
+      <div class="third-label">🥉 3° Lugar</div>
+      ${buildCard(TERCEIRO)}
+    </div>
+  </div>`;
+
+  // Champion
+  const champBlock = `<div class="champion-col" style="padding-top:${finalPaddingTop + 8}px;">
+    <div class="champion-trophy">🏆</div>
+    <div class="champion-label">Campeão</div>
+    <div class="champion-name">A definir</div>
+  </div>`;
+
+  el.innerHTML = `<div style="display:flex;align-items:flex-start;gap:0;min-width:max-content;padding-bottom:2rem;">
+    ${r32Block}${conn()}${oitBlock}${conn()}${quaBlock}${conn()}${semiBlock}${conn()}${finalBlock}${conn(24)}${champBlock}
+  </div>`;
+}
+
+
+
+// ===========================================================
+// MATCH MODAL
+// ===========================================================
+window.openModal = function(m) {
+  const h = m.h, a = m.a;
+  const hasScore = m.hs !== null;
+  const hWin = hasScore && m.hs > m.as;
+  const aWin = hasScore && m.as > m.hs;
+
+  document.getElementById('mNum').textContent = `Partida ${m.id}`;
+
+  const hFlag = h.c ? `<img class="modal-flag" src="https://flagcdn.com/w80/${h.c}.png" onerror="this.style.display='none'">` : `<div class="modal-flag" style="background:rgba(255,255,255,0.06);border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;">?</div>`;
+  const aFlag = a.c ? `<img class="modal-flag" src="https://flagcdn.com/w80/${a.c}.png" onerror="this.style.display='none'">` : `<div class="modal-flag" style="background:rgba(255,255,255,0.06);border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;">?</div>`;
+
+  document.getElementById('mTeams').innerHTML = `
+    <div class="modal-team">${hFlag}<div class="modal-tname" style="${hWin?'color:var(--green)':''}">${esc(h.n)}</div></div>
+    <div class="modal-vs">×</div>
+    <div class="modal-team">${aFlag}<div class="modal-tname" style="${aWin?'color:var(--green)':''}">${esc(a.n)}</div></div>`;
+
+  document.getElementById('mScore').textContent = hasScore ? `${m.hs} × ${m.as}` : '? × ?';
+  document.getElementById('mScore').style.color = hasScore ? 'var(--green)' : 'var(--text-muted)';
+  document.getElementById('mDate').textContent = `📅 ${m.date}`;
+
+  const hKey = bolaoKey(h.n), aKey = bolaoKey(a.n);
+  const voterEl = document.getElementById('mVoters');
+  if (hKey || aKey) {
+    voterEl.style.display = 'block';
+    let chips = '';
+    if (hKey) chips += BOLAO[hKey].v.map(v => `<span class="modal-chip"><img src="https://flagcdn.com/w80/${BOLAO[hKey].code}.png" style="width:13px;height:9px;object-fit:cover;border-radius:2px;margin-right:3px;vertical-align:middle;">${esc(v)}</span>`).join('');
+    if (aKey) chips += BOLAO[aKey].v.map(v => `<span class="modal-chip"><img src="https://flagcdn.com/w80/${BOLAO[aKey].code}.png" style="width:13px;height:9px;object-fit:cover;border-radius:2px;margin-right:3px;vertical-align:middle;">${esc(v)}</span>`).join('');
+    voterEl.innerHTML = `<div class="modal-voters-title">★ Apostadores do Bolão</div><div class="modal-chips">${chips}</div>`;
+  } else {
+    voterEl.style.display = 'none';
+  }
+
+  document.getElementById('matchModal').classList.add('open');
+};
+
+window.closeModalBg = function(e) {
+  if (e.target.id === 'matchModal') document.getElementById('matchModal').classList.remove('open');
+};
+
+// ===========================================================
+// LOAD REAL DATA FROM API (optional enhancement)
+// ===========================================================
+async function loadLiveData() {
+  try {
+    const resp = await fetch('https://worldcup26.ir/get/games', { mode:'cors', headers:{'Accept':'application/json'} });
+    if (!resp.ok) return;
+    const json = await resp.json();
+    const games = json.games || [];
+
+    // Count finished and upcoming
+    let finished = games.filter(g => g.finished === 'TRUE').length;
+    let upcoming = games.filter(g => g.finished !== 'TRUE').length;
+    document.getElementById('headerRight').innerHTML = `✅ ${finished} jogos encerrados<br>⏳ ${upcoming} por jogar`;
+
+    // Apply scores to knockout matches if available
+    const knockoutTypes = ['r32','r16','qf','sf','final','third'];
+    const koGames = games.filter(g => knockoutTypes.includes(g.type));
+
+    koGames.forEach(g => {
+      if (g.finished !== 'TRUE') return;
+      const matchNum = parseInt(g.match_number || g.id || 0);
+      // Look through all rounds
+      const allRounds = [...R32, ...OITAVAS, ...QUARTAS, ...SEMI, TERCEIRO, FINAL];
+      const found = allRounds.find(m => m.id === matchNum);
+      if (found) {
+        found.hs = parseInt(g.home_score) || 0;
+        found.as = parseInt(g.away_score) || 0;
+        if (g.home_team_name_en) found.h.n = getTeamPt(g.home_team_name_en) || found.h.n;
+        if (g.away_team_name_en) found.a.n = getTeamPt(g.away_team_name_en) || found.a.n;
+        if (g.home_team_code)    found.h.c = g.home_team_code.toLowerCase();
+        if (g.away_team_code)    found.a.c = g.away_team_code.toLowerCase();
+      }
+    });
+
+    // Re-render
+    renderBracket();
+  } catch(e) {
+    console.warn('Live data unavailable:', e);
+    document.getElementById('headerRight').innerHTML = '⚠️ Sem dados ao vivo';
+  }
+}
+
+const TEAM_PT = {
+  "mexico":"México","south africa":"África do Sul","canada":"Canadá","brazil":"Brasil",
+  "netherlands":"Holanda","germany":"Alemanha","argentina":"Argentina","france":"França",
+  "spain":"Espanha","portugal":"Portugal","england":"Inglaterra","united states":"Estados Unidos",
+  "uruguay":"Uruguai","senegal":"Senegal","japan":"Japão","australia":"Austrália",
+  "switzerland":"Suíça","morocco":"Marrocos","ivory coast":"Costa do Marfim",
+  "colombia":"Colômbia","croatia":"Croácia","bosnia and herzegovina":"Bósnia e Herz.",
+  "south korea":"Coreia do Sul","ecuador":"Equador","algeria":"Argélia","turkey":"Turquia",
+  "iran":"Irã","saudi arabia":"Arábia Saudita","belgium":"Bélgica"
+};
+function getTeamPt(en) { return TEAM_PT[en.toLowerCase()] || en; }
+
+// ===========================================================
+// INIT
+// ===========================================================
+document.addEventListener('DOMContentLoaded', () => {
+  renderBracket();
+  loadLiveData();
+});
+</script>
+</body>
+</html>

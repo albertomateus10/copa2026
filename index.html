@@ -1233,13 +1233,8 @@
 
   <!-- Stage info -->
   <div class="stage-info" id="stageInfo">
-    <button class="stage-chip" data-stage="today" onclick="changeGamesStage('today')">📅 Jogos de Hoje</button>
     <button class="stage-chip" data-stage="groups" onclick="changeGamesStage('groups')">✅ Fase de Grupos</button>
-    <button class="stage-chip" data-stage="r32" onclick="changeGamesStage('r32')">→ Segunda Fase</button>
-    <button class="stage-chip" data-stage="oitavas" onclick="changeGamesStage('oitavas')">→ Oitavas</button>
-    <button class="stage-chip" data-stage="quartas" onclick="changeGamesStage('quartas')">→ Quartas</button>
-    <button class="stage-chip" data-stage="semi" onclick="changeGamesStage('semi')">→ Semi</button>
-    <button class="stage-chip" data-stage="final" onclick="changeGamesStage('final')">→ Final</button>
+    <a href="chaveamento.html" class="stage-chip" style="display:inline-flex;align-items:center;gap:5px;text-decoration:none;background:linear-gradient(135deg,rgba(245,158,11,0.12),rgba(99,102,241,0.12));border-color:rgba(245,158,11,0.3);color:var(--gold);">🏆 Ver Chaveamento</a>
   </div>
 
   <!-- Games Container (controlled by Stage Chips) -->
@@ -1443,12 +1438,10 @@
   // = número de vitórias × 12.5%
 
   const CHANCE_PER_WIN = 12.5;
-  const CHANCE_PER_DRAW = 6.0;
 
   let gamesData = [];
   let currentSelectedStage = null;
-  let teamWins = {}; // { teamNameEN: { wins: N, draws: D, games: [...] } }
-  let teamStats = {}; // { teamNameEN: { wins: N, draws: D, goalDifference: N, goalsFor: N } }
+  let teamWins = {}; // { teamNameEN: { wins: N, games: [...] } }
   let countdownSeconds = 60;
   let countdownInterval = null;
 
@@ -1475,7 +1468,6 @@
   // =========================================================
   function processGames(games) {
     teamWins = {};
-    teamStats = {};
     let finishedGames = [];
     let upcomingGames = [];
 
@@ -1492,54 +1484,36 @@
 
       finishedGames.push(g);
 
-      // Inicializar estatísticas de saldo de gols para ambos os times
+      // Inicializar e acumular gols para os dois times
       if (homeEN) {
-        if (!teamStats[homeEN]) teamStats[homeEN] = { wins: 0, draws: 0, goalDifference: 0, goalsFor: 0 };
-        teamStats[homeEN].goalDifference += (homeScore - awayScore);
-        teamStats[homeEN].goalsFor += homeScore;
+        if (!teamWins[homeEN]) teamWins[homeEN] = { wins: 0, draws: 0, goals: 0, games: [] };
+        teamWins[homeEN].goals += homeScore;
       }
       if (awayEN) {
-        if (!teamStats[awayEN]) teamStats[awayEN] = { wins: 0, draws: 0, goalDifference: 0, goalsFor: 0 };
-        teamStats[awayEN].goalDifference += (awayScore - homeScore);
-        teamStats[awayEN].goalsFor += awayScore;
+        if (!teamWins[awayEN]) teamWins[awayEN] = { wins: 0, draws: 0, goals: 0, games: [] };
+        teamWins[awayEN].goals += awayScore;
       }
 
-      // Calcular vencedor e registrar vitórias ou empates
+      // Calcular vencedor ou empate
       if (homeScore > awayScore) {
         if (homeEN) {
-          if (!teamWins[homeEN]) teamWins[homeEN] = { wins: 0, draws: 0, games: [] };
           teamWins[homeEN].wins++;
           teamWins[homeEN].games.push(g);
-          
-          if (!teamStats[homeEN]) teamStats[homeEN] = { wins: 0, draws: 0, goalDifference: 0, goalsFor: 0 };
-          teamStats[homeEN].wins++;
         }
       } else if (awayScore > homeScore) {
         if (awayEN) {
-          if (!teamWins[awayEN]) teamWins[awayEN] = { wins: 0, draws: 0, games: [] };
           teamWins[awayEN].wins++;
           teamWins[awayEN].games.push(g);
-          
-          if (!teamStats[awayEN]) teamStats[awayEN] = { wins: 0, draws: 0, goalDifference: 0, goalsFor: 0 };
-          teamStats[awayEN].wins++;
         }
       } else {
         // Empate
         if (homeEN) {
-          if (!teamWins[homeEN]) teamWins[homeEN] = { wins: 0, draws: 0, games: [] };
           teamWins[homeEN].draws++;
           teamWins[homeEN].games.push(g);
-          
-          if (!teamStats[homeEN]) teamStats[homeEN] = { wins: 0, draws: 0, goalDifference: 0, goalsFor: 0 };
-          teamStats[homeEN].draws++;
         }
         if (awayEN) {
-          if (!teamWins[awayEN]) teamWins[awayEN] = { wins: 0, draws: 0, games: [] };
           teamWins[awayEN].draws++;
           teamWins[awayEN].games.push(g);
-          
-          if (!teamStats[awayEN]) teamStats[awayEN] = { wins: 0, draws: 0, goalDifference: 0, goalsFor: 0 };
-          teamStats[awayEN].draws++;
         }
       }
     });
@@ -1554,35 +1528,18 @@
     // Para cada participante, pega as vitórias da seleção escolhida
     return PARTICIPANTES.map(p => {
       const teamEN = Object.entries(TEAM_MAP).find(([k, v]) => v.pt === p.team)?.[0] || '';
-      const winsData = teamWins[teamEN] || { wins: 0, draws: 0, games: [] };
-      const stats = teamStats[teamEN] || { wins: 0, draws: 0, goalDifference: 0, goalsFor: 0 };
-      const chance = Math.min(100, (winsData.wins * CHANCE_PER_WIN) + ((winsData.draws || 0) * CHANCE_PER_DRAW));
+      const winsData = teamWins[teamEN] || { wins: 0, draws: 0, goals: 0, games: [] };
+      const chance = Math.min(100, winsData.wins * 12.5 + winsData.draws * 6.2);
       return {
         ...p,
         teamEN,
         wins: winsData.wins,
-        draws: winsData.draws || 0,
+        draws: winsData.draws,
+        goals: winsData.goals || 0,
         chance,
-        goalDifference: stats.goalDifference,
-        goalsFor: stats.goalsFor,
         recentGames: winsData.games
       };
-    }).sort((a, b) => {
-      // Ordenação decrescente de chances
-      if (b.chance !== a.chance) {
-        return b.chance - a.chance;
-      }
-      // Se empatar na porcentagem, desempata pelo melhor saldo de gols da seleção
-      if (b.goalDifference !== a.goalDifference) {
-        return b.goalDifference - a.goalDifference;
-      }
-      // Se ainda assim empatar, desempata pelo número de gols marcados
-      if (b.goalsFor !== a.goalsFor) {
-        return b.goalsFor - a.goalsFor;
-      }
-      // Último critério de desempate: ordem alfabética do nome do participante
-      return a.name.localeCompare(b.name);
-    });
+    }).sort((a, b) => b.chance - a.chance || b.goals - a.goals || a.name.localeCompare(b.name));
   }
 
   // =========================================================
@@ -1616,23 +1573,13 @@
       const color = i < 3 ? colors[i] : defaultColors[(i - 3) % defaultColors.length];
       const pctColor = p.chance >= 50 ? '#10b981' : p.chance >= 25 ? '#f59e0b' : p.chance > 0 ? '#6366f1' : '#475569';
 
-      let badge = '';
-      if (p.chance === 0) {
-        badge = `<span class="eliminated-badge">0%</span>`;
-      } else {
-        let labelParts = [];
-        if (p.wins > 0) {
-          labelParts.push(p.wins === 1 ? '1 vit' : `${p.wins} vit`);
-        }
-        if (p.draws > 0) {
-          labelParts.push(p.draws === 1 ? '1 emp' : `${p.draws} emp`);
-        }
-        if (labelParts.length > 0) {
-          badge = `<span class="wins-badge">+${labelParts.join(' / ')}</span>`;
-        } else {
-          badge = `<span class="wins-badge">0%</span>`;
-        }
-      }
+      let scoreParts = [];
+      if (p.wins > 0) scoreParts.push(p.wins === 1 ? '1 vitória' : `${p.wins} vitórias`);
+      if (p.draws > 0) scoreParts.push(p.draws === 1 ? '1 empate' : `${p.draws} empates`);
+      const badgeText = scoreParts.join(' e ');
+      const badge = p.chance === 0 
+        ? `<span class="eliminated-badge">0%</span>` 
+        : `<span class="wins-badge">${badgeText ? '+' + badgeText : '0%'}</span>`;
 
       const votersPayload = `onclick="showVotersModal('${p.team}', '${p.code}', ${JSON.stringify(getVotersForTeam(p.team)).replace(/'/g, '&apos;')})"`;
 
@@ -1648,7 +1595,7 @@
           </div>
           <div class="progress-col">
             <div class="progress-bar-wrap">
-              <div class="progress-bar-fill" style="width:${p.chance}%; background:${color}; ${p.chance === 0 ? 'display: none;' : ''}"></div>
+              <div class="progress-bar-fill" style="width:${p.chance}%; background:${color}"></div>
             </div>
           </div>
           <div class="progress-pct" style="color:${pctColor}">${p.chance.toFixed(1)}%</div>
@@ -1666,50 +1613,33 @@
     // Agrupar por seleção
     const byTeam = {};
     ranked.forEach(p => {
-      if (!byTeam[p.team]) {
-        byTeam[p.team] = { 
-          chance: p.chance, 
-          code: p.code, 
-          count: 0,
-          goalDifference: p.goalDifference || 0,
-          goalsFor: p.goalsFor || 0
-        };
-      }
+      if (!byTeam[p.team]) byTeam[p.team] = { chance: p.chance, code: p.code, count: 0 };
       byTeam[p.team].count++;
     });
 
     const teams = Object.entries(byTeam)
-      .sort((a, b) => {
-        // Ordenar por chance (desempenho)
-        if (b[1].chance !== a[1].chance) {
-          return b[1].chance - a[1].chance;
-        }
-        // Em caso de empate, ordena pelo melhor saldo de gols da seleção
-        if (b[1].goalDifference !== a[1].goalDifference) {
-          return b[1].goalDifference - a[1].goalDifference;
-        }
-        // Se empatar no saldo, desempata pelo número de gols marcados
-        if (b[1].goalsFor !== a[1].goalsFor) {
-          return b[1].goalsFor - a[1].goalsFor;
-        }
-        // Último caso: ordem alfabética do nome da seleção
-        return a[0].localeCompare(b[0]);
-      })
+      .sort((a, b) => b[1].chance - a[1].chance)
       .slice(0, 10);
 
-    const barColor = '#10b981';
+    const maxChance = teams[0]?.[1].chance || 100;
+    const displayMax = Math.max(maxChance, 25);
 
-    container.innerHTML = teams.map(([teamName, data]) => {
-      const barWidth = data.chance;
-      const isZero = data.chance === 0;
+    const teamColors = [
+      '#f59e0b', '#6366f1', '#10b981', '#ef4444', '#3b82f6',
+      '#8b5cf6', '#f97316', '#06b6d4', '#84cc16', '#ec4899'
+    ];
+
+    container.innerHTML = teams.map(([teamName, data], i) => {
+      const barWidth = displayMax > 0 ? (data.chance / displayMax) * 100 : 0;
+      const color = teamColors[i % teamColors.length];
       return `
         <div class="chart-bar-row">
           <div class="chart-bar-label">
             <img src="https://flagcdn.com/w80/${data.code}.png" alt="${teamName}" onerror="this.src='https://flagcdn.com/w80/un.png'">
             ${escapeHTML(teamName.length > 10 ? teamName.substring(0,10)+'…' : teamName)}
           </div>
-          <div class="chart-bar-outer" style="${isZero ? 'visibility: hidden;' : ''}">
-            <div class="chart-bar-inner" style="width:${barWidth}%; background:linear-gradient(90deg,${barColor}cc,${barColor})">
+          <div class="chart-bar-outer">
+            <div class="chart-bar-inner" style="width:${barWidth}%; background:linear-gradient(90deg,${color}cc,${color})">
               ${data.chance > 15 ? data.chance.toFixed(0)+'%' : ''}
             </div>
           </div>
@@ -1749,7 +1679,6 @@
 
     // Atualizar título
     const titles = {
-      'today': 'Jogos de Hoje',
       'groups': 'Fase de Grupos',
       'r32': 'Segunda Fase',
       'oitavas': 'Oitavas de Final',
@@ -1766,19 +1695,7 @@
     }
 
     let filtered = [];
-    if (stage === 'today') {
-      const now = new Date();
-      const utcTime = now.getTime() + (now.getTimezoneOffset() * 60 * 1000);
-      const brasiliaTime = new Date(utcTime + (-3 * 60 * 60 * 1000));
-      const todayDD = String(brasiliaTime.getDate()).padStart(2, '0');
-      const todayMM = String(brasiliaTime.getMonth() + 1).padStart(2, '0');
-      const todayStr = `${todayDD}/${todayMM}`;
-
-      filtered = gamesData.filter(g => {
-        const bDateStr = getBrasiliaDateStr(g.local_date, g.stadium_id);
-        return bDateStr.startsWith(todayStr);
-      });
-    } else if (stage === 'groups') {
+    if (stage === 'groups') {
       filtered = gamesData.filter(g => g.type === 'group');
     } else if (stage === 'r32') {
       filtered = gamesData.filter(g => g.type === 'r32');
@@ -1791,11 +1708,6 @@
     } else if (stage === 'final') {
       filtered = gamesData.filter(g => g.type === 'final' || g.type === 'third');
     }
-
-    // Ordenar os jogos cronologicamente (crescente)
-    filtered.sort((a, b) => {
-      return getGameUtcTimestamp(a.local_date, a.stadium_id) - getGameUtcTimestamp(b.local_date, b.stadium_id);
-    });
 
     if (filtered.length === 0) {
       container.innerHTML = '<div class="empty-state">Nenhum jogo cadastrado para esta fase.</div>';
@@ -1812,7 +1724,14 @@
       const homeName = g.home_team_name_en ? homePt : (g.home_team_label || 'A definir');
       const awayName = g.away_team_name_en ? awayPt : (g.away_team_label || 'A definir');
 
-      const dateDisplay = getBrasiliaDateStr(g.local_date, g.stadium_id);
+      let dateDisplay = g.local_date || '';
+      if (dateDisplay.includes(' ')) {
+        const parts = dateDisplay.split(' ');
+        const dateParts = parts[0].split('/');
+        if (dateParts.length === 3) {
+          dateDisplay = `${dateParts[1]}/${dateParts[0]} · ${parts[1]}`;
+        }
+      }
 
       // Se o jogo terminou, mostramos o placar
       const isFinished = g.finished === 'TRUE';
@@ -1903,78 +1822,6 @@
   // =========================================================
   // HELPERS
   // =========================================================
-  function getGameUtcTimestamp(localDateStr, stadiumId) {
-    const STADIUM_OFFSETS = {
-      "1": -6,  // Estadio Azteca, Mexico City (CST)
-      "2": -6,  // Estadio Akron, Guadalajara (CST)
-      "3": -6,  // Estadio BBVA, Monterrey (CST)
-      "4": -5,  // AT&T Stadium, Dallas (CDT)
-      "5": -5,  // NRG Stadium, Houston (CDT)
-      "6": -5,  // Arrowhead Stadium, Kansas City (CDT)
-      "7": -4,  // Mercedes-Benz Stadium, Atlanta (EDT)
-      "8": -4,  // Hard Rock Stadium, Miami (EDT)
-      "9": -4,  // Gillette Stadium, Boston (EDT)
-      "10": -4, // Lincoln Financial Field, Philadelphia (EDT)
-      "11": -4, // MetLife Stadium, NY/NJ (EDT)
-      "12": -4, // BMO Field, Toronto (EDT)
-      "13": -7, // BC Place, Vancouver (PDT)
-      "14": -7, // Lumen Field, Seattle (PDT)
-      "15": -7, // Levi's Stadium, San Francisco (PDT)
-      "16": -7  // SoFi Stadium, Los Angeles (PDT)
-    };
-
-    let dateDisplay = localDateStr || '';
-    if (dateDisplay.includes(' ')) {
-      try {
-        const parts = dateDisplay.split(' ');
-        const dateParts = parts[0].split('/');
-        const timeParts = parts[1].split(':');
-        
-        if (dateParts.length === 3 && timeParts.length === 2) {
-          const month = parseInt(dateParts[0], 10) - 1;
-          const day = parseInt(dateParts[1], 10);
-          const year = parseInt(dateParts[2], 10);
-          const hour = parseInt(timeParts[0], 10);
-          const minute = parseInt(timeParts[1], 10);
-
-          const offset = STADIUM_OFFSETS[String(stadiumId)] || -5; // default CDT
-          
-          const localMs = Date.UTC(year, month, day, hour, minute);
-          return localMs - (offset * 60 * 60 * 1000);
-        }
-      } catch (e) {
-        console.error("Erro ao obter timestamp UTC do jogo:", e);
-      }
-    }
-    return 0;
-  }
-
-  function getBrasiliaDateStr(localDateStr, stadiumId) {
-    const utcMs = getGameUtcTimestamp(localDateStr, stadiumId);
-    if (utcMs === 0) {
-      let dateDisplay = localDateStr || '';
-      if (dateDisplay.includes(' ')) {
-        const parts = dateDisplay.split(' ');
-        const dateParts = parts[0].split('/');
-        if (dateParts.length === 3) {
-          return `${dateParts[1]}/${dateParts[0]} · ${parts[1]}`;
-        }
-      }
-      return dateDisplay;
-    }
-    
-    // Converte para Brasília (GMT-3)
-    const brasiliaMs = utcMs + (-3 * 60 * 60 * 1000);
-    const brasiliaDate = new Date(brasiliaMs);
-    
-    const bDay = String(brasiliaDate.getUTCDate()).padStart(2, '0');
-    const bMonth = String(brasiliaDate.getUTCMonth() + 1).padStart(2, '0');
-    const bHour = String(brasiliaDate.getUTCHours()).padStart(2, '0');
-    const bMinute = String(brasiliaDate.getUTCMinutes()).padStart(2, '0');
-
-    return `${bDay}/${bMonth} · ${bHour}:${bMinute}`;
-  }
-
   function getTeamCode(nameEN) {
     return TEAM_MAP[(nameEN || '').toLowerCase()]?.code || 'un';
   }
@@ -2067,8 +1914,27 @@
     const lider = ranked[0];
     if (lider) {
       const valorPremio = (PARTICIPANTES.length - 1) * 30;
-      document.getElementById('premioValor').textContent = `R$ ${valorPremio.toFixed(2).replace('.', ',')}`;
-      document.getElementById('premioLider').innerHTML = `premiação parcial (${lider.name} <img src="https://flagcdn.com/w80/${lider.code}.png" style="width: 16px; height: 11px; object-fit: cover; border-radius: 2px; vertical-align: middle; margin-left: 2px; margin-top: -2px;" alt="${lider.team}">)`;
+
+      // Encontrar todos os co-líderes (mesma chance e mesmos gols marcados que o primeiro)
+      const coliders = ranked.filter(p => p.chance === lider.chance && p.goals === lider.goals);
+      const valorPorPessoa = valorPremio / coliders.length;
+
+      document.getElementById('premioValor').textContent = `R$ ${valorPorPessoa.toFixed(2).replace('.', ',')}${coliders.length > 1 ? ' cada' : ''}`;
+
+      // Agrupar coliders por seleção para exibir apenas uma bandeira por país
+      const colidersByTeam = {};
+      coliders.forEach(p => {
+        if (!colidersByTeam[p.team]) colidersByTeam[p.team] = { code: p.code, names: [] };
+        colidersByTeam[p.team].names.push(p.name);
+      });
+
+      const nomesHTML = Object.entries(colidersByTeam).map(([teamName, data]) => {
+        const nomesStr = data.names.map(name => escapeHTML(name)).join(' · ');
+        const flagHTML = `<img src="https://flagcdn.com/w80/${data.code}.png" style="width:16px;height:11px;object-fit:cover;border-radius:2px;vertical-align:middle;margin-left:5px;margin-top:-2px;" alt="${teamName}">`;
+        return `${nomesStr} ${flagHTML}`;
+      }).join('<span style="color:var(--text-muted);margin:0 8px;"> · </span>');
+
+      document.getElementById('premioLider').innerHTML = nomesHTML;
     }
 
     const now = new Date();
