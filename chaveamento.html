@@ -11,19 +11,19 @@
 
   <style>
     :root {
-      --bg-base: #080c18;
-      --bg-card: #111827;
-      --bg-glass: rgba(255,255,255,0.04);
-      --border: rgba(255,255,255,0.08);
-      --border-glow: rgba(99,102,241,0.3);
-      --primary: #6366f1;
-      --gold: #f59e0b;
-      --bronze: #cd7c4b;
-      --text: #f1f5f9;
-      --text-secondary: #94a3b8;
-      --text-muted: #475569;
-      --green: #10b981;
-      --connector-color: rgba(99,102,241,0.3);
+      --bg-base: #f8fafc; /* Slate 50 */
+      --bg-card: #ffffff; /* Branco puro */
+      --bg-glass: rgba(255, 255, 255, 0.7);
+      --border: rgba(0, 0, 0, 0.06);
+      --border-glow: rgba(79, 70, 229, 0.25);
+      --primary: #4f46e5; /* Indigo 600 */
+      --gold: #d97706; /* Amber 600 */
+      --bronze: #b45309; /* Amber 700 */
+      --text: #0f172a; /* Slate 900 */
+      --text-secondary: #475569; /* Slate 600 */
+      --text-muted: #64748b; /* Slate 500 */
+      --green: #059669; /* Emerald 600 */
+      --connector-color: rgba(79, 70, 229, 0.18);
       --match-w: 188px;
     }
 
@@ -42,8 +42,8 @@
       top: -50%; left: -50%;
       width: 200%; height: 200%;
       background:
-        radial-gradient(ellipse at 10% 10%, rgba(99,102,241,0.07) 0%, transparent 40%),
-        radial-gradient(ellipse at 90% 80%, rgba(245,158,11,0.05) 0%, transparent 40%);
+        radial-gradient(ellipse at 10% 10%, rgba(79, 70, 229, 0.05) 0%, transparent 40%),
+        radial-gradient(ellipse at 90% 80%, rgba(217, 119, 6, 0.03) 0%, transparent 40%);
       animation: bgPulse 10s ease-in-out infinite alternate;
       pointer-events: none;
       z-index: 0;
@@ -56,7 +56,7 @@
     /* ===== STICKY HEADER ===== */
     .page-header {
       position: sticky; top: 0; z-index: 100;
-      background: rgba(8,12,24,0.95);
+      background: rgba(248, 250, 252, 0.92);
       backdrop-filter: blur(16px);
       border-bottom: 1px solid var(--border);
       padding: 1rem 1.5rem;
@@ -73,7 +73,7 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      background: rgba(255,255,255,0.05);
+      background: #ffffff;
       border: 1px solid var(--border);
       color: var(--text-secondary);
       text-decoration: none;
@@ -81,22 +81,21 @@
       border-radius: 10px;
       font-size: 0.8rem;
       font-weight: 600;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.02);
       transition: all 0.2s;
     }
-    .back-btn:hover { border-color: var(--border-glow); color: var(--primary); }
+    .back-btn:hover { border-color: var(--border-glow); color: var(--primary); box-shadow: 0 4px 12px rgba(79, 70, 229, 0.08); }
 
     .header-title {
       font-family: 'Outfit', sans-serif;
       font-size: 1.3rem;
       font-weight: 800;
-      background: linear-gradient(135deg, #f59e0b 0%, #f1f5f9 50%, #6366f1 100%);
+      background: linear-gradient(135deg, #d97706 0%, #0f172a 50%, #4f46e5 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
     .header-sub { font-size: 0.74rem; color: var(--text-muted); margin-top: 1px; }
-
-
 
     /* ===== LEGEND ===== */
     .legend {
@@ -135,9 +134,10 @@
     .match-card {
       width: var(--match-w);
       background: var(--bg-card);
-      border: 1px solid rgba(255,255,255,0.07);
+      border: 1px solid rgba(0, 0, 0, 0.05);
       border-radius: 11px; overflow: hidden;
       cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02), 0 1px 2px rgba(0, 0, 0, 0.04);
       transition: all 0.22s cubic-bezier(0.4,0,0.2,1);
       position: relative; flex-shrink: 0;
     }
@@ -145,34 +145,34 @@
       content: '';
       position: absolute; top: 0; left: 0;
       width: 100%; height: 2px;
-      background: linear-gradient(90deg, transparent, rgba(99,102,241,0), transparent);
+      background: linear-gradient(90deg, transparent, rgba(79, 70, 229, 0), transparent);
       transition: background 0.3s;
     }
     .match-card:hover {
-      border-color: rgba(99,102,241,0.35);
-      box-shadow: 0 6px 22px -6px rgba(99,102,241,0.25);
+      border-color: rgba(79, 70, 229, 0.3);
+      box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.08), 0 8px 10px -6px rgba(79, 70, 229, 0.08);
       transform: translateY(-2px);
     }
     .match-card:hover::after {
-      background: linear-gradient(90deg, transparent, rgba(99,102,241,0.6), transparent);
+      background: linear-gradient(90deg, transparent, rgba(79, 70, 229, 0.6), transparent);
     }
     .match-card.final-card {
       width: 210px;
-      border-color: rgba(245,158,11,0.3);
-      background: linear-gradient(135deg, rgba(245,158,11,0.05), var(--bg-card));
+      border-color: rgba(217, 119, 6, 0.25);
+      background: linear-gradient(135deg, rgba(217, 119, 6, 0.02), var(--bg-card));
     }
     .match-card.final-card::after {
-      background: linear-gradient(90deg, transparent, rgba(245,158,11,0.5), transparent);
+      background: linear-gradient(90deg, transparent, rgba(217, 119, 6, 0.5), transparent);
     }
-    .match-card.final-card:hover { border-color: rgba(245,158,11,0.5); box-shadow: 0 6px 22px -6px rgba(245,158,11,0.3); }
+    .match-card.final-card:hover { border-color: rgba(217, 119, 6, 0.4); box-shadow: 0 10px 25px -5px rgba(217, 119, 6, 0.1), 0 8px 10px -6px rgba(217, 119, 6, 0.1); }
 
     .match-num {
       padding: 3px 9px;
       font-size: 0.6rem; font-weight: 700;
       color: var(--text-muted); text-align: right;
       letter-spacing: 0.04em;
-      border-bottom: 1px solid rgba(255,255,255,0.04);
-      background: rgba(0,0,0,0.12);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+      background: rgba(0, 0, 0, 0.02);
     }
     .final-card .match-num { color: var(--gold); }
 
@@ -182,28 +182,28 @@
       font-size: 0.77rem; font-weight: 600; color: var(--text);
       transition: background 0.2s;
     }
-    .match-team:first-of-type { border-bottom: 1px solid rgba(255,255,255,0.04); }
-    .match-team.winner { background: rgba(16,185,129,0.07); color: var(--green); }
+    .match-team:first-of-type { border-bottom: 1px solid rgba(0, 0, 0, 0.04); }
+    .match-team.winner { background: rgba(5, 150, 105, 0.05); color: var(--green); }
     .match-team.loser { opacity: 0.42; }
-    .match-team.bolao-hl { background: rgba(245,158,11,0.07); }
+    .match-team.bolao-hl { background: rgba(217, 119, 6, 0.05); }
     .match-team.bolao-hl .team-name { color: var(--gold); }
 
     .team-flag {
       width: 24px; height: 16px; object-fit: cover;
-      border-radius: 3px; border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 3px; border: 1px solid rgba(0, 0, 0, 0.08);
       flex-shrink: 0;
     }
     .flag-ph {
       width: 24px; height: 16px;
-      background: rgba(255,255,255,0.05);
-      border: 1px dashed rgba(255,255,255,0.12);
+      background: rgba(0, 0, 0, 0.03);
+      border: 1px dashed rgba(0, 0, 0, 0.1);
       border-radius: 3px; flex-shrink: 0;
     }
     .team-name { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
     .voted-tag {
       font-size: 0.56rem; font-weight: 700;
-      background: rgba(245,158,11,0.18); color: var(--gold);
-      border: 1px solid rgba(245,158,11,0.3);
+      background: rgba(217, 119, 6, 0.1); color: var(--gold);
+      border: 1px solid rgba(217, 119, 6, 0.2);
       border-radius: 4px; padding: 1px 3px; flex-shrink: 0;
     }
     .team-score {
@@ -216,8 +216,8 @@
     .match-date {
       padding: 3px 9px;
       font-size: 0.59rem; color: var(--text-muted);
-      border-top: 1px solid rgba(255,255,255,0.04);
-      background: rgba(0,0,0,0.08);
+      border-top: 1px solid rgba(0, 0, 0, 0.04);
+      background: rgba(0, 0, 0, 0.01);
     }
 
     /* ===== BRACKET ROW LAYOUT ===== */
@@ -252,8 +252,8 @@
       font-family: 'Outfit', sans-serif; font-size: 0.67rem; font-weight: 700;
       color: var(--bronze); text-align: center;
       padding: 3px 7px; margin-bottom: 5px;
-      background: rgba(205,124,75,0.08);
-      border: 1px solid rgba(205,124,75,0.2);
+      background: rgba(180, 83, 9, 0.06);
+      border: 1px solid rgba(180, 83, 9, 0.15);
       border-radius: 5px;
     }
 
@@ -267,13 +267,14 @@
     /* ===== MATCH MODAL ===== */
     .match-modal {
       display: none; position: fixed; inset: 0;
-      background: rgba(0,0,0,0.72); backdrop-filter: blur(10px);
+      background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(10px);
       z-index: 500; place-items: center;
     }
     .match-modal.open { display: grid; }
     .modal-box {
       background: var(--bg-card);
       border: 1px solid var(--border-glow);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
       border-radius: 20px; padding: 1.5rem;
       max-width: 360px; width: 90%;
       animation: modalIn 0.22s ease;
@@ -285,26 +286,27 @@
     .modal-num { font-size: 0.68rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1rem; }
     .modal-teams { display: flex; align-items: center; gap: 10px; margin-bottom: 0.75rem; }
     .modal-team { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; }
-    .modal-flag { width: 52px; height: 36px; object-fit: cover; border-radius: 5px; border: 1px solid rgba(255,255,255,0.12); }
-    .modal-tname { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 0.85rem; }
+    .modal-flag { width: 52px; height: 36px; object-fit: cover; border-radius: 5px; border: 1px solid rgba(0, 0, 0, 0.08); }
+    .modal-tname { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 0.85rem; color: var(--text); }
     .modal-vs { font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 1rem; color: var(--text-muted); flex-shrink: 0; }
     .modal-score { text-align: center; font-family: 'Outfit', sans-serif; font-size: 1.8rem; font-weight: 900; letter-spacing: 4px; margin-bottom: 0.5rem; }
     .modal-date { font-size: 0.74rem; color: var(--text-muted); text-align: center; margin-bottom: 0.75rem; }
-    .modal-voters { background: rgba(245,158,11,0.06); border: 1px solid rgba(245,158,11,0.15); border-radius: 10px; padding: 10px; margin-bottom: 0.75rem; }
+    .modal-voters { background: rgba(217, 119, 6, 0.04); border: 1px solid rgba(217, 119, 6, 0.12); border-radius: 10px; padding: 10px; margin-bottom: 0.75rem; }
     .modal-voters-title { font-size: 0.68rem; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
     .modal-chips { display: flex; flex-wrap: wrap; gap: 5px; }
     .modal-chip {
-      background: rgba(245,158,11,0.09); border: 1px solid rgba(245,158,11,0.2);
+      background: rgba(217, 119, 6, 0.06); border: 1px solid rgba(217, 119, 6, 0.15);
       color: var(--text-secondary); border-radius: 50px; padding: 2px 9px; font-size: 0.7rem;
+      display: inline-flex; align-items: center;
     }
     .modal-close {
-      width: 100%; background: rgba(99,102,241,0.1);
-      border: 1px solid rgba(99,102,241,0.25); color: var(--primary);
+      width: 100%; background: rgba(79, 70, 229, 0.08);
+      border: 1px solid rgba(79, 70, 229, 0.2); color: var(--primary);
       border-radius: 10px; padding: 9px;
       font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 0.85rem;
       cursor: pointer; transition: all 0.2s;
     }
-    .modal-close:hover { background: rgba(99,102,241,0.2); }
+    .modal-close:hover { background: rgba(79, 70, 229, 0.15); }
 
     @media (max-width: 640px) {
       .page-header { padding: 0.75rem 1rem; }
@@ -348,7 +350,7 @@
 <div class="legend">
   <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>Classificado</div>
   <div class="legend-item"><div class="legend-dot" style="background:var(--gold)"></div>★ Votado no bolão</div>
-  <div class="legend-item"><div class="legend-dot" style="background:rgba(255,255,255,0.2)"></div>A definir</div>
+  <div class="legend-item"><div class="legend-dot" style="background:rgba(0,0,0,0.15)"></div>A definir</div>
   <div style="margin-left:auto;font-size:0.68rem;color:var(--text-muted);">← deslize para ver o chaveamento →</div>
 </div>
 
@@ -514,7 +516,7 @@ function renderBracket() {
   const r32Block = `<div style="display:flex;flex-direction:column;gap:0;flex-shrink:0;">
     ${r32upper}
     <div style="height:40px;display:flex;align-items:center;justify-content:center;">
-      <div style="width:80%;height:1px;background:rgba(255,255,255,0.04);"></div>
+      <div style="width:80%;height:1px;background:rgba(0,0,0,0.06);"></div>
     </div>
     ${r32lower}
   </div>`;
@@ -578,8 +580,8 @@ window.openModal = function(m) {
 
   document.getElementById('mNum').textContent = `Partida ${m.id}`;
 
-  const hFlag = h.c ? `<img class="modal-flag" src="https://flagcdn.com/w80/${h.c}.png" onerror="this.style.display='none'">` : `<div class="modal-flag" style="background:rgba(255,255,255,0.06);border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;">?</div>`;
-  const aFlag = a.c ? `<img class="modal-flag" src="https://flagcdn.com/w80/${a.c}.png" onerror="this.style.display='none'">` : `<div class="modal-flag" style="background:rgba(255,255,255,0.06);border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;">?</div>`;
+  const hFlag = h.c ? `<img class="modal-flag" src="https://flagcdn.com/w80/${h.c}.png" onerror="this.style.display='none'">` : `<div class="modal-flag" style="background:rgba(0,0,0,0.03);border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;">?</div>`;
+  const aFlag = a.c ? `<img class="modal-flag" src="https://flagcdn.com/w80/${a.c}.png" onerror="this.style.display='none'">` : `<div class="modal-flag" style="background:rgba(0,0,0,0.03);border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;">?</div>`;
 
   document.getElementById('mTeams').innerHTML = `
     <div class="modal-team">${hFlag}<div class="modal-tname" style="${hWin?'color:var(--green)':''}">${esc(h.n)}</div></div>
