@@ -630,6 +630,9 @@ window.closeModalBg = function(e) {
 // ===========================================================
 // LOAD REAL DATA FROM API (optional enhancement)
 // ===========================================================
+// ===========================================================
+// LOAD REAL DATA FROM API (optional enhancement)
+// ===========================================================
 async function loadLiveData() {
   try {
     const resp = await fetch('https://worldcup26.ir/get/games', { mode:'cors', headers:{'Accept':'application/json'} });
@@ -642,23 +645,36 @@ async function loadLiveData() {
     let upcoming = games.filter(g => g.finished !== 'TRUE').length;
     document.getElementById('headerRight').innerHTML = `✅ ${finished} jogos encerrados<br>⏳ ${upcoming} por jogar`;
 
-    // Apply scores to knockout matches if available
+    // Apply scores and teams to knockout matches if available
     const knockoutTypes = ['r32','r16','qf','sf','final','third'];
     const koGames = games.filter(g => knockoutTypes.includes(g.type));
 
     koGames.forEach(g => {
-      if (g.finished !== 'TRUE') return;
       const matchNum = parseInt(g.match_number || g.id || 0);
       // Look through all rounds
       const allRounds = [...R32, ...OITAVAS, ...QUARTAS, ...SEMI, TERCEIRO, FINAL];
       const found = allRounds.find(m => m.id === matchNum);
       if (found) {
-        found.hs = parseInt(g.home_score) || 0;
-        found.as = parseInt(g.away_score) || 0;
-        if (g.home_team_name_en) found.h.n = getTeamPt(g.home_team_name_en) || found.h.n;
-        if (g.away_team_name_en) found.a.n = getTeamPt(g.away_team_name_en) || found.a.n;
-        if (g.home_team_code)    found.h.c = g.home_team_code.toLowerCase();
-        if (g.away_team_code)    found.a.c = g.away_team_code.toLowerCase();
+        // Só exibe o placar se o jogo já terminou
+        if (g.finished === 'TRUE') {
+          found.hs = parseInt(g.home_score) || 0;
+          found.as = parseInt(g.away_score) || 0;
+        } else {
+          found.hs = null;
+          found.as = null;
+        }
+        
+        // Atualiza as seleções e bandeiras a partir dos nomes em inglês
+        if (g.home_team_name_en && g.home_team_name_en !== 'None' && g.home_team_name_en !== 'null') {
+          found.h.n = getTeamPt(g.home_team_name_en) || found.h.n;
+          const flag = getTeamFlag(found.h.n);
+          if (flag) found.h.c = flag;
+        }
+        if (g.away_team_name_en && g.away_team_name_en !== 'None' && g.away_team_name_en !== 'null') {
+          found.a.n = getTeamPt(g.away_team_name_en) || found.a.n;
+          const flag = getTeamFlag(found.a.n);
+          if (flag) found.a.c = flag;
+        }
       }
     });
 
@@ -679,9 +695,39 @@ const TEAM_PT = {
   "switzerland":"Suíça","morocco":"Marrocos","ivory coast":"Costa do Marfim",
   "colombia":"Colômbia","croatia":"Croácia","bosnia and herzegovina":"Bósnia e Herz.",
   "south korea":"Coreia do Sul","ecuador":"Equador","algeria":"Argélia","turkey":"Turquia",
-  "iran":"Irã","saudi arabia":"Arábia Saudita","belgium":"Bélgica"
+  "iran":"Irã","saudi arabia":"Arábia Saudita","belgium":"Bélgica",
+  "paraguay":"Paraguai", "cape verde":"Cabo Verde", "egypt":"Egito", "norway":"Noruega",
+  "czech republic":"Tchéquia", "qatar":"Catar", "haiti":"Haiti", "scotland":"Escócia",
+  "curacao":"Curaçao", "curaçao":"Curaçao", "sweden":"Suécia", "tunisia":"Tunísia",
+  "new zealand":"Nova Zelândia", "iraq":"Iraque", "austria":"Áustria", "jordan":"Jordânia",
+  "democratic republic of the congo":"RD Congo", "uzbekistan":"Uzbequistão", "ghana":"Gana",
+  "panama":"Panamá"
 };
+
+const TEAM_FLAGS = {
+  "México": "mx", "África do Sul": "za", "Coreia do Sul": "kr", "Tchéquia": "cz",
+  "Canadá": "ca", "Bósnia e Herz.": "ba", "Bósnia e Herzegovina": "ba", "Catar": "qa", "Suíça": "ch",
+  "Brasil": "br", "Marrocos": "ma", "Haiti": "ht", "Escócia": "gb-sct",
+  "Estados Unidos": "us", "Paraguai": "py", "Austrália": "au", "Turquia": "tr",
+  "Alemanha": "de", "Curaçao": "cw", "Costa do Marfim": "ci", "Equador": "ec",
+  "Holanda": "nl", "Japão": "jp", "Suécia": "se", "Tunísia": "tn",
+  "Bélgica": "be", "Egito": "eg", "Irã": "ir", "Nova Zelândia": "nz",
+  "Espanha": "es", "Cabo Verde": "cv", "Arábia Saudita": "sa", "Uruguai": "uy",
+  "França": "fr", "Senegal": "sn", "Iraque": "iq", "Noruega": "no",
+  "Argentina": "ar", "Argélia": "dz", "Áustria": "at", "Jordânia": "jo",
+  "Portugal": "pt", "RD Congo": "cd", "Uzbequistão": "uz", "Colômbia": "co",
+  "Inglaterra": "gb-eng", "Croácia": "hr", "Gana": "gh", "Panamá": "pa"
+};
+
 function getTeamPt(en) { return TEAM_PT[en.toLowerCase()] || en; }
+
+function getTeamFlag(name) {
+  if (!name) return null;
+  if (TEAM_FLAGS[name]) return TEAM_FLAGS[name];
+  const pt = getTeamPt(name);
+  if (TEAM_FLAGS[pt]) return TEAM_FLAGS[pt];
+  return null;
+}
 
 // ===========================================================
 // DRAW CONNECTOR LINES (SVG)

@@ -1233,9 +1233,15 @@
 
   <!-- Stage info -->
   <div class="stage-info" id="stageInfo">
+    <button class="stage-chip" data-stage="today" onclick="changeGamesStage('today')">📅 Jogos de Hoje</button>
     <button class="stage-chip" data-stage="groups" onclick="changeGamesStage('groups')">✅ Fase de Grupos</button>
+    <button class="stage-chip" data-stage="r32" onclick="changeGamesStage('r32')" style="display: none;">16 Avos (R32)</button>
+    <button class="stage-chip" data-stage="oitavas" onclick="changeGamesStage('oitavas')" style="display: none;">Oitavas</button>
+    <button class="stage-chip" data-stage="quartas" onclick="changeGamesStage('quartas')" style="display: none;">Quartas</button>
+    <button class="stage-chip" data-stage="semi" onclick="changeGamesStage('semi')" style="display: none;">Semifinais</button>
+    <button class="stage-chip" data-stage="final" onclick="changeGamesStage('final')" style="display: none;">Finais</button>
     <a href="grupos.html" class="stage-chip" style="display:inline-flex;align-items:center;gap:5px;text-decoration:none;background:linear-gradient(135deg,rgba(139,92,246,0.12),rgba(99,102,241,0.12));border-color:rgba(139,92,246,0.3);color:#a78bfa;">📅 Grupos da Copa</a>
-    <a href="chaveamento.html" class="stage-chip" style="display:inline-flex;align-items:center;gap:5px;text-decoration:none;background:linear-gradient(135deg,rgba(245,158,11,0.12),rgba(99,102,241,0.12));border-color:rgba(245,158,11,0.3);color:var(--gold);">🏆 Ver Chaveamento</a>
+    <a href="chaveamento.html" class="stage-chip" style="display:inline-flex;align-items:center;gap:5px;text-decoration:none;background:linear-gradient(245deg,rgba(245,158,11,0.12),rgba(99,102,241,0.12));border-color:rgba(245,158,11,0.3);color:var(--gold);">🏆 Ver Chaveamento</a>
   </div>
 
   <!-- Games Container (controlled by Stage Chips) -->
@@ -1679,6 +1685,7 @@
 
     // Atualizar título
     const titles = {
+      'today': 'Jogos de Hoje',
       'groups': 'Fase de Grupos',
       'r32': 'Segunda Fase',
       'oitavas': 'Oitavas de Final',
@@ -1695,7 +1702,14 @@
     }
 
     let filtered = [];
-    if (stage === 'groups') {
+    if (stage === 'today') {
+      const today = new Date();
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const dd = String(today.getDate()).padStart(2, '0');
+      const yyyy = today.getFullYear();
+      const todayStr = `${mm}/${dd}/${yyyy}`;
+      filtered = gamesData.filter(g => g.local_date && g.local_date.startsWith(todayStr));
+    } else if (stage === 'groups') {
       filtered = gamesData.filter(g => g.type === 'group');
     } else if (stage === 'r32') {
       filtered = gamesData.filter(g => g.type === 'r32');
@@ -1710,8 +1724,27 @@
     }
 
     if (filtered.length === 0) {
-      container.innerHTML = '<div class="empty-state">Nenhum jogo cadastrado para esta fase.</div>';
+      if (stage === 'today') {
+        const today = new Date();
+        const formattedToday = today.toLocaleDateString('pt-BR');
+        container.innerHTML = `<div class="empty-state">Nenhum jogo agendado para o dia de hoje (${formattedToday}).</div>`;
+      } else {
+        container.innerHTML = '<div class="empty-state">Nenhum jogo cadastrado para esta fase.</div>';
+      }
       return;
+    }
+
+    // Função auxiliar para traduzir as labels em inglês que a API manda
+    function translateLabel(label) {
+      if (!label) return 'A definir';
+      let res = label;
+      res = res.replace(/Winner Group (\w+)/i, '1° Grupo $1');
+      res = res.replace(/Runner-up Group (\w+)/i, '2° Grupo $1');
+      res = res.replace(/3rd Group ([\w\/]+)/i, '3° Grupo $1');
+      res = res.replace(/Winner Match (\d+)/i, 'Vencedor J$1');
+      res = res.replace(/Loser Match (\d+)/i, 'Perdedor J$1');
+      res = res.replace(/3rd Group/i, '3° Grupo');
+      return res;
     }
 
     // Renderizar jogos filtrados
@@ -1721,8 +1754,8 @@
       const homePt = getTeamPt(g.home_team_name_en);
       const awayPt = getTeamPt(g.away_team_name_en);
 
-      const homeName = g.home_team_name_en ? homePt : (g.home_team_label || 'A definir');
-      const awayName = g.away_team_name_en ? awayPt : (g.away_team_label || 'A definir');
+      const homeName = g.home_team_name_en ? homePt : translateLabel(g.home_team_label);
+      const awayName = g.away_team_name_en ? awayPt : translateLabel(g.away_team_label);
 
       let dateDisplay = g.local_date || '';
       if (dateDisplay.includes(' ')) {
@@ -1742,7 +1775,7 @@
       return `
         <div class="result-item" style="padding: 12px; background: rgba(255,255,255,0.03); display: flex; align-items: center; justify-content: space-between; gap: 8px;">
           <div class="result-teams" style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; flex: 1; min-width: 0; justify-content: flex-start;">
-            ${g.home_team_name_en ? `<img src="https://flagcdn.com/w80/${homeCode}.png" onerror="this.src='https://flagcdn.com/w80/un.png'" style="width: 20px; height: 14px; object-fit: cover; flex-shrink: 0;">` : '<span style="flex-shrink: 0;">❓</span>'}
+            ${g.home_team_name_en ? `<img src="https://flagcdn.com/w80/${homeCode}.png" onerror="this.src='https://flagcdn.com/w80/un.png'" style="width: 20px; height: 14px; object-fit: cover; flex-shrink: 0;">` : '<span style="flex-shrink: 0; font-size: 0.72rem;">❓</span>'}
             <span title="${homeName}" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600;">${escapeHTML(homeName)}</span>
           </div>
           <div style="flex-shrink: 0; min-width: 80px; display: flex; justify-content: center; align-items: center; text-align: center;">
@@ -1750,7 +1783,7 @@
           </div>
           <div class="result-teams" style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; flex: 1; min-width: 0; justify-content: flex-end; text-align: right;">
             <span title="${awayName}" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; text-align: right;">${escapeHTML(awayName)}</span>
-            ${g.away_team_name_en ? `<img src="https://flagcdn.com/w80/${awayCode}.png" onerror="this.src='https://flagcdn.com/w80/un.png'" style="width: 20px; height: 14px; object-fit: cover; flex-shrink: 0;">` : '<span style="flex-shrink: 0;">❓</span>'}
+            ${g.away_team_name_en ? `<img src="https://flagcdn.com/w80/${awayCode}.png" onerror="this.src='https://flagcdn.com/w80/un.png'" style="width: 20px; height: 14px; object-fit: cover; flex-shrink: 0;">` : '<span style="flex-shrink: 0; font-size: 0.72rem;">❓</span>'}
           </div>
         </div>
       `;
