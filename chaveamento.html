@@ -11,20 +11,19 @@
 
   <style>
     :root {
-      --bg-base: #f8fafc; /* Slate 50 */
-      --bg-card: #ffffff; /* Branco puro */
-      --bg-glass: rgba(255, 255, 255, 0.7);
-      --border: rgba(0, 0, 0, 0.06);
-      --border-glow: rgba(79, 70, 229, 0.25);
-      --primary: #4f46e5; /* Indigo 600 */
-      --gold: #d97706; /* Amber 600 */
-      --bronze: #b45309; /* Amber 700 */
-      --text: #0f172a; /* Slate 900 */
-      --text-secondary: #475569; /* Slate 600 */
-      --text-muted: #64748b; /* Slate 500 */
-      --green: #059669; /* Emerald 600 */
-      --connector-color: rgba(79, 70, 229, 0.18);
-      --match-w: 188px;
+      --bg-base: #f3f4f6; /* Cinza suave de fundo */
+      --bg-card: #ffffff; /* Branco puro para os cards */
+      --border: #e5e7eb;  /* Borda cinza clara da ESPN */
+      --border-glow: rgba(0, 0, 0, 0.05);
+      --primary: #0066cc; /* Azul ESPN */
+      --gold: #d97706;    /* Destaques do bolão */
+      --bronze: #b45309;
+      --text: #1f2937;    /* Texto principal escuro */
+      --text-secondary: #4b5563;
+      --text-muted: #9ca3af;
+      --green: #10b981;   /* Verde para vencedor */
+      --connector-color: #cbd5e1; /* Slate 300 para linhas */
+      --match-w: 230px;   /* Largura dos cards */
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -32,32 +31,15 @@
     body {
       background: var(--bg-base);
       color: var(--text);
-      font-family: 'Inter', sans-serif;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       min-height: 100vh;
-    }
-
-    body::before {
-      content: '';
-      position: fixed;
-      top: -50%; left: -50%;
-      width: 200%; height: 200%;
-      background:
-        radial-gradient(ellipse at 10% 10%, rgba(79, 70, 229, 0.05) 0%, transparent 40%),
-        radial-gradient(ellipse at 90% 80%, rgba(217, 119, 6, 0.03) 0%, transparent 40%);
-      animation: bgPulse 10s ease-in-out infinite alternate;
-      pointer-events: none;
-      z-index: 0;
-    }
-    @keyframes bgPulse {
-      0% { transform: scale(1); }
-      100% { transform: scale(1.03); }
     }
 
     /* ===== STICKY HEADER ===== */
     .page-header {
       position: sticky; top: 0; z-index: 100;
-      background: rgba(248, 250, 252, 0.92);
-      backdrop-filter: blur(16px);
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border);
       padding: 1rem 1.5rem;
       display: flex;
@@ -65,6 +47,7 @@
       justify-content: space-between;
       flex-wrap: wrap;
       gap: 10px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
     }
 
     .header-left { display: flex; align-items: center; gap: 12px; }
@@ -81,35 +64,33 @@
       border-radius: 10px;
       font-size: 0.8rem;
       font-weight: 600;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.02);
       transition: all 0.2s;
     }
-    .back-btn:hover { border-color: var(--border-glow); color: var(--primary); box-shadow: 0 4px 12px rgba(79, 70, 229, 0.08); }
+    .back-btn:hover { border-color: #cbd5e1; color: var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
 
     .header-title {
       font-family: 'Outfit', sans-serif;
       font-size: 1.3rem;
       font-weight: 800;
-      background: linear-gradient(135deg, #d97706 0%, #0f172a 50%, #4f46e5 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      color: #111827;
     }
     .header-sub { font-size: 0.74rem; color: var(--text-muted); margin-top: 1px; }
 
     /* ===== LEGEND ===== */
     .legend {
       display: flex; gap: 14px; align-items: center;
-      padding: 0.5rem 1.5rem; flex-wrap: wrap;
+      padding: 0.75rem 1.5rem; flex-wrap: wrap;
+      background: #ffffff;
+      border-bottom: 1px solid var(--border);
       position: relative; z-index: 2;
     }
-    .legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.7rem; color: var(--text-secondary); }
-    .legend-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.72rem; color: var(--text-secondary); }
+    .legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 
     /* ===== BRACKET OUTER ===== */
     .bracket-outer {
       position: relative; z-index: 1;
-      padding: 1.5rem;
+      padding: 2rem;
       overflow-x: auto;
       overflow-y: auto;
       min-height: calc(100vh - 150px);
@@ -123,101 +104,122 @@
 
     .round-label {
       font-family: 'Outfit', sans-serif;
-      font-size: 0.68rem; font-weight: 700;
-      color: var(--text-muted);
-      text-transform: uppercase; letter-spacing: 0.08em;
-      text-align: center; padding: 6px 8px; margin-bottom: 8px;
+      font-size: 0.75rem; font-weight: 700;
+      color: #4b5563;
+      text-transform: uppercase; letter-spacing: 0.05em;
+      text-align: left; padding: 6px 12px; margin-bottom: 14px;
       white-space: nowrap;
+      position: relative;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .round-label.final-label {
+      color: var(--gold);
+    }
+    .round-label.empty-label {
+      display: none;
     }
 
     /* ===== MATCH CARD ===== */
     .match-card {
       width: var(--match-w);
       background: var(--bg-card);
-      border: 1px solid rgba(0, 0, 0, 0.05);
-      border-radius: 11px; overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
       cursor: pointer;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02), 0 1px 2px rgba(0, 0, 0, 0.04);
-      transition: all 0.22s cubic-bezier(0.4,0,0.2,1);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02), 0 4px 6px -1px rgba(0,0,0,0.03);
+      transition: all 0.2s ease-in-out;
       position: relative; flex-shrink: 0;
-    }
-    .match-card::after {
-      content: '';
-      position: absolute; top: 0; left: 0;
-      width: 100%; height: 2px;
-      background: linear-gradient(90deg, transparent, rgba(79, 70, 229, 0), transparent);
-      transition: background 0.3s;
+      box-sizing: border-box;
     }
     .match-card:hover {
-      border-color: rgba(79, 70, 229, 0.3);
-      box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.08), 0 8px 10px -6px rgba(79, 70, 229, 0.08);
-      transform: translateY(-2px);
+      border-color: #9ca3af;
+      transform: translateY(-1px);
+      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.04), 0 4px 6px -2px rgba(0,0,0,0.02);
     }
-    .match-card:hover::after {
-      background: linear-gradient(90deg, transparent, rgba(79, 70, 229, 0.6), transparent);
-    }
+
     .match-card.final-card {
-      width: 210px;
-      border-color: rgba(217, 119, 6, 0.25);
+      border-color: rgba(217, 119, 6, 0.3);
       background: linear-gradient(135deg, rgba(217, 119, 6, 0.02), var(--bg-card));
     }
-    .match-card.final-card::after {
-      background: linear-gradient(90deg, transparent, rgba(217, 119, 6, 0.5), transparent);
+    .match-card.final-card:hover {
+      border-color: var(--gold);
     }
-    .match-card.final-card:hover { border-color: rgba(217, 119, 6, 0.4); box-shadow: 0 10px 25px -5px rgba(217, 119, 6, 0.1), 0 8px 10px -6px rgba(217, 119, 6, 0.1); }
 
-    .match-num {
-      padding: 3px 9px;
-      font-size: 0.6rem; font-weight: 700;
-      color: var(--text-muted); text-align: right;
-      letter-spacing: 0.04em;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.04);
-      background: rgba(0, 0, 0, 0.02);
+    .match-header {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
     }
-    .final-card .match-num { color: var(--gold); }
+    .match-num-text {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .match-teams-container {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
 
     .match-team {
-      display: flex; align-items: center; gap: 7px;
-      padding: 6px 9px;
-      font-size: 0.77rem; font-weight: 600; color: var(--text);
+      display: flex; align-items: center; gap: 8px;
+      padding: 2px 0;
+      font-size: 0.8rem; font-weight: 600; color: var(--text);
       transition: background 0.2s;
     }
-    .match-team:first-of-type { border-bottom: 1px solid rgba(0, 0, 0, 0.04); }
-    .match-team.winner { background: rgba(5, 150, 105, 0.05); color: var(--green); }
-    .match-team.loser { opacity: 0.42; }
-    .match-team.bolao-hl { background: rgba(217, 119, 6, 0.05); }
+    .match-team.winner { color: var(--text); }
+    .match-team.loser { opacity: 0.45; }
+    .match-team.bolao-hl { background: rgba(217, 119, 6, 0.04); border-radius: 4px; padding-left: 4px; padding-right: 4px; margin-left: -4px; margin-right: -4px; }
     .match-team.bolao-hl .team-name { color: var(--gold); }
+    .match-team.placeholder {
+      font-weight: 400;
+      color: var(--text-secondary);
+    }
 
     .team-flag {
-      width: 24px; height: 16px; object-fit: cover;
-      border-radius: 3px; border: 1px solid rgba(0, 0, 0, 0.08);
+      width: 22px; height: 15px; object-fit: cover;
+      border-radius: 2px; border: 1px solid rgba(0, 0, 0, 0.06);
       flex-shrink: 0;
     }
     .flag-ph {
-      width: 24px; height: 16px;
-      background: rgba(0, 0, 0, 0.03);
-      border: 1px dashed rgba(0, 0, 0, 0.1);
-      border-radius: 3px; flex-shrink: 0;
+      width: 22px; height: 16px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
     }
     .team-name { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
     .voted-tag {
-      font-size: 0.56rem; font-weight: 700;
-      background: rgba(217, 119, 6, 0.1); color: var(--gold);
-      border: 1px solid rgba(217, 119, 6, 0.2);
-      border-radius: 4px; padding: 1px 3px; flex-shrink: 0;
+      font-size: 0.54rem; font-weight: 700;
+      background: rgba(217, 119, 6, 0.08); color: var(--gold);
+      border: 1px solid rgba(217, 119, 6, 0.15);
+      border-radius: 3px; padding: 0 3px; flex-shrink: 0;
     }
     .team-score {
-      font-family: 'Outfit', sans-serif; font-weight: 800;
+      font-family: 'Outfit', sans-serif; font-weight: 850;
       font-size: 0.85rem; min-width: 14px; text-align: right; flex-shrink: 0;
+      margin-left: auto;
+      color: #111827;
     }
-    .score-win { color: var(--green); }
+    .score-win { color: #111827; }
     .score-lose { color: var(--text-muted); }
 
-    .match-date {
-      padding: 3px 9px;
-      font-size: 0.59rem; color: var(--text-muted);
-      border-top: 1px solid rgba(0, 0, 0, 0.04);
-      background: rgba(0, 0, 0, 0.01);
+    .match-footer {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      margin-top: 2px;
+      border-top: 1px solid rgba(0, 0, 0, 0.02);
+      padding-top: 4px;
+    }
+    .match-date-text {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      font-weight: 500;
     }
 
     /* ===== BRACKET ROW LAYOUT ===== */
@@ -225,10 +227,6 @@
       display: flex; align-items: flex-start; gap: 0;
       min-width: max-content;
     }
-
-    /* Vertical connector between match pairs */
-    .v-connector { background: var(--connector-color); }
-    .h-connector { background: var(--connector-color); }
 
     /* ===== CHAMPION ===== */
     .champion-col {
@@ -245,7 +243,7 @@
       font-family: 'Outfit', sans-serif; font-size: 0.66rem; font-weight: 700;
       text-transform: uppercase; letter-spacing: 0.1em; color: var(--gold); margin-bottom: 5px;
     }
-    .champion-name { font-family: 'Outfit', sans-serif; font-size: 0.88rem; font-weight: 700; color: var(--text-muted); }
+    .champion-name { font-family: 'Outfit', sans-serif; font-size: 0.88rem; font-weight: 700; color: var(--text-secondary); }
 
     /* ===== THIRD PLACE ===== */
     .third-label {
@@ -356,8 +354,9 @@
 
 <!-- Bracket Area -->
 <div class="bracket-outer" id="bracketOuter">
-  <div id="bracketContent" style="min-width:max-content;">
-    <p style="color:var(--text-muted);padding:2rem;text-align:center;">Carregando...</p>
+  <div id="bracketContent" style="min-width:max-content; position:relative;">
+    <svg id="bracket-svg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0;"></svg>
+    <p style="color:var(--text-muted);padding:2rem;text-align:center;position:relative;z-index:1;">Carregando...</p>
   </div>
 </div>
 
@@ -385,7 +384,7 @@ const BOLAO = {
 const R32 = [
   // Linha 1 (superior)
   { id:74,  date:"29 jun · 17:30", h:{n:"Alemanha",         c:"de"},  a:{n:"3° A/B/C/D/F",   c:null} },
-  { id:77,  date:"30 jun · 18:00", h:{n:"1° I",             c:null},  a:{n:"3° C/D/F/G/H",   c:null} },
+  { id:77,  date:"30 jun · 18:00", h:{n:"França",           c:"fr"},  a:{n:"3° C/D/F/G/H",   c:null} },
   { id:73,  date:"28 jun · 16:00", h:{n:"África do Sul",    c:"za"},  a:{n:"Canadá",          c:"ca"} },
   { id:75,  date:"29 jun · 22:00", h:{n:"Holanda",          c:"nl"},  a:{n:"Marrocos",        c:"ma"} },
   { id:83,  date:"2 jul · 20:00",  h:{n:"2° K",             c:null},  a:{n:"2° L",            c:null} },
@@ -430,8 +429,8 @@ const SEMI = [
   { id:102, date:"15 jul · 16:00", h:{n:"Vencedor J99", c:null}, a:{n:"Vencedor J100", c:null} },
 ];
 
-const TERCEIRO = { id:103, date:"18 jul · 18:00 · Miami Gardens", h:{n:"Perdedor SF1",c:null}, a:{n:"Perdedor SF2",c:null} };
-const FINAL    = { id:104, date:"19 jul · 16:00 · East Rutherford", h:{n:"SF V1",c:null}, a:{n:"SF V2",c:null} };
+const TERCEIRO = { id:103, date:"18 jul · 18:00 · Miami Gardens", h:{n:"Perdedor J101",c:null}, a:{n:"Perdedor J102",c:null} };
+const FINAL    = { id:104, date:"19 jul · 16:00 · East Rutherford", h:{n:"Vencedor J101",c:null}, a:{n:"Vencedor J102",c:null} };
 
 // ===========================================================
 // BUILD MATCH CARD HTML
@@ -448,15 +447,21 @@ function buildCard(m, extraCls='') {
 
   const hKey = bolaoKey(h.n), aKey = bolaoKey(a.n);
 
-  const hCls = (hWin?'winner':'') + (aWin?' loser':'') + (hKey?' bolao-hl':'');
-  const aCls = (aWin?'winner':'') + (hWin?' loser':'') + (aKey?' bolao-hl':'');
+  // Verifica se o time é um placeholder indefinido
+  const isHPlaceholder = !h.c || h.n.includes('°') || h.n.includes('Vencedor') || h.n.includes('V') || h.n.includes('RD') || h.n.includes('QF') || h.n.includes('SF') || h.n.includes('Perdedor') || h.n.includes('P');
+  const isAPlaceholder = !a.c || a.n.includes('°') || a.n.includes('Vencedor') || a.n.includes('V') || a.n.includes('RD') || a.n.includes('QF') || a.n.includes('SF') || a.n.includes('Perdedor') || a.n.includes('P');
+
+  const hCls = (hWin?'winner':'') + (aWin?' loser':'') + (hKey?' bolao-hl':'') + (isHPlaceholder?' placeholder':'');
+  const aCls = (aWin?'winner':'') + (hWin?' loser':'') + (aKey?' bolao-hl':'') + (isAPlaceholder?' placeholder':'');
+
+  const shieldSvg = `<svg class="flag-ph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;color:#9ca3af;flex-shrink:0;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`;
 
   const hFlag = h.c
     ? `<img class="team-flag" src="https://flagcdn.com/w80/${h.c}.png" alt="${esc(h.n)}" onerror="this.style.display='none'">`
-    : `<div class="flag-ph"></div>`;
+    : shieldSvg;
   const aFlag = a.c
     ? `<img class="team-flag" src="https://flagcdn.com/w80/${a.c}.png" alt="${esc(a.n)}" onerror="this.style.display='none'">`
-    : `<div class="flag-ph"></div>`;
+    : shieldSvg;
 
   const hScore = hasScore ? `<span class="team-score ${hWin?'score-win':'score-lose'}">${m.hs}</span>` : '';
   const aScore = hasScore ? `<span class="team-score ${aWin?'score-win':'score-lose'}">${m.as}</span>` : '';
@@ -464,13 +469,19 @@ function buildCard(m, extraCls='') {
   const hVoted = hKey ? `<span class="voted-tag">★${BOLAO[hKey].v.length}</span>` : '';
   const aVoted = aKey ? `<span class="voted-tag">★${BOLAO[aKey].v.length}</span>` : '';
 
-  const payload = esc(JSON.stringify({id:m.id,date:m.date,h,a,hs:m.hs||null,as:m.as||null}));
+  const formattedDate = m.date.replace('·', '-');
 
-  return `<div class="match-card ${extraCls}" onclick='openModal(${JSON.stringify({id:m.id,date:m.date,h,a,hs:m.hs||null,as:m.as||null})})'>
-    <div class="match-num">Partida ${m.id}</div>
-    <div class="match-team ${hCls.trim()}">${hFlag}<span class="team-name">${esc(h.n)}</span>${hVoted}${hScore}</div>
-    <div class="match-team ${aCls.trim()}">${aFlag}<span class="team-name">${esc(a.n)}</span>${aVoted}${aScore}</div>
-    <div class="match-date">📅 ${esc(m.date)}</div>
+  return `<div class="match-card ${extraCls}" data-match-id="${m.id}" onclick='openModal(${JSON.stringify({id:m.id,date:m.date,h,a,hs:m.hs||null,as:m.as||null})})'>
+    <div class="match-header">
+      <span class="match-num-text">Partida ${m.id}</span>
+    </div>
+    <div class="match-teams-container">
+      <div class="match-team ${hCls.trim()}">${hFlag}<span class="team-name">${esc(h.n)}</span>${hVoted}${hScore}</div>
+      <div class="match-team ${aCls.trim()}">${aFlag}<span class="team-name">${esc(a.n)}</span>${aVoted}${aScore}</div>
+    </div>
+    <div class="match-footer">
+      <span class="match-date-text">${esc(formattedDate)}</span>
+    </div>
   </div>`;
 }
 
@@ -485,32 +496,33 @@ function esc(s) {
 function renderBracket() {
   const el = document.getElementById('bracketContent');
 
-  // Each round spaced to align vertically: gap between cards doubles each round
-  const CARD_H = 94; // approx card height px
-  const GAP_R32 = 6;
-  const GAP_OIT = (CARD_H + GAP_R32) * 2 - CARD_H; // double spacing
-  const GAP_QUA = (CARD_H + GAP_OIT) * 2 - CARD_H;
-  const GAP_SEM = 757;
+  // Ajustado proporcionalmente à nova altura do card (aprox. 102px)
+  const CARD_H = 102;
+  const GAP_R32 = 10;
+  const GAP_OIT = (CARD_H + GAP_R32) * 2 - CARD_H; // 122px
+  const GAP_QUA = (CARD_H + GAP_OIT) * 2 - CARD_H; // 346px
+  const GAP_SEM = 824; // Distância centro a centro de 926px - 102px
 
-  // Connector column
-  const conn = (w=28) => `<div style="width:${w}px;flex-shrink:0;align-self:stretch;position:relative;">
-    <div style="position:absolute;top:0;left:50%;width:1px;height:100%;background:var(--connector-color);"></div>
-  </div>`;
+  // Conector horizontal vazio (o desenho real será feito via SVG)
+  const conn = (w=40) => `<div class="connector-space" style="width:${w}px;flex-shrink:0;position:relative;"></div>`;
 
-  // Build a vertical column of match cards with given gap between them
+  // Reconstrói uma coluna vertical com gaps e padding superior
   function col(label, matches, gapPx, paddingTop=0, extraCls='') {
     let inner = '';
     for(let i=0; i<matches.length; i++) {
       if(i>0) inner += `<div style="height:${gapPx}px;flex-shrink:0;"></div>`;
       inner += buildCard(matches[i], extraCls);
     }
-    return `<div style="display:flex;flex-direction:column;flex-shrink:0;align-items:center;">
-      <div style="font-family:'Outfit',sans-serif;font-size:0.66rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;text-align:center;padding:5px 8px;margin-bottom:6px;white-space:nowrap;">${label}</div>
+    const labelHtml = label 
+      ? `<div class="round-label">${label}</div>` 
+      : `<div class="round-label empty-label"></div>`;
+    return `<div style="display:flex;flex-direction:column;flex-shrink:0;align-items:center;width:var(--match-w);">
+      ${labelHtml}
       <div style="display:flex;flex-direction:column;align-items:center;padding-top:${paddingTop}px;">${inner}</div>
     </div>`;
   }
 
-  // R32: split upper/lower 8 with visual separator
+  // R32: 16 partidas divididas em metades superior e inferior com divisor de 40px
   const r32upper = col('16 Avos de Final', R32.slice(0,8), GAP_R32, 0);
   const r32lower = col('', R32.slice(8,16), GAP_R32, 0);
   const r32Block = `<div style="display:flex;flex-direction:column;gap:0;flex-shrink:0;">
@@ -521,32 +533,32 @@ function renderBracket() {
     ${r32lower}
   </div>`;
 
-  // Oitavas: 8 → 2 groups of 4
+  // Oitavas: 8 partidas em 2 blocos de 4
   const oit1 = col('Oitavas de Final', OITAVAS.slice(0,4), GAP_OIT, (CARD_H+GAP_R32)/2);
   const oit2 = col('', OITAVAS.slice(4,8), GAP_OIT, (CARD_H+GAP_R32)/2);
   const oitBlock = `<div style="display:flex;flex-direction:column;gap:0;flex-shrink:0;">
     ${oit1}
-    <div style="height:90px;"></div>
+    <div style="height:96px;"></div>
     ${oit2}
   </div>`;
 
-  // Quartas: 4 → 2 groups of 2
+  // Quartas: 4 partidas em 2 blocos de 2
   const qua1 = col('Quartas de Final', QUARTAS.slice(0,2), GAP_QUA, (CARD_H+GAP_OIT+GAP_R32)/2 + (CARD_H+GAP_R32)/2);
   const qua2 = col('', QUARTAS.slice(2,4), GAP_QUA, (CARD_H+GAP_OIT+GAP_R32)/2 + (CARD_H+GAP_R32)/2);
   const quaBlock = `<div style="display:flex;flex-direction:column;gap:0;flex-shrink:0;">
     ${qua1}
-    <div style="height:187px;"></div>
+    <div style="height:198px;"></div>
     ${qua2}
   </div>`;
 
-  // Semis: 2 cards vertically spaced
-  const semiPaddingTop = 353;
+  // Semifinais: 2 partidas alinhadas aos centros das metades
+  const semiPaddingTop = 392;
   const semiBlock = col('Semifinais', SEMI, GAP_SEM, semiPaddingTop);
 
   // Final + 3rd place
-  const finalPaddingTop = semiPaddingTop + (CARD_H + GAP_SEM) / 2;
-  const finalBlock = `<div style="display:flex;flex-direction:column;flex-shrink:0;align-items:center;">
-    <div style="font-family:'Outfit',sans-serif;font-size:0.66rem;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.08em;text-align:center;padding:5px 8px;margin-bottom:6px;">🏆 Final</div>
+  const finalPaddingTop = semiPaddingTop + (CARD_H + GAP_SEM) / 2; // 855px
+  const finalBlock = `<div style="display:flex;flex-direction:column;flex-shrink:0;align-items:center;width:var(--match-w);">
+    <div class="round-label final-label">🏆 Final</div>
     <div style="display:flex;flex-direction:column;align-items:center;padding-top:${finalPaddingTop}px;">
       ${buildCard(FINAL,'final-card')}
       <div style="height:60px;"></div>
@@ -556,15 +568,19 @@ function renderBracket() {
   </div>`;
 
   // Champion
-  const champBlock = `<div class="champion-col" style="padding-top:${finalPaddingTop + 8}px;">
+  const champBlock = `<div class="champion-col" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 12px;min-width:130px;width:150px;flex-shrink:0;padding-top:${finalPaddingTop + 8}px;">
     <div class="champion-trophy">🏆</div>
     <div class="champion-label">Campeão</div>
     <div class="champion-name">A definir</div>
   </div>`;
 
-  el.innerHTML = `<div style="display:flex;align-items:flex-start;gap:0;min-width:max-content;padding-bottom:2rem;">
-    ${r32Block}${conn()}${oitBlock}${conn()}${quaBlock}${conn()}${semiBlock}${conn()}${finalBlock}${conn(24)}${champBlock}
-  </div>`;
+  // Adiciona a div de container com o SVG de fundo
+  el.innerHTML = `
+    <svg id="bracket-svg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0;"></svg>
+    <div style="display:flex;align-items:flex-start;gap:0;min-width:max-content;padding-bottom:2rem;position:relative;z-index:1;">
+      ${r32Block}${conn()}${oitBlock}${conn()}${quaBlock}${conn()}${semiBlock}${conn()}${finalBlock}${conn(24)}${champBlock}
+    </div>
+  `;
 }
 
 
@@ -648,6 +664,7 @@ async function loadLiveData() {
 
     // Re-render
     renderBracket();
+    setTimeout(drawConnectors, 80);
   } catch(e) {
     console.warn('Live data unavailable:', e);
     document.getElementById('headerRight').innerHTML = '⚠️ Sem dados ao vivo';
@@ -667,11 +684,107 @@ const TEAM_PT = {
 function getTeamPt(en) { return TEAM_PT[en.toLowerCase()] || en; }
 
 // ===========================================================
+// DRAW CONNECTOR LINES (SVG)
+// ===========================================================
+function drawConnectors() {
+  const svg = document.getElementById('bracket-svg');
+  if (!svg) return;
+  svg.innerHTML = ''; // Limpa as linhas anteriores
+
+  const content = document.getElementById('bracketContent');
+  if (!content) return;
+  const contentRect = content.getBoundingClientRect();
+
+  // Mapeamento de conexões: chave é o ID da partida de destino, valor é um array com os IDs das partidas de origem
+  const connections = {
+    // Oitavas
+    90: [74, 73],
+    89: [77, 83],
+    91: [75, 84],
+    92: [81, 82],
+    94: [76, 78],
+    93: [79, 80],
+    96: [86, 85],
+    95: [88, 87],
+    // Quartas
+    97: [90, 89],
+    98: [91, 92],
+    99: [94, 93],
+    100: [96, 95],
+    // Semis
+    101: [97, 98],
+    102: [99, 100],
+    // Final
+    104: [101, 102]
+  };
+
+  // Desenha as conexões
+  for (const [destId, srcIds] of Object.entries(connections)) {
+    const destCard = document.querySelector(`[data-match-id="${destId}"]`);
+    if (!destCard) continue;
+
+    const destRect = destCard.getBoundingClientRect();
+    const destX = destRect.left - contentRect.left;
+    const destY = destRect.top - contentRect.top + destRect.height / 2;
+
+    srcIds.forEach(srcId => {
+      const srcCard = document.querySelector(`[data-match-id="${srcId}"]`);
+      if (!srcCard) return;
+
+      const srcRect = srcCard.getBoundingClientRect();
+      const srcX = srcRect.left - contentRect.left + srcRect.width;
+      const srcY = srcRect.top - contentRect.top + srcRect.height / 2;
+
+      // Ponto médio X para fazer a curva do conector
+      const midX = srcX + (destX - srcX) / 2;
+
+      // Cria o caminho em formato de garfo: sai da origem, vai horizontal, vertical, depois horizontal até o destino
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      path.setAttribute('d', `M ${srcX} ${srcY} H ${midX} V ${destY} H ${destX}`);
+      path.setAttribute('stroke', 'var(--connector-color)');
+      path.setAttribute('stroke-width', '1.5');
+      path.setAttribute('fill', 'none');
+      svg.appendChild(path);
+    });
+  }
+
+  // Conexão da Final para o Campeão
+  const finalCard = document.querySelector('[data-match-id="104"]');
+  const champCol = document.querySelector('.champion-col');
+  if (finalCard && champCol) {
+    const finalRect = finalCard.getBoundingClientRect();
+    const champRect = champCol.getBoundingClientRect();
+
+    const finalX = finalRect.left - contentRect.left + finalRect.width;
+    const finalY = finalRect.top - contentRect.top + finalRect.height / 2;
+
+    const champX = champRect.left - contentRect.left;
+    const champY = finalY;
+
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', `M ${finalX} ${finalY} H ${champX}`);
+    path.setAttribute('stroke', 'var(--connector-color)');
+    path.setAttribute('stroke-width', '1.5');
+    path.setAttribute('fill', 'none');
+    svg.appendChild(path);
+  }
+}
+
+// ===========================================================
 // INIT
 // ===========================================================
 document.addEventListener('DOMContentLoaded', () => {
   renderBracket();
   loadLiveData();
+  setTimeout(drawConnectors, 150);
+});
+
+// Redesenha se a janela for redimensionada ou fontes carregadas
+window.addEventListener('resize', () => {
+  setTimeout(drawConnectors, 50);
+});
+window.addEventListener('load', () => {
+  setTimeout(drawConnectors, 100);
 });
 </script>
 </body>
