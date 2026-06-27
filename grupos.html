@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>📅 Grupos da Copa 2026 · Bolão do Quintal</title>
+  <meta name="description" content="Grupos oficiais e classificação em tempo real da Copa do Mundo 2026 - Bolão da Turma do Quintal">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="lucide.min.js"></script>
+
+  <style>
+    :root {
+      --bg-base: #0a0e1a;
+      --bg-card: #111827;
+      --bg-card2: #1a2235;
+      --bg-glass: rgba(255,255,255,0.04);
+      --border: rgba(255,255,255,0.08);
+      --border-glow: rgba(99,102,241,0.3);
+      --primary: #6366f1;
+      --primary-glow: rgba(99,102,241,0.25);
+      --gold: #f59e0b;
+      --gold-glow: rgba(245,158,11,0.3);
+      --silver: #94a3b8;
+      --bronze: #cd7c4b;
+      --text: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #475569;
+      --green: #10b981;
+      --green-glow: rgba(16,185,129,0.2);
+      --red: #ef4444;
+      --yellow: #eab308;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg-base);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Animated background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: 
+        radial-gradient(ellipse at 20% 20%, rgba(99,102,241,0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(245,158,11,0.05) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(16,185,129,0.04) 0%, transparent 60%);
+      animation: bgPulse 8s ease-in-out infinite alternate;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    @keyframes bgPulse {
+      0% { transform: scale(1) rotate(0deg); }
+      100% { transform: scale(1.05) rotate(1deg); }
+    }
+
+    /* ===== STICKY HEADER ===== */
+    .page-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(10, 14, 26, 0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      text-decoration: none;
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .back-btn:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: var(--border-glow);
+      color: var(--text);
+    }
+
+    .header-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .header-sub {
+      font-size: 0.74rem;
+      color: var(--text-secondary);
+      margin-top: 1px;
+    }
+
+    /* ===== LEGEND & REFRESH ===== */
+    .subheader-row {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 1.25rem 1.5rem 0.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .legend {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+    }
+
+    .refresh-btn {
+      background: rgba(99,102,241,0.15);
+      border: 1px solid rgba(99,102,241,0.3);
+      color: var(--primary);
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .refresh-btn:hover {
+      background: rgba(99,102,241,0.25);
+      transform: scale(1.03);
+    }
+
+    .refresh-icon {
+      display: inline-block;
+      transition: transform 0.6s ease;
+    }
+
+    .refresh-btn.spinning .refresh-icon {
+      transform: rotate(360deg);
+    }
+
+    /* ===== GROUPS GRID ===== */
+    .groups-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      gap: 1.25rem;
+      padding: 1.25rem 1.5rem 2rem;
+      max-width: 1300px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .group-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    }
+
+    .group-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--border-glow);
+      box-shadow: 0 10px 25px rgba(99,102,241,0.15);
+    }
+
+    .group-card-header {
+      background: linear-gradient(135deg, rgba(99,102,241,0.12), rgba(168,85,247,0.04));
+      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 1rem;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: var(--text);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .table-header {
+      display: grid;
+      grid-template-columns: 24px 30px 1fr 110px;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 1rem;
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+    }
+
+    .table-header-stats {
+      display: flex;
+      justify-content: space-between;
+      gap: 4px;
+      text-align: center;
+    }
+
+    .table-header-stats span {
+      width: 18px;
+    }
+
+    .table-header-stats span.pts {
+      width: 22px;
+      color: var(--text-secondary);
+    }
+
+    .group-teams-list {
+      padding: 4px 0;
+    }
+
+    .group-team-item {
+      display: grid;
+      grid-template-columns: 24px 30px 1fr 110px;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 1rem;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      transition: background 0.2s;
+    }
+
+    .group-team-item:last-child {
+      border-bottom: none;
+    }
+
+    .group-team-item:hover {
+      background: rgba(255,255,255,0.02);
+    }
+
+    .pos-badge {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      border-radius: 4px;
+      background: rgba(255,255,255,0.04);
+    }
+
+    .pos-1 { background: rgba(16,185,129,0.15); color: var(--green); }
+    .pos-2 { background: rgba(99,102,241,0.15); color: var(--primary); }
+
+    .team-flag-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .team-flag {
+      width: 24px;
+      height: 17px;
+      object-fit: cover;
+      border-radius: 3px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .team-info-cell {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .team-name {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .team-name.voted-highlight {
+      color: var(--gold);
+    }
+
+    .team-voters-btn {
+      background: rgba(245,158,11,0.12);
+      border: 1px solid rgba(245,158,11,0.3);
+      color: var(--gold);
+      border-radius: 4px;
+      padding: 1px 4px;
+      font-size: 0.62rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      transition: all 0.2s;
+    }
+
+    .team-voters-btn:hover {
+      background: rgba(245,158,11,0.22);
+      transform: scale(1.05);
+    }
+
+    .stats-cell {
+      display: flex;
+      justify-content: space-between;
+      gap: 4px;
+      font-size: 0.76rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    .stats-cell span {
+      width: 18px;
+    }
+
+    .stats-cell span.pts-val {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      color: var(--text);
+      width: 22px;
+    }
+
+    /* ===== VOTERS MODAL ===== */
+    .voters-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(8px);
+      z-index: 500;
+      place-items: center;
+    }
+
+    .voters-modal.open {
+      display: grid;
+      animation: fadeIn 0.2s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .voters-content {
+      background: var(--bg-card);
+      border: 1px solid var(--border-glow);
+      border-radius: 20px;
+      padding: 2rem;
+      max-width: 400px;
+      width: 90%;
+      animation: slideUp 0.25s ease;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .voters-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 800;
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    #modalVotersList {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 1.5rem;
+      max-height: 240px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .voter-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      padding: 6px 12px;
+      font-size: 0.82rem;
+      font-weight: 500;
+    }
+
+    .voter-chip .avatar {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), #a855f7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .close-btn {
+      width: 100%;
+      background: rgba(99,102,241,0.15);
+      border: 1px solid rgba(99,102,241,0.3);
+      color: var(--primary);
+      border-radius: 10px;
+      padding: 10px;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .close-btn:hover {
+      background: rgba(99,102,241,0.25);
+    }
+  </style>
+</head>
+<body>
+
+<!-- Voters Modal -->
+<div class="voters-modal" id="votersModal" onclick="closeModal(event)">
+  <div class="voters-content">
+    <div class="voters-title">
+      <span id="modalFlag"></span>
+      <span id="modalTeamName"></span>
+    </div>
+    <div id="modalVotersList"></div>
+    <button class="close-btn" onclick="document.getElementById('votersModal').classList.remove('open')">Fechar</button>
+  </div>
+</div>
+
+<!-- Header -->
+<div class="page-header">
+  <div class="header-left">
+    <a href="index.html" class="back-btn">
+      <i data-lucide="arrow-left" style="width: 14px; height: 14px;"></i> Voltar ao Bolão
+    </a>
+    <div>
+      <div class="header-title">📅 Grupos da Copa 2026</div>
+      <div class="header-sub">48 seleções · 12 grupos · EUA, Canadá, México</div>
+    </div>
+  </div>
+  <div>
+    <button class="refresh-btn" id="refreshBtn" onclick="loadData(event)">
+      <span class="refresh-icon" id="refreshIcon">↻</span> Atualizar Classificação
+    </button>
+  </div>
+</div>
+
+<!-- Subheader Row with Legend -->
+<div class="subheader-row">
+  <div class="legend">
+    <div class="legend-item"><div style="width: 8px; height: 8px; border-radius: 50%; background: var(--green)"></div>Classifica Direto (Top 2)</div>
+    <div class="legend-item"><div style="width: 8px; height: 8px; border-radius: 50%; background: var(--primary)"></div>Possível vaga (Melhores 3ºs)</div>
+    <div class="legend-item"><i data-lucide="award" style="width: 12px; height: 12px; color: var(--gold);"></i> Seleção Votada</div>
+  </div>
+  <div style="font-size: 0.72rem; color: var(--text-muted);">
+    Legenda: <strong>P</strong> (Pontos) · <strong>J</strong> (Jogos) · <strong>SG</strong> (Saldo Gols) · <strong>V-E-D</strong> (Vitórias-Empates-Derrotas)
+  </div>
+</div>
+
+<!-- Groups Container -->
+<div class="groups-grid" id="groupsGrid">
+  <!-- Dynamic cards inserted here -->
+  <div style="grid-column: 1/-1; text-align: center; color: var(--text-secondary); padding: 3rem;">
+    ⏳ Carregando os grupos e classificação...
+  </div>
+</div>
+
+<script>
+  // Grupos Oficiais
+  const COPA_GROUPS = {
+    "Grupo A": [
+      { name: "México", flag: "mx" },
+      { name: "África do Sul", flag: "za" },
+      { name: "Coreia do Sul", flag: "kr" },
+      { name: "Tchéquia", flag: "cz" }
+    ],
+    "Grupo B": [
+      { name: "Canadá", flag: "ca" },
+      { name: "Bósnia e Herzegovina", flag: "ba" },
+      { name: "Catar", flag: "qa" },
+      { name: "Suíça", flag: "ch" }
+    ],
+    "Grupo C": [
+      { name: "Brasil", flag: "br" },
+      { name: "Marrocos", flag: "ma" },
+      { name: "Haiti", flag: "ht" },
+      { name: "Escócia", flag: "gb-sct" }
+    ],
+    "Grupo D": [
+      { name: "Estados Unidos", flag: "us" },
+      { name: "Paraguai", flag: "py" },
+      { name: "Austrália", flag: "au" },
+      { name: "Turquia", flag: "tr" }
+    ],
+    "Grupo E": [
+      { name: "Alemanha", flag: "de" },
+      { name: "Curaçao", flag: "cw" },
+      { name: "Costa do Marfim", flag: "ci" },
+      { name: "Equador", flag: "ec" }
+    ],
+    "Grupo F": [
+      { name: "Holanda", flag: "nl" },
+      { name: "Japão", flag: "jp" },
+      { name: "Suécia", flag: "se" },
+      { name: "Tunísia", flag: "tn" }
+    ],
+    "Grupo G": [
+      { name: "Bélgica", flag: "be" },
+      { name: "Egito", flag: "eg" },
+      { name: "Irã", flag: "ir" },
+      { name: "Nova Zelândia", flag: "nz" }
+    ],
+    "Grupo H": [
+      { name: "Espanha", flag: "es" },
+      { name: "Cabo Verde", flag: "cv" },
+      { name: "Arábia Saudita", flag: "sa" },
+      { name: "Uruguai", flag: "uy" }
+    ],
+    "Grupo I": [
+      { name: "França", flag: "fr" },
+      { name: "Senegal", flag: "sn" },
+      { name: "Iraque", flag: "iq" },
+      { name: "Noruega", flag: "no" }
+    ],
+    "Grupo J": [
+      { name: "Argentina", flag: "ar" },
+      { name: "Argélia", flag: "dz" },
+      { name: "Áustria", flag: "at" },
+      { name: "Jordânia", flag: "jo" }
+    ],
+    "Grupo K": [
+      { name: "Portugal", flag: "pt" },
+      { name: "RD Congo", flag: "cd" },
+      { name: "Uzbequistão", flag: "uz" },
+      { name: "Colômbia", flag: "co" }
+    ],
+    "Grupo L": [
+      { name: "Inglaterra", flag: "gb-eng" },
+      { name: "Croácia", flag: "hr" },
+      { name: "Gana", flag: "gh" },
+      { name: "Panamá", flag: "pa" }
+    ]
+  };
+
+  const PARTICIPANTES = [
+    { name: "Denis Guarda",           team: "Espanha",         code: "es" },
+    { name: "Vinicius Grassi",        team: "Senegal",         code: "sn" },
+    { name: "Roberto Joinvile",       team: "Espanha",         code: "es" },
+    { name: "Carlo Bigo",             team: "Brasil",          code: "br" },
+    { name: "Matheus Santos bigode",  team: "Portugal",        code: "pt" },
+    { name: "Tiago Bicuira",          team: "Holanda",         code: "nl" },
+    { name: "Maicon Espetinho",       team: "França",          code: "fr" },
+    { name: "Federico Renda",         team: "Argentina",       code: "ar" },
+    { name: "Leonardo Foesten",       team: "Brasil",          code: "br" },
+    { name: "Vinicius Reis",          team: "Alemanha",        code: "de" },
+    { name: "João Pacheco",           team: "Argentina",       code: "ar" },
+    { name: "Rodrigo Bender",         team: "Espanha",         code: "es" },
+    { name: "André Trento",           team: "Holanda",         code: "nl" },
+    { name: "Vicente Filho",          team: "Portugal",        code: "pt" },
+    { name: "Gustavo Cunha",          team: "Brasil",          code: "br" },
+    { name: "Francisco Lamaison",     team: "Uruguai",         code: "uy" },
+    { name: "Edu Alcará",             team: "França",          code: "fr" },
+    { name: "Gustavo Bassegio",       team: "Holanda",         code: "nl" },
+    { name: "Deivid Mendes",          team: "Holanda",         code: "nl" },
+    { name: "Felipe Pacheco",         team: "Argentina",       code: "ar" },
+    { name: "Alexandre Chaves",       team: "Espanha",         code: "es" },
+    { name: "Edson Fehlauer",         team: "Brasil",          code: "br" },
+    { name: "Omar Conversa Fiada",    team: "França",          code: "fr" },
+    { name: "Guilherme Pruinelli",    team: "Portugal",        code: "pt" },
+    { name: "Alberto Mateus",         team: "Portugal",        code: "pt" },
+    { name: "Seco",                   team: "Espanha",         code: "es" },
+    { name: "Rafael Pruinelli",       team: "Inglaterra",      code: "gb-eng" },
+    { name: "Diego Fraga",            team: "Estados Unidos",  code: "us" },
+  ];
+
+  const TEAM_MAP = {
+    "mexico":                   { pt: "México",         code: "mx" },
+    "south africa":             { pt: "África do Sul",  code: "za" },
+    "south korea":              { pt: "Coreia do Sul",  code: "kr" },
+    "czech republic":           { pt: "Tchéquia",       code: "cz" },
+    "canada":                   { pt: "Canadá",         code: "ca" },
+    "bosnia and herzegovina":   { pt: "Bósnia e Herzegovina", code: "ba" },
+    "qatar":                    { pt: "Catar",          code: "qa" },
+    "switzerland":              { pt: "Suíça",          code: "ch" },
+    "brazil":                   { pt: "Brasil",         code: "br" },
+    "morocco":                  { pt: "Marrocos",       code: "ma" },
+    "haiti":                    { pt: "Haiti",          code: "ht" },
+    "scotland":                 { pt: "Escócia",        code: "gb-sct" },
+    "united states":            { pt: "Estados Unidos", code: "us" },
+    "paraguay":                 { pt: "Paraguai",       code: "py" },
+    "australia":                { pt: "Austrália",      code: "au" },
+    "turkey":                   { pt: "Turquia",        code: "tr" },
+    "germany":                  { pt: "Alemanha",       code: "de" },
+    "curaçao":                  { pt: "Curaçao",        code: "cw" },
+    "ivory coast":              { pt: "Costa do Marfim",code: "ci" },
+    "ecuador":                  { pt: "Equador",        code: "ec" },
+    "netherlands":              { pt: "Holanda",        code: "nl" },
+    "japan":                    { pt: "Japão",          code: "jp" },
+    "sweden":                   { pt: "Suécia",         code: "se" },
+    "tunisia":                  { pt: "Tunísia",        code: "tn" },
+    "belgium":                  { pt: "Bélgica",        code: "be" },
+    "egypt":                    { pt: "Egito",          code: "eg" },
+    "iran":                     { pt: "Irã",            code: "ir" },
+    "new zealand":              { pt: "Nova Zelândia",  code: "nz" },
+    "spain":                    { pt: "Espanha",        code: "es" },
+    "cape verde":               { pt: "Cabo Verde",     code: "cv" },
+    "saudi arabia":             { pt: "Arábia Saudita", code: "sa" },
+    "uruguay":                  { pt: "Uruguai",        code: "uy" },
+    "france":                   { pt: "França",         code: "fr" },
+    "senegal":                  { pt: "Senegal",        code: "sn" },
+    "iraq":                     { pt: "Iraque",         code: "iq" },
+    "norway":                   { pt: "Noruega",        code: "no" },
+    "argentina":                { pt: "Argentina",      code: "ar" },
+    "algeria":                  { pt: "Argélia",        code: "dz" },
+    "austria":                  { pt: "Áustria",        code: "at" },
+    "jordan":                   { pt: "Jordânia",       code: "jo" },
+    "portugal":                 { pt: "Portugal",       code: "pt" },
+    "democratic republic of the congo": { pt: "RD Congo", code: "cd" },
+    "uzbekistan":               { pt: "Uzbequistão",    code: "uz" },
+    "colombia":                 { pt: "Colômbia",       code: "co" },
+    "england":                  { pt: "Inglaterra",     code: "gb-eng" },
+    "croatia":                  { pt: "Croácia",        code: "hr" },
+    "ghana":                    { pt: "Gana",           code: "gh" },
+    "panama":                   { pt: "Panamá",         code: "pa" },
+  };
+
+  let gamesData = [];
+  let votesData = {};
+
+  // Contar votos estáticos inicialmente
+  function countVoters() {
+    votesData = {};
+    PARTICIPANTES.forEach(p => {
+      if (!votesData[p.team]) {
+        votesData[p.team] = [];
+      }
+      votesData[p.team].push(p.name);
+    });
+  }
+
+  // Buscar jogos da API
+  async function fetchGames() {
+    try {
+      const resp = await fetch('https://worldcup26.ir/get/games', {
+        mode: 'cors',
+        headers: { 'Accept': 'application/json' }
+      });
+      if (!resp.ok) throw new Error('API indisponível');
+      const json = await resp.json();
+      return json.games || [];
+    } catch (e) {
+      console.error('Erro na API da Copa:', e);
+      return null;
+    }
+  }
+
+  // Tradução do nome EN para PT
+  function translateTeam(nameEN) {
+    if (!nameEN) return '';
+    return TEAM_MAP[nameEN.toLowerCase()]?.pt || nameEN;
+  }
+
+  // Processar jogos e retornar estatísticas dos times na fase de grupos
+  function calculateStandings(games) {
+    const stats = {};
+
+    // Inicializar estatísticas de todas as seleções definidas nos grupos
+    Object.values(COPA_GROUPS).forEach(teams => {
+      teams.forEach(t => {
+        stats[t.name] = {
+          name: t.name,
+          flag: t.flag,
+          played: 0,
+          wins: 0,
+          draws: 0,
+          losses: 0,
+          goalsFor: 0,
+          goalsAgainst: 0,
+          goalsDiff: 0,
+          points: 0
+        };
+      });
+    });
+
+    if (!games || games.length === 0) return stats;
+
+    games.forEach(g => {
+      // Apenas jogos de grupo importam para a classificação dos grupos
+      if (g.type !== 'group') return;
+
+      const homeName = translateTeam(g.home_team_name_en);
+      const awayName = translateTeam(g.away_team_name_en);
+
+      // Certificar-se de que os times existem no nosso mapeamento de grupos
+      if (!stats[homeName] || !stats[awayName]) return;
+
+      const finished = g.finished === 'TRUE';
+      if (!finished) return;
+
+      const homeScore = parseInt(g.home_score) || 0;
+      const awayScore = parseInt(g.away_score) || 0;
+
+      stats[homeName].played++;
+      stats[awayName].played++;
+      stats[homeName].goalsFor += homeScore;
+      stats[homeName].goalsAgainst += awayScore;
+      stats[awayName].goalsFor += awayScore;
+      stats[awayName].goalsAgainst += homeScore;
+
+      if (homeScore > awayScore) {
+        stats[homeName].wins++;
+        stats[homeName].points += 3;
+        stats[awayName].losses++;
+      } else if (awayScore > homeScore) {
+        stats[awayName].wins++;
+        stats[awayName].points += 3;
+        stats[homeName].losses++;
+      } else {
+        stats[homeName].draws++;
+        stats[homeName].points += 1;
+        stats[awayName].draws++;
+        stats[awayName].points += 1;
+      }
+
+      stats[homeName].goalsDiff = stats[homeName].goalsFor - stats[homeName].goalsAgainst;
+      stats[awayName].goalsDiff = stats[awayName].goalsFor - stats[awayName].goalsAgainst;
+    });
+
+    return stats;
+  }
+
+  // Renderizar o Grid de Grupos
+  function renderGroups(standings) {
+    const container = document.getElementById('groupsGrid');
+    container.innerHTML = '';
+
+    Object.entries(COPA_GROUPS).forEach(([groupName, teams]) => {
+      // Mapear times para suas estatísticas
+      const teamsWithStats = teams.map(t => {
+        return standings[t.name] || {
+          name: t.name,
+          flag: t.flag,
+          played: 0,
+          wins: 0,
+          draws: 0,
+          losses: 0,
+          goalsFor: 0,
+          goalsAgainst: 0,
+          goalsDiff: 0,
+          points: 0
+        };
+      });
+
+      // Ordenar classificação do grupo
+      // Critério: Pontos -> Saldo Gols -> Gols Pró -> Votos (desempate do bolão) -> Nome
+      teamsWithStats.sort((a, b) => {
+        if (b.points !== a.points) return b.points - a.points;
+        if (b.goalsDiff !== a.goalsDiff) return b.goalsDiff - a.goalsDiff;
+        if (b.goalsFor !== a.goalsFor) return b.goalsFor - a.goalsFor;
+        const votesA = votesData[a.name] ? votesData[a.name].length : 0;
+        const votesB = votesData[b.name] ? votesData[b.name].length : 0;
+        if (votesB !== votesA) return votesB - votesA;
+        return a.name.localeCompare(b.name);
+      });
+
+      // HTML do Cabeçalho do Card
+      let cardHTML = `
+        <div class="group-card">
+          <div class="group-card-header">
+            <span>🏆 ${groupName}</span>
+          </div>
+          <div class="table-header">
+            <span>#</span>
+            <span></span>
+            <span>Seleção</span>
+            <div class="table-header-stats">
+              <span class="pts">P</span>
+              <span>J</span>
+              <span>SG</span>
+              <span>V-E-D</span>
+            </div>
+          </div>
+          <div class="group-teams-list">
+      `;
+
+      // Renderizar cada linha de time
+      teamsWithStats.forEach((t, index) => {
+        const position = index + 1;
+        const posClass = position === 1 ? 'pos-1' : position === 2 ? 'pos-2' : '';
+        const voters = votesData[t.name] || [];
+        const votesCount = voters.length;
+
+        // Badge de voto do bolão
+        let voteBadgeHTML = '';
+        if (votesCount > 0) {
+          const votersJson = JSON.stringify(voters).replace(/"/g, '&quot;');
+          voteBadgeHTML = `
+            <button class="team-voters-btn" onclick="openVoters('${t.name}', '${t.flag}', ${votersJson})">
+              <i data-lucide="award" style="width: 10px; height: 10px;"></i> ${votesCount}
+            </button>
+          `;
+        }
+
+        cardHTML += `
+          <div class="group-team-item">
+            <span class="pos-badge ${posClass}">${position}</span>
+            <div class="team-flag-wrap">
+              <img src="https://flagcdn.com/w80/${t.flag}.png" class="team-flag" alt="${t.name}" onerror="this.src='https://flagcdn.com/w80/un.png'">
+            </div>
+            <div class="team-info-cell">
+              <span class="team-name ${votesCount > 0 ? 'voted-highlight' : ''}" title="${t.name}">${escapeHTML(t.name)}</span>
+              ${voteBadgeHTML}
+            </div>
+            <div class="stats-cell">
+              <span class="pts-val">${t.points}</span>
+              <span>${t.played}</span>
+              <span>${t.goalsDiff > 0 ? '+' + t.goalsDiff : t.goalsDiff}</span>
+              <span style="font-size: 0.65rem; color: var(--text-muted); width: 34px;">${t.wins}-${t.draws}-${t.losses}</span>
+            </div>
+          </div>
+        `;
+      });
+
+      cardHTML += `
+          </div>
+        </div>
+      `;
+
+      container.insertAdjacentHTML('beforeend', cardHTML);
+    });
+
+    // Criar ícones lucide
+    if (typeof lucide !== 'undefined') {
+      lucide.createIcons();
+    }
+  }
+
+  // Modal de Votantes
+  window.openVoters = function(teamName, flag, voters) {
+    document.getElementById('modalFlag').innerHTML = `<img src="https://flagcdn.com/w80/${flag}.png" style="width:32px;height:22px;border-radius:5px;object-fit:cover;border:1px solid rgba(255,255,255,0.1)">`;
+    document.getElementById('modalTeamName').textContent = teamName;
+    document.getElementById('modalVotersList').innerHTML = voters.map(v => {
+      const initials = v.split(' ').map(n => n[0]).slice(0,2).join('').toUpperCase();
+      return `<div class="voter-chip"><div class="avatar">${initials}</div>${escapeHTML(v)}</div>`;
+    }).join('');
+    document.getElementById('votersModal').classList.add('open');
+  };
+
+  window.closeModal = function(e) {
+    if (e.target.id === 'votersModal') {
+      document.getElementById('votersModal').classList.remove('open');
+    }
+  };
+
+  function escapeHTML(str) {
+    if (!str) return '';
+    return String(str).replace(/[&<>'"`]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":"&#39;",'"':'&quot;','`':'&#96;'}[c]||c));
+  }
+
+  // Carregar dados e rodar classificação
+  async function loadData(e) {
+    if (e) e.stopPropagation();
+    const btn = document.getElementById('refreshBtn');
+    const icon = document.getElementById('refreshIcon');
+    btn.classList.add('spinning');
+    btn.disabled = true;
+
+    countVoters();
+    const games = await fetchGames();
+
+    btn.classList.remove('spinning');
+    btn.disabled = false;
+
+    if (!games) {
+      // Se der erro, calcula classificação em branco
+      renderGroups(calculateStandings([]));
+      return;
+    }
+
+    gamesData = games;
+    const standings = calculateStandings(games);
+    renderGroups(standings);
+  }
+
+  // Inicialização
+  document.addEventListener('DOMContentLoaded', () => {
+    loadData();
+  });
+</script>
+</body>
+</html>
