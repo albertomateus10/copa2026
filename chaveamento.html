@@ -630,9 +630,6 @@ window.closeModalBg = function(e) {
 // ===========================================================
 // LOAD REAL DATA FROM API (optional enhancement)
 // ===========================================================
-// ===========================================================
-// LOAD REAL DATA FROM API (optional enhancement)
-// ===========================================================
 async function loadLiveData() {
   try {
     const resp = await fetch('https://worldcup26.ir/get/games', { mode:'cors', headers:{'Accept':'application/json'} });
@@ -640,45 +637,63 @@ async function loadLiveData() {
     const json = await resp.json();
     const games = json.games || [];
 
-    // Count finished and upcoming
+    // Contador de jogos
     let finished = games.filter(g => g.finished === 'TRUE').length;
     let upcoming = games.filter(g => g.finished !== 'TRUE').length;
     document.getElementById('headerRight').innerHTML = `✅ ${finished} jogos encerrados<br>⏳ ${upcoming} por jogar`;
 
-    // Apply scores and teams to knockout matches if available
+
+    // =========================================================
+    // PASSO 2: Aplicar dados dos jogos do mata-mata
+    // Só atualiza times que já estão CONFIRMADOS pela API (team_id != 0)
+    // =========================================================
+    const allRounds = [...R32, ...OITAVAS, ...QUARTAS, ...SEMI, TERCEIRO, FINAL];
     const knockoutTypes = ['r32','r16','qf','sf','final','third'];
-    const koGames = games.filter(g => knockoutTypes.includes(g.type));
+    // IMPORTANTE: filtra apenas jogos de mata-mata E usa match_number (não id)
+    // pois o id da API pode coincidir com ids de jogos de grupo
+    const koGames = games.filter(g => knockoutTypes.includes((g.type || '').toLowerCase()));
 
     koGames.forEach(g => {
+      // Usa match_number se disponível, senão usa id — mas só se o type for knockout
       const matchNum = parseInt(g.match_number || g.id || 0);
-      // Look through all rounds
-      const allRounds = [...R32, ...OITAVAS, ...QUARTAS, ...SEMI, TERCEIRO, FINAL];
+      // IDs válidos do mata-mata: 73–104. Ignora qualquer outro (pode ser jogo de grupo).
+      if (matchNum < 73 || matchNum > 104) return;
       const found = allRounds.find(m => m.id === matchNum);
-      if (found) {
-        // Só exibe o placar se o jogo já terminou
-        if (g.finished === 'TRUE') {
-          found.hs = parseInt(g.home_score) || 0;
-          found.as = parseInt(g.away_score) || 0;
-        } else {
-          found.hs = null;
-          found.as = null;
-        }
-        
-        // Atualiza as seleções e bandeiras a partir dos nomes em inglês
-        if (g.home_team_name_en && g.home_team_name_en !== 'None' && g.home_team_name_en !== 'null') {
-          found.h.n = getTeamPt(g.home_team_name_en) || found.h.n;
-          const flag = getTeamFlag(found.h.n);
-          if (flag) found.h.c = flag;
-        }
-        if (g.away_team_name_en && g.away_team_name_en !== 'None' && g.away_team_name_en !== 'null') {
-          found.a.n = getTeamPt(g.away_team_name_en) || found.a.n;
-          const flag = getTeamFlag(found.a.n);
-          if (flag) found.a.c = flag;
-        }
+      if (!found) return;
+
+      // Placar
+      if (g.finished === 'TRUE') {
+        found.hs = parseInt(g.home_score) || 0;
+        found.as = parseInt(g.away_score) || 0;
+      } else {
+        found.hs = null;
+        found.as = null;
+      }
+
+      // Só sobrescreve o time se a API confirmou com team_id != 0
+      // E se o label NÃO indica que o time ainda é "a definir" (Winner/Runner-up/3rd)
+      const labelPending = /winner|runner.?up|3rd/i;
+      const validHome = String(g.home_team_id) !== '0'
+        && g.home_team_name_en
+        && g.home_team_name_en !== 'None'
+        && g.home_team_name_en !== 'null'
+        && !labelPending.test(g.home_team_label || '');
+      const validAway = String(g.away_team_id) !== '0'
+        && g.away_team_name_en
+        && g.away_team_name_en !== 'None'
+        && g.away_team_name_en !== 'null'
+        && !labelPending.test(g.away_team_label || '');
+
+      if (validHome) {
+        found.h.n = g.home_team_name_en;
+        found.h.c = getTeamFlag(g.home_team_name_en) || found.h.c;
+      }
+      if (validAway) {
+        found.a.n = g.away_team_name_en;
+        found.a.c = getTeamFlag(g.away_team_name_en) || found.a.c;
       }
     });
 
-    // Re-render
     renderBracket();
     setTimeout(drawConnectors, 80);
   } catch(e) {
