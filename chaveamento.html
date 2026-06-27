@@ -404,24 +404,24 @@ const R32 = [
 
 const OITAVAS = [
   // Metade Superior (conectada a R32 0-7)
-  { id:90, date:"4 jul · 14:00",  h:{n:"Vencedor J74", c:null}, a:{n:"Vencedor J73", c:null} },
-  { id:89, date:"4 jul · 18:00",  h:{n:"Vencedor J77", c:null}, a:{n:"Vencedor J83", c:null} },
-  { id:91, date:"5 jul · 17:00",  h:{n:"Vencedor J75", c:null}, a:{n:"Vencedor J84", c:null} },
-  { id:92, date:"5 jul · 21:00",  h:{n:"Vencedor J81", c:null}, a:{n:"Vencedor J82", c:null} },
+  { id:89, date:"4 jul · 18:00",  h:{n:"Vencedor J74", c:null}, a:{n:"Vencedor J77", c:null} },
+  { id:90, date:"4 jul · 14:00",  h:{n:"Vencedor J73", c:null}, a:{n:"Vencedor J75", c:null} },
+  { id:93, date:"6 jul · 16:00",  h:{n:"Vencedor J83", c:null}, a:{n:"Vencedor J84", c:null} },
+  { id:94, date:"6 jul · 21:00",  h:{n:"Vencedor J81", c:null}, a:{n:"Vencedor J82", c:null} },
   // Metade Inferior (conectada a R32 8-15)
-  { id:94, date:"6 jul · 21:00",  h:{n:"Vencedor J76", c:null}, a:{n:"Vencedor J78", c:null} },
-  { id:93, date:"6 jul · 16:00",  h:{n:"Vencedor J79", c:null}, a:{n:"Vencedor J80", c:null} },
-  { id:96, date:"7 jul · 17:00",  h:{n:"Vencedor J86", c:null}, a:{n:"Vencedor J85", c:null} },
-  { id:95, date:"7 jul · 13:00",  h:{n:"Vencedor J88", c:null}, a:{n:"Vencedor J87", c:null} },
+  { id:91, date:"5 jul · 17:00",  h:{n:"Vencedor J76", c:null}, a:{n:"Vencedor J78", c:null} },
+  { id:92, date:"5 jul · 21:00",  h:{n:"Vencedor J79", c:null}, a:{n:"Vencedor J80", c:null} },
+  { id:95, date:"7 jul · 13:00",  h:{n:"Vencedor J86", c:null}, a:{n:"Vencedor J88", c:null} },
+  { id:96, date:"7 jul · 17:00",  h:{n:"Vencedor J85", c:null}, a:{n:"Vencedor J87", c:null} },
 ];
 
 const QUARTAS = [
-  // Metade Superior (conectada a Oitavas 90, 89, 91, 92)
-  { id:97,  date:"9 jul · 17:00",  h:{n:"Vencedor J90", c:null}, a:{n:"Vencedor J89", c:null} },
-  { id:98,  date:"10 jul · 16:00", h:{n:"Vencedor J91", c:null}, a:{n:"Vencedor J92", c:null} },
-  // Metade Inferior (conectada a Oitavas 94, 93, 96, 95)
-  { id:99,  date:"11 jul · 18:00", h:{n:"Vencedor J94", c:null}, a:{n:"Vencedor J93", c:null} },
-  { id:100, date:"11 jul · 22:00", h:{n:"Vencedor J96", c:null}, a:{n:"Vencedor J95", c:null} },
+  // Metade Superior (conectada a Oitavas 89, 90, 93, 94)
+  { id:97,  date:"9 jul · 17:00",  h:{n:"Vencedor J89", c:null}, a:{n:"Vencedor J90", c:null} },
+  { id:98,  date:"10 jul · 16:00", h:{n:"Vencedor J93", c:null}, a:{n:"Vencedor J94", c:null} },
+  // Metade Inferior (conectada a Oitavas 91, 92, 95, 96)
+  { id:99,  date:"11 jul · 18:00", h:{n:"Vencedor J91", c:null}, a:{n:"Vencedor J92", c:null} },
+  { id:100, date:"11 jul · 22:00", h:{n:"Vencedor J95", c:null}, a:{n:"Vencedor J96", c:null} },
 ];
 
 const SEMI = [
@@ -698,19 +698,19 @@ function drawConnectors() {
   // Mapeamento de conexões: chave é o ID da partida de destino, valor é um array com os IDs das partidas de origem
   const connections = {
     // Oitavas
-    90: [74, 73],
-    89: [77, 83],
-    91: [75, 84],
-    92: [81, 82],
-    94: [76, 78],
-    93: [79, 80],
-    96: [86, 85],
-    95: [88, 87],
+    89: [74, 77],
+    90: [73, 75],
+    93: [83, 84],
+    94: [81, 82],
+    91: [76, 78],
+    92: [79, 80],
+    95: [86, 88],
+    96: [85, 87],
     // Quartas
-    97: [90, 89],
-    98: [91, 92],
-    99: [94, 93],
-    100: [96, 95],
+    97: [89, 90],
+    98: [93, 94],
+    99: [91, 92],
+    100: [95, 96],
     // Semis
     101: [97, 98],
     102: [99, 100],
