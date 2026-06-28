@@ -11,18 +11,18 @@
 
   <style>
     :root {
-      --bg-base: #f3f4f6; /* Cinza suave de fundo */
-      --bg-card: #ffffff; /* Branco puro para os cards */
-      --border: #e5e7eb;  /* Borda cinza clara da ESPN */
-      --border-glow: rgba(0, 0, 0, 0.05);
-      --primary: #0066cc; /* Azul ESPN */
+      --bg-base: #ffffff; /* Fundo branco do print */
+      --bg-card: #f1f3f4; /* Fundo cinza claro dos cards do print */
+      --border: #dadce0;  /* Borda cinza clara do print */
+      --border-glow: rgba(0, 0, 0, 0.03);
+      --primary: #1a73e8; /* Azul suave */
       --gold: #d97706;    /* Destaques do bolão */
       --bronze: #b45309;
-      --text: #1f2937;    /* Texto principal escuro */
-      --text-secondary: #4b5563;
-      --text-muted: #9ca3af;
-      --green: #10b981;   /* Verde para vencedor */
-      --connector-color: #cbd5e1; /* Slate 300 para linhas */
+      --text: #202124;    /* Texto principal preto/cinza escuro do print */
+      --text-secondary: #5f6368; /* Texto secundário do print (ex: A definir) */
+      --text-muted: #70757a; /* Datas e informações do print */
+      --green: #137333;   /* Verde para vencedor */
+      --connector-color: #dadce0; /* Linhas conectoras do print */
       --match-w: 230px;   /* Largura dos cards */
     }
 
@@ -132,23 +132,23 @@
       flex-direction: column;
       gap: 4px;
       cursor: pointer;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.02), 0 4px 6px -1px rgba(0,0,0,0.03);
+      box-shadow: none;
       transition: all 0.2s ease-in-out;
       position: relative; flex-shrink: 0;
       box-sizing: border-box;
     }
     .match-card:hover {
-      border-color: #9ca3af;
+      border-color: var(--text-muted);
       transform: translateY(-1px);
-      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.04), 0 4px 6px -2px rgba(0,0,0,0.02);
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
     }
 
     .match-card.final-card {
-      border-color: rgba(217, 119, 6, 0.3);
-      background: linear-gradient(135deg, rgba(217, 119, 6, 0.02), var(--bg-card));
+      border-color: var(--border);
+      background: var(--bg-card);
     }
     .match-card.final-card:hover {
-      border-color: var(--gold);
+      border-color: var(--text-muted);
     }
 
     .match-header {
@@ -335,7 +335,6 @@
     <a href="index.html" class="back-btn">← Voltar ao Bolão</a>
     <div>
       <div class="header-title">🏆 Chaveamento Copa 2026</div>
-      <div class="header-sub">48 seleções · 104 jogos · EUA, Canadá, México</div>
     </div>
   </div>
   <div id="headerRight" style="font-size:0.7rem;color:var(--text-muted);text-align:right;line-height:1.6;">
@@ -473,7 +472,7 @@ function buildCard(m, extraCls='') {
   const hCls = (hWin?'winner':'') + (aWin?' loser':'') + (hKey?' bolao-hl':'') + (isHPlaceholder?' placeholder':'');
   const aCls = (aWin?'winner':'') + (hWin?' loser':'') + (aKey?' bolao-hl':'') + (isAPlaceholder?' placeholder':'');
 
-  const shieldSvg = `<svg class="flag-ph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;color:#9ca3af;flex-shrink:0;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`;
+  const shieldSvg = `<svg class="flag-ph" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;color:var(--text-secondary);flex-shrink:0;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`;
 
   const hFlag = h.c
     ? `<img class="team-flag" src="https://flagcdn.com/w80/${h.c}.png" alt="${esc(h.n)}" onerror="this.style.display='none'">`
