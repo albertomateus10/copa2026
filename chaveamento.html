@@ -123,13 +123,14 @@
     /* ===== MATCH CARD ===== */
     .match-card {
       width: var(--match-w);
+      height: 102px;
       background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: 10px;
-      padding: 10px 12px;
+      padding: 8px 12px;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 4px;
       cursor: pointer;
       box-shadow: 0 1px 3px rgba(0,0,0,0.02), 0 4px 6px -1px rgba(0,0,0,0.03);
       transition: all 0.2s ease-in-out;
@@ -489,7 +490,7 @@ function buildCard(m, extraCls='') {
 
   const formattedDate = m.date.replace('·', '-');
 
-  return `<div class="match-card ${extraCls}" data-match-id="${m.id}" onclick='openModal(${JSON.stringify({id:m.id,date:m.date,h,a,hs:m.hs||null,as:m.as||null})})'>
+  return `<div class="match-card ${extraCls}" data-match-id="${m.id}" onclick='openModal(${JSON.stringify({id:m.id,date:m.date,h,a,hs:m.hs||null,as:m.as||null,stadium:m.stadium||""})})'>
     <div class="match-header">
       <span class="match-num-text">Partida ${m.id}</span>
     </div>
@@ -497,8 +498,9 @@ function buildCard(m, extraCls='') {
       <div class="match-team ${hCls.trim()}">${hFlag}<span class="team-name">${esc(h.n)}</span>${hVoted}${hScore}</div>
       <div class="match-team ${aCls.trim()}">${aFlag}<span class="team-name">${esc(a.n)}</span>${aVoted}${aScore}</div>
     </div>
-    <div class="match-footer">
-      <span class="match-date-text">${esc(formattedDate)}</span>
+    <div class="match-footer" style="display: flex; justify-content: space-between; align-items: center; gap: 4px;">
+      <span class="match-date-text" style="flex-shrink: 0;">${esc(formattedDate)}</span>
+      ${m.stadium ? `<span style="font-size: 0.58rem; color: var(--text-muted); text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; min-width: 0;" title="${esc(m.stadium)}">🏟️ ${esc(m.stadium.split(' · ')[0])}</span>` : ''}
     </div>
   </div>`;
 }
@@ -545,7 +547,7 @@ function renderBracket() {
   const r32lower = col('', R32.slice(8,16), GAP_R32, 0);
   const r32Block = `<div style="display:flex;flex-direction:column;gap:0;flex-shrink:0;">
     ${r32upper}
-    <div style="height:40px;display:flex;align-items:center;justify-content:center;">
+    <div style="height:40px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
       <div style="width:80%;height:1px;background:rgba(0,0,0,0.06);"></div>
     </div>
     ${r32lower}
@@ -556,7 +558,7 @@ function renderBracket() {
   const oit2 = col('', OITAVAS.slice(4,8), GAP_OIT, (CARD_H+GAP_R32)/2);
   const oitBlock = `<div style="display:flex;flex-direction:column;gap:0;flex-shrink:0;">
     ${oit1}
-    <div style="height:96px;"></div>
+    <div style="height:96px;flex-shrink:0;"></div>
     ${oit2}
   </div>`;
 
@@ -565,7 +567,7 @@ function renderBracket() {
   const qua2 = col('', QUARTAS.slice(2,4), GAP_QUA, (CARD_H+GAP_OIT+GAP_R32)/2 + (CARD_H+GAP_R32)/2);
   const quaBlock = `<div style="display:flex;flex-direction:column;gap:0;flex-shrink:0;">
     ${qua1}
-    <div style="height:198px;"></div>
+    <div style="height:198px;flex-shrink:0;"></div>
     ${qua2}
   </div>`;
 
@@ -579,7 +581,7 @@ function renderBracket() {
     <div class="round-label final-label" style="top:${finalPaddingTop - 32}px;">🏆 Final</div>
     <div style="display:flex;flex-direction:column;align-items:center;padding-top:${finalPaddingTop}px;width:100%;">
       ${buildCard(FINAL,'final-card')}
-      <div style="height:60px;"></div>
+      <div style="height:60px;flex-shrink:0;"></div>
       <div class="third-label">🥉 3° Lugar</div>
       ${buildCard(TERCEIRO)}
     </div>
@@ -624,7 +626,7 @@ window.openModal = function(m) {
 
   document.getElementById('mScore').textContent = hasScore ? `${m.hs} × ${m.as}` : '? × ?';
   document.getElementById('mScore').style.color = hasScore ? 'var(--green)' : 'var(--text-muted)';
-  document.getElementById('mDate').textContent = `📅 ${m.date}`;
+  document.getElementById('mDate').innerHTML = `📅 ${esc(m.date)}${m.stadium ? `<br><span style="display:inline-block;margin-top:6px;font-size:0.75rem;color:var(--text-secondary)">🏟️ ${esc(m.stadium)}</span>` : ''}`;
 
   const hKey = bolaoKey(h.n), aKey = bolaoKey(a.n);
   const voterEl = document.getElementById('mVoters');
@@ -648,34 +650,98 @@ window.closeModalBg = function(e) {
 // ===========================================================
 // LOAD REAL DATA FROM API (optional enhancement)
 // ===========================================================
+const ESPN_KO_MAP = {
+  "760486": 73, "760489": 74, "760488": 75, "760487": 76,
+  "760492": 77, "760490": 78, "760491": 79, "760495": 80,
+  "760493": 82, "760494": 81, "760497": 84, "760496": 83,
+  "760498": 85, "760499": 88, "760500": 86, "760501": 87,
+  "760502": 89, "760503": 90, "760504": 91, "760505": 92,
+  "760506": 93, "760507": 94, "760509": 95, "760508": 96,
+  "760510": 97, "760511": 98, "760512": 99, "760513": 100,
+  "760514": 101, "760515": 102, "760516": 103, "760517": 104
+};
+
 async function loadLiveData() {
   try {
-    const resp = await fetch('https://worldcup26.ir/get/games', { mode:'cors', headers:{'Accept':'application/json'} });
+    const resp = await fetch('https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard?dates=20260611-20260719&limit=300');
     if (!resp.ok) return;
     const json = await resp.json();
-    const games = json.games || [];
+    const events = json.events || [];
 
-    // Contador de jogos (case-insensitive)
+    const games = events.map(event => {
+      const comp = event.competitions[0];
+      const home = comp.competitors.find(c => c.homeAway === 'home');
+      const away = comp.competitors.find(c => c.homeAway === 'away');
+
+      const homeName = home.team.displayName;
+      const awayName = away.team.displayName;
+
+      const isHomePlaceholder = /Winner|Loser|Place|Runner|TBD|Determined/i.test(homeName);
+      const isAwayPlaceholder = /Winner|Loser|Place|Runner|TBD|Determined/i.test(awayName);
+
+      const isFinished = comp.status.type.completed;
+      const isLive = comp.status.type.state === 'in';
+
+      const espnSlug = event.season.slug;
+      let type = 'group';
+      if (espnSlug === 'round-of-32') type = 'r32';
+      else if (espnSlug === 'round-of-16') type = 'r16';
+      else if (espnSlug === 'quarterfinals') type = 'qf';
+      else if (espnSlug === 'semifinals') type = 'sf';
+      else if (espnSlug === '3rd-place-match') type = 'third';
+      else if (espnSlug === 'final') type = 'final';
+
+      const matchNum = ESPN_KO_MAP[event.id] || 0;
+
+      // Mapear data local com dia da semana em português (ex: "seg, 29 jun - 14:00")
+      const d = new Date(event.date);
+      const weekdays = ["dom", "seg", "ter", "qua", "qui", "sex", "sáb"];
+      const weekdayStr = weekdays[d.getDay()];
+
+      const day = d.getDate();
+      const monthNames = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+      const monthStr = monthNames[d.getMonth()];
+      const hours = String(d.getHours()).padStart(2, '0');
+      const minutes = String(d.getMinutes()).padStart(2, '0');
+
+      const formattedDate = `${weekdayStr}, ${day} ${monthStr} - ${hours}:${minutes}`;
+      const stadiumName = comp.venue ? comp.venue.fullName : '';
+      const city = comp.venue && comp.venue.address ? comp.venue.address.city : '';
+      const localDisplay = stadiumName ? (city ? `${stadiumName} · ${city}` : stadiumName) : '';
+
+      return {
+        id: matchNum || parseInt(event.id),
+        match_number: matchNum,
+        type: type,
+        finished: isFinished ? 'TRUE' : 'FALSE',
+        home_team_name_en: homeName,
+        away_team_name_en: awayName,
+        home_score: isFinished || isLive ? home.score : null,
+        away_score: isFinished || isLive ? away.score : null,
+        home_team_id: isHomePlaceholder ? "0" : (home.team.id || "1"),
+        away_team_id: isAwayPlaceholder ? "0" : (away.team.id || "1"),
+        local_date: formattedDate,
+        stadium: localDisplay
+      };
+    });
+
     let finished = games.filter(g => (g.finished||'').toUpperCase() === 'TRUE').length;
     let upcoming = games.filter(g => (g.finished||'').toUpperCase() !== 'TRUE').length;
     document.getElementById('headerRight').innerHTML = `✅ ${finished} jogos encerrados<br>⏳ ${upcoming} por jogar`;
 
-    // =========================================================
-    // PASSO 2: Aplicar dados dos jogos do mata-mata
-    // Só atualiza times que já estão CONFIRMADOS pela API (team_id != 0)
-    // =========================================================
     const allRounds = [...R32, ...OITAVAS, ...QUARTAS, ...SEMI, TERCEIRO, FINAL];
     const knockoutTypes = ['r32','r16','qf','sf','final','third'];
     const koGames = games.filter(g => knockoutTypes.includes((g.type || '').toLowerCase()));
 
     koGames.forEach(g => {
       const matchNum = parseInt(g.match_number || g.id || 0);
-      // IDs válidos do mata-mata: 73-104. Ignora qualquer outro (pode ser jogo de grupo).
       if (matchNum < 73 || matchNum > 104) return;
       const found = allRounds.find(m => m.id === matchNum);
       if (!found) return;
 
-      // Placar (case-insensitive para finished)
+      if (g.local_date) found.date = g.local_date;
+      if (g.stadium) found.stadium = g.stadium;
+
       const isFinished = (g.finished||'').toUpperCase() === 'TRUE';
       if (isFinished) {
         found.hs = parseInt(g.home_score) || 0;
@@ -685,8 +751,6 @@ async function loadLiveData() {
         found.as = null;
       }
 
-      // Sobrescreve o time APENAS se a API confirmou: team_id != 0 e nome válido
-      // NOTA: home_team_label SEMPRE tem "Winner Group X" mesmo em times confirmados — não usar para filtrar!
       const validHome = String(g.home_team_id) !== '0'
         && g.home_team_name_en
         && g.home_team_name_en !== 'None'
@@ -697,7 +761,6 @@ async function loadLiveData() {
         && g.away_team_name_en !== 'null';
 
       if (validHome) {
-        // Traduz EN -> PT para manter compatibilidade com BOLAO
         const namePt = getTeamPt(g.home_team_name_en);
         found.h.n = namePt;
         found.h.c = getTeamFlag(g.home_team_name_en) || found.h.c;
@@ -711,6 +774,7 @@ async function loadLiveData() {
 
     renderBracket();
     setTimeout(drawConnectors, 80);
+    setTimeout(drawConnectors, 300);
   } catch(e) {
     console.warn('Live data unavailable:', e);
     document.getElementById('headerRight').innerHTML = '⚠️ Sem dados ao vivo';
@@ -731,7 +795,9 @@ const TEAM_PT = {
   "curacao":"Curaçao", "curaçao":"Curaçao", "sweden":"Suécia", "tunisia":"Tunísia",
   "new zealand":"Nova Zelândia", "iraq":"Iraque", "austria":"Áustria", "jordan":"Jordânia",
   "democratic republic of the congo":"RD Congo", "uzbekistan":"Uzbequistão", "ghana":"Gana",
-  "panama":"Panamá"
+  "panama":"Panamá", "czechia":"Tchéquia", "cote d'ivoire":"Costa do Marfim",
+  "côte d'ivoire":"Costa do Marfim", "congo dr":"RD Congo", "dr congo":"RD Congo",
+  "bosnia-herzegovina":"Bósnia e Herz.", "korea republic":"Coreia do Sul"
 };
 
 const TEAM_FLAGS = {
@@ -746,7 +812,9 @@ const TEAM_FLAGS = {
   "França": "fr", "Senegal": "sn", "Iraque": "iq", "Noruega": "no",
   "Argentina": "ar", "Argélia": "dz", "Áustria": "at", "Jordânia": "jo",
   "Portugal": "pt", "RD Congo": "cd", "Uzbequistão": "uz", "Colômbia": "co",
-  "Inglaterra": "gb-eng", "Croácia": "hr", "Gana": "gh", "Panamá": "pa"
+  "Inglaterra": "gb-eng", "Croácia": "hr", "Gana": "gh", "Panamá": "pa",
+  "Tchéquia": "cz", "Costa do Marfim": "ci", "Bósnia e Herzegovina": "ba",
+  "Bósnia e Herz.": "ba", "Coreia do Sul": "kr"
 };
 
 function getTeamPt(en) { return TEAM_PT[en.toLowerCase()] || en; }
@@ -853,14 +921,17 @@ document.addEventListener('DOMContentLoaded', () => {
   renderBracket();
   loadLiveData();
   setTimeout(drawConnectors, 150);
+  setTimeout(drawConnectors, 400);
 });
 
 // Redesenha se a janela for redimensionada ou fontes carregadas
 window.addEventListener('resize', () => {
   setTimeout(drawConnectors, 50);
+  setTimeout(drawConnectors, 250);
 });
 window.addEventListener('load', () => {
   setTimeout(drawConnectors, 100);
+  setTimeout(drawConnectors, 300);
 });
 </script>
 </body>

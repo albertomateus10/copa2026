@@ -1430,6 +1430,13 @@
     "croatia":                  { pt: "Croácia",        code: "hr" },
     "ghana":                    { pt: "Gana",           code: "gh" },
     "panama":                   { pt: "Panamá",         code: "pa" },
+    "czechia":                  { pt: "Tchéquia",       code: "cz" },
+    "cote d'ivoire":            { pt: "Costa do Marfim",code: "ci" },
+    "côte d'ivoire":            { pt: "Costa do Marfim",code: "ci" },
+    "congo dr":                 { pt: "RD Congo",       code: "cd" },
+    "dr congo":                 { pt: "RD Congo",       code: "cd" },
+    "bosnia-herzegovina":       { pt: "Bósnia",         code: "ba" },
+    "korea republic":           { pt: "Coreia do Sul",  code: "kr" }
   };
 
   // Fase da copa → número da fase (0-indexed, máximo 7 fases de eliminação)
@@ -1456,17 +1463,158 @@
   // =========================================================
   // BUSCAR DADOS DA API
   // =========================================================
+  const ESPN_KO_MAP = {
+    "760486": 73, "760489": 74, "760488": 75, "760487": 76,
+    "760492": 77, "760490": 78, "760491": 79, "760495": 80,
+    "760493": 82, "760494": 81, "760497": 84, "760496": 83,
+    "760498": 85, "760499": 88, "760500": 86, "760501": 87,
+    "760502": 89, "760503": 90, "760504": 91, "760505": 92,
+    "760506": 93, "760507": 94, "760509": 95, "760508": 96,
+    "760510": 97, "760511": 98, "760512": 99, "760513": 100,
+    "760514": 101, "760515": 102, "760516": 103, "760517": 104
+  };
+
+  const LABEL_MAP = {
+    "Round of 32 1 Winner": "Vencedor J73",
+    "Round of 32 2 Winner": "Vencedor J76",
+    "Round of 32 3 Winner": "Vencedor J74",
+    "Round of 32 4 Winner": "Vencedor J75",
+    "Round of 32 5 Winner": "Vencedor J78",
+    "Round of 32 6 Winner": "Vencedor J77",
+    "Round of 32 7 Winner": "Vencedor J79",
+    "Round of 32 8 Winner": "Vencedor J80",
+    "Round of 32 9 Winner": "Vencedor J82",
+    "Round of 32 10 Winner": "Vencedor J81",
+    "Round of 32 11 Winner": "Vencedor J84",
+    "Round of 32 12 Winner": "Vencedor J83",
+    "Round of 32 13 Winner": "Vencedor J85",
+    "Round of 32 14 Winner": "Vencedor J88",
+    "Round of 32 15 Winner": "Vencedor J86",
+    "Round of 32 16 Winner": "Vencedor J87",
+    
+    "Round of 16 1 Winner": "Vencedor J89",
+    "Round of 16 2 Winner": "Vencedor J90",
+    "Round of 16 3 Winner": "Vencedor J91",
+    "Round of 16 4 Winner": "Vencedor J92",
+    "Round of 16 5 Winner": "Vencedor J93",
+    "Round of 16 6 Winner": "Vencedor J94",
+    "Round of 16 7 Winner": "Vencedor J95",
+    "Round of 16 8 Winner": "Vencedor J96",
+    
+    "Quarterfinal 1 Winner": "Vencedor J97",
+    "Quarterfinal 2 Winner": "Vencedor J98",
+    "Quarterfinal 3 Winner": "Vencedor J99",
+    "Quarterfinal 4 Winner": "Vencedor J100",
+    
+    "Semifinal 1 Winner": "Vencedor J101",
+    "Semifinal 2 Winner": "Vencedor J102",
+    
+    "Semifinal 1 Loser": "Perdedor J101",
+    "Semifinal 2 Loser": "Perdedor J102",
+    
+    "Group A 1st Place": "1° Grupo A",
+    "Group A 2nd Place": "2° Grupo A",
+    "Group B 1st Place": "1° Grupo B",
+    "Group B 2nd Place": "2° Grupo B",
+    "Group C 1st Place": "1° Grupo C",
+    "Group C 2nd Place": "2° Grupo C",
+    "Group D 1st Place": "1° Grupo D",
+    "Group D 2nd Place": "2° Grupo D",
+    "Group E 1st Place": "1° Grupo E",
+    "Group E 2nd Place": "2° Grupo E",
+    "Group F 1st Place": "1° Grupo F",
+    "Group F 2nd Place": "2° Grupo F",
+    "Group G 1st Place": "1° Grupo G",
+    "Group G 2nd Place": "2° Grupo G",
+    "Group H 1st Place": "1° Grupo H",
+    "Group H 2nd Place": "2° Grupo H",
+    "Group I 1st Place": "1° Grupo I",
+    "Group I 2nd Place": "2° Grupo I",
+    "Group J 1st Place": "1° Grupo J",
+    "Group J 2nd Place": "2° Grupo J",
+    "Group K 1st Place": "1° Grupo K",
+    "Group K 2nd Place": "2° Grupo K",
+    "Group L 1st Place": "1° Grupo L",
+    "Group L 2nd Place": "2° Grupo L"
+  };
+
   async function fetchGames() {
     try {
-      const resp = await fetch('https://worldcup26.ir/get/games', {
-        mode: 'cors',
-        headers: { 'Accept': 'application/json' }
-      });
-      if (!resp.ok) throw new Error('API indisponível');
+      const resp = await fetch('https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard?dates=20260611-20260719&limit=300');
+      if (!resp.ok) throw new Error('API ESPN indisponível');
       const json = await resp.json();
-      return json.games || [];
+      const events = json.events || [];
+      
+      return events.map(event => {
+        const comp = event.competitions[0];
+        const home = comp.competitors.find(c => c.homeAway === 'home');
+        const away = comp.competitors.find(c => c.homeAway === 'away');
+        
+        const homeName = home.team.displayName;
+        const awayName = away.team.displayName;
+        
+        const isHomePlaceholder = /Winner|Loser|Place|Runner|TBD|Determined/i.test(homeName);
+        const isAwayPlaceholder = /Winner|Loser|Place|Runner|TBD|Determined/i.test(awayName);
+        
+        const isFinished = comp.status.type.completed;
+        const isLive = comp.status.type.state === 'in';
+        
+        const espnSlug = event.season.slug;
+        let type = 'group';
+        if (espnSlug === 'round-of-32') type = 'r32';
+        else if (espnSlug === 'round-of-16') type = 'r16';
+        else if (espnSlug === 'quarterfinals') type = 'qf';
+        else if (espnSlug === 'semifinals') type = 'sf';
+        else if (espnSlug === '3rd-place-match') type = 'third';
+        else if (espnSlug === 'final') type = 'final';
+        
+        const matchNum = ESPN_KO_MAP[event.id] || 0;
+        
+        // Mapear data local para o formato esperado pelo app (ex: "seg, 29/06 · 14:00")
+        const d = new Date(event.date);
+        const weekdays = ["dom", "seg", "ter", "qua", "qui", "sex", "sáb"];
+        const weekdayStr = weekdays[d.getDay()];
+        
+        const day = d.getDate();
+        const monthNames = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+        const hours = String(d.getHours()).padStart(2, '0');
+        const minutes = String(d.getMinutes()).padStart(2, '0');
+        
+        const formattedDate = `${weekdayStr}, ${String(day).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')} · ${hours}:${minutes}`;
+        const stadiumName = comp.venue ? comp.venue.fullName : '';
+        const city = comp.venue && comp.venue.address ? comp.venue.address.city : '';
+        const localDisplay = stadiumName ? (city ? `${stadiumName} · ${city}` : stadiumName) : '';
+        
+        const cleanLabel = (name) => {
+          if (LABEL_MAP[name]) return LABEL_MAP[name];
+          let res = name;
+          res = res.replace(/Winner Group (\w+)/i, '1° Grupo $1');
+          res = res.replace(/Runner-up Group (\w+)/i, '2° Grupo $1');
+          res = res.replace(/3rd Place Group (\w+)/i, '3° Grupo $1');
+          res = res.replace(/TBD/i, 'A definir');
+          return res;
+        };
+
+        return {
+          id: matchNum || parseInt(event.id),
+          match_number: matchNum,
+          type: type,
+          finished: isFinished ? 'TRUE' : 'FALSE',
+          time_elapsed: isLive ? 'live' : '',
+          home_team_name_en: isHomePlaceholder ? "" : homeName,
+          away_team_name_en: isAwayPlaceholder ? "" : awayName,
+          home_team_label: isHomePlaceholder ? cleanLabel(homeName) : homeName,
+          away_team_label: isAwayPlaceholder ? cleanLabel(awayName) : awayName,
+          home_score: isFinished || isLive ? home.score : null,
+          away_score: isFinished || isLive ? away.score : null,
+          home_team_id: isHomePlaceholder ? "0" : (home.team.id || "1"),
+          away_team_id: isAwayPlaceholder ? "0" : (away.team.id || "1"),
+          local_date: formattedDate,
+          stadium: localDisplay
+        };
+      });
     } catch (e) {
-      console.error('Erro na API da Copa:', e);
+      console.error('Erro na API da ESPN:', e);
       return null;
     }
   }
@@ -1766,13 +1914,6 @@
       const awayName = g.away_team_name_en ? awayPt : translateLabel(g.away_team_label);
 
       let dateDisplay = g.local_date || '';
-      if (dateDisplay.includes(' ')) {
-        const parts = dateDisplay.split(' ');
-        const dateParts = parts[0].split('/');
-        if (dateParts.length === 3) {
-          dateDisplay = `${dateParts[1]}/${dateParts[0]} · ${parts[1]}`;
-        }
-      }
 
       // Se o jogo terminou, mostramos o placar
       const isFinished = g.finished === 'TRUE';
@@ -1781,18 +1922,22 @@
         : `<div class="score-badge" style="font-size: 0.72rem; letter-spacing: 0; padding: 4px 8px; font-weight: 600; background: rgba(99, 102, 241, 0.12); border-color: rgba(99, 102, 241, 0.2); color: var(--primary);">${dateDisplay}</div>`;
 
       return `
-        <div class="result-item" style="padding: 12px; background: rgba(255,255,255,0.03); display: flex; align-items: center; justify-content: space-between; gap: 8px;">
-          <div class="result-teams" style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; flex: 1; min-width: 0; justify-content: flex-start;">
-            ${g.home_team_name_en ? `<img src="https://flagcdn.com/w80/${homeCode}.png" onerror="this.src='https://flagcdn.com/w80/un.png'" style="width: 20px; height: 14px; object-fit: cover; flex-shrink: 0;">` : '<span style="flex-shrink: 0; font-size: 0.72rem;">❓</span>'}
-            <span title="${homeName}" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600;">${escapeHTML(homeName)}</span>
+        <div class="result-item" style="padding: 12px; background: rgba(255,255,255,0.03); display: flex; flex-direction: column; gap: 6px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%;">
+            <div class="result-teams" style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; flex: 1; min-width: 0; justify-content: flex-start;">
+              ${g.home_team_name_en ? `<img src="https://flagcdn.com/w80/${homeCode}.png" onerror="this.src='https://flagcdn.com/w80/un.png'" style="width: 20px; height: 14px; object-fit: cover; flex-shrink: 0;">` : '<span style="flex-shrink: 0; font-size: 0.72rem;">❓</span>'}
+              <span title="${homeName}" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600;">${escapeHTML(homeName)}</span>
+            </div>
+            <div style="flex-shrink: 0; min-width: 80px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; gap: 4px;">
+              ${scoreHtml}
+              ${isFinished ? `<div style="font-size: 0.62rem; color: var(--text-muted);">${dateDisplay}</div>` : ''}
+            </div>
+            <div class="result-teams" style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; flex: 1; min-width: 0; justify-content: flex-end; text-align: right;">
+              <span title="${awayName}" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; text-align: right;">${escapeHTML(awayName)}</span>
+              ${g.away_team_name_en ? `<img src="https://flagcdn.com/w80/${awayCode}.png" onerror="this.src='https://flagcdn.com/w80/un.png'" style="width: 20px; height: 14px; object-fit: cover; flex-shrink: 0;">` : '<span style="flex-shrink: 0; font-size: 0.72rem;">❓</span>'}
+            </div>
           </div>
-          <div style="flex-shrink: 0; min-width: 80px; display: flex; justify-content: center; align-items: center; text-align: center;">
-            ${scoreHtml}
-          </div>
-          <div class="result-teams" style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; flex: 1; min-width: 0; justify-content: flex-end; text-align: right;">
-            <span title="${awayName}" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; text-align: right;">${escapeHTML(awayName)}</span>
-            ${g.away_team_name_en ? `<img src="https://flagcdn.com/w80/${awayCode}.png" onerror="this.src='https://flagcdn.com/w80/un.png'" style="width: 20px; height: 14px; object-fit: cover; flex-shrink: 0;">` : '<span style="flex-shrink: 0; font-size: 0.72rem;">❓</span>'}
-          </div>
+          ${g.stadium ? `<div style="font-size: 0.62rem; color: var(--text-muted); text-align: center; margin-top: 2px; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">🏟️ ${escapeHTML(g.stadium)}</div>` : ''}
         </div>
       `;
     }).join('');
