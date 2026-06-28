@@ -499,7 +499,7 @@ function buildCard(m, extraCls='') {
     </div>
     <div class="match-footer" style="display: flex; justify-content: space-between; align-items: center; gap: 4px;">
       <span class="match-date-text" style="flex-shrink: 0;">${esc(formattedDate)}</span>
-      ${m.stadium ? `<span onclick="event.stopPropagation(); openStadiumModal(event, '${esc(m.stadium)}')" style="font-size: 0.58rem; color: var(--primary); text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; min-width: 0; cursor: pointer; text-decoration: underline dashed rgba(26, 115, 232, 0.4);" title="Clique para ver a foto de ${esc(m.stadium.split(' · ')[0])}">🏟️ ${esc(m.stadium.split(' · ')[0])}</span>` : ''}
+      ${m.stadium ? `<span style="font-size: 0.58rem; color: var(--text-muted); text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; min-width: 0;" title="${esc(m.stadium)}">🏟️ ${esc(m.stadium.split(' · ')[0])}</span>` : ''}
     </div>
   </div>`;
 }
@@ -625,7 +625,7 @@ window.openModal = function(m) {
 
   document.getElementById('mScore').textContent = hasScore ? `${m.hs} × ${m.as}` : '? × ?';
   document.getElementById('mScore').style.color = hasScore ? 'var(--green)' : 'var(--text-muted)';
-  document.getElementById('mDate').innerHTML = `📅 ${esc(m.date)}${m.stadium ? `<br><span onclick="openStadiumModal(event, '${esc(m.stadium)}')" style="display:inline-block;margin-top:6px;font-size:0.75rem;color:var(--primary);cursor:pointer;text-decoration:underline dashed rgba(26, 115, 232, 0.4);" title="Clique para ver a foto de ${esc(m.stadium)}">🏟️ ${esc(m.stadium)}</span>` : ''}`;
+  document.getElementById('mDate').innerHTML = `📅 ${esc(m.date)}${m.stadium ? `<br><span style="display:inline-block;margin-top:6px;font-size:0.75rem;color:var(--text-secondary)">🏟️ ${esc(m.stadium)}</span>` : ''}`;
 
   const hKey = bolaoKey(h.n), aKey = bolaoKey(a.n);
   const voterEl = document.getElementById('mVoters');
@@ -928,137 +928,6 @@ window.addEventListener('load', () => {
   setTimeout(drawConnectors, 100);
   setTimeout(drawConnectors, 300);
 });
-
-// =========================================================
-// MODAL DE FOTO DO ESTÁDIO
-// =========================================================
-window.openStadiumModal = function(e, stadiumFullName) {
-  if (e) e.stopPropagation();
-  if (!stadiumFullName) return;
-  
-  const stadiumName = stadiumFullName.split(' · ')[0].trim();
-  
-  const photos = {
-    'metlife': 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/MetLife_Stadium_interior.jpg/640px-MetLife_Stadium_interior.jpg',
-    'azteca': 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Estadio_Azteca_Panoramica_2017.jpg/640px-Estadio_Azteca_Panoramica_2017.jpg',
-    'mercedes': 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Inside_Mercedes-Benz_Stadium.jpg/640px-Inside_Mercedes-Benz_Stadium.jpg',
-    'sofi': 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/db/SoFi_Stadium_Interior_Championship.jpg/640px-SoFi_Stadium_Interior_Championship.jpg',
-    'lincoln': 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/LFF_inside.jpg/640px-LFF_inside.jpg',
-    'lumen': 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Lumen_Field_MLS_Cup_2019.jpg/640px-Lumen_Field_MLS_Cup_2019.jpg',
-    'levi': 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Levi%27s_Stadium_-_interior.jpg/640px-Levi%27s_Stadium_-_interior.jpg',
-    'gillette': 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Gillette_Stadium_interior.jpg/640px-Gillette_Stadium_interior.jpg',
-    'hard rock': 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Hard_Rock_Stadium_2016.jpg/640px-Hard_Rock_Stadium_2016.jpg',
-    'at&t': 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/AT%26T_Stadium_interior.jpg/640px-AT%26T_Stadium_interior.jpg',
-    'nrg': 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/NRG_Stadium_interior.jpg/640px-NRG_Stadium_interior.jpg',
-    'arrowhead': 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Arrowhead_Stadium_2008.jpg/640px-Arrowhead_Stadium_2008.jpg',
-    'bc place': 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/BC_Place_Interior_2.jpg/640px-BC_Place_Interior_2.jpg',
-    'bmo': 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/BMO_Field_after_expansion.jpg/640px-BMO_Field_after_expansion.jpg',
-    'bbva': 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Estadio_BBVA_Bancomer_-_Monterrey_N.L..jpg/640px-Estadio_BBVA_Bancomer_-_Monterrey_N.L..jpg',
-    'akron': 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Estadio_Omnilife_Interior.jpg/640px-Estadio_Omnilife_Interior.jpg'
-  };
-
-  const key = Object.keys(photos).find(k => stadiumName.toLowerCase().includes(k));
-  const photoUrl = key ? photos[key] : null;
-
-  if (!photoUrl) {
-    alert('Foto do estádio "' + stadiumName + '" não disponível.');
-    return;
-  }
-
-  let modal = document.getElementById('stadium-photo-modal');
-  if (!modal) {
-    modal = document.createElement('div');
-    modal.id = 'stadium-photo-modal';
-    modal.style.position = 'fixed';
-    modal.style.inset = '0';
-    modal.style.backgroundColor = 'rgba(0, 0, 0, 0.85)';
-    modal.style.backdropFilter = 'blur(10px)';
-    modal.style.webkitBackdropFilter = 'blur(10px)';
-    modal.style.zIndex = '3000';
-    modal.style.display = 'grid';
-    modal.style.placeItems = 'center';
-    modal.style.opacity = '0';
-    modal.style.transition = 'opacity 0.25s ease';
-    modal.onclick = function(evt) {
-      if (evt.target === modal) window.closeStadiumModal();
-    };
-
-    const box = document.createElement('div');
-    box.style.width = '90%';
-    box.style.maxWidth = '550px';
-    box.style.backgroundColor = '#1f2937';
-    box.style.border = '1px solid rgba(255, 255, 255, 0.1)';
-    box.style.borderRadius = '16px';
-    box.style.overflow = 'hidden';
-    box.style.boxShadow = '0 25px 50px -12px rgba(0, 0, 0, 0.5)';
-    box.style.display = 'flex';
-    box.style.flexDirection = 'column';
-    box.style.transform = 'scale(0.95)';
-    box.style.transition = 'transform 0.25s ease';
-    box.id = 'stadium-photo-box';
-
-    const img = document.createElement('img');
-    img.id = 'stadium-photo-img';
-    img.style.width = '100%';
-    img.style.height = '300px';
-    img.style.objectFit = 'cover';
-    img.style.borderBottom = '1px solid rgba(255, 255, 255, 0.08)';
-
-    const footer = document.createElement('div');
-    footer.style.padding = '14px 18px';
-    footer.style.display = 'flex';
-    footer.style.justifyContent = 'space-between';
-    footer.style.alignItems = 'center';
-    footer.style.backgroundColor = '#111827';
-
-    const title = document.createElement('span');
-    title.id = 'stadium-photo-title';
-    title.style.fontFamily = "'Outfit', sans-serif";
-    title.style.fontSize = '0.92rem';
-    title.style.fontWeight = '700';
-    title.style.color = '#f9fafb';
-
-    const closeBtn = document.createElement('button');
-    closeBtn.textContent = 'Fechar';
-    closeBtn.style.padding = '6px 12px';
-    closeBtn.style.backgroundColor = 'rgba(255, 255, 255, 0.08)';
-    closeBtn.style.border = '1px solid rgba(255, 255, 255, 0.15)';
-    closeBtn.style.color = '#f3f4f6';
-    closeBtn.style.borderRadius = '8px';
-    closeBtn.style.cursor = 'pointer';
-    closeBtn.style.fontSize = '0.78rem';
-    closeBtn.style.fontWeight = '600';
-    closeBtn.style.transition = 'all 0.2s';
-    closeBtn.onclick = window.closeStadiumModal;
-
-    footer.appendChild(title);
-    footer.appendChild(closeBtn);
-    box.appendChild(img);
-    box.appendChild(footer);
-    modal.appendChild(box);
-    document.body.appendChild(modal);
-  }
-
-  document.getElementById('stadium-photo-img').src = photoUrl;
-  document.getElementById('stadium-photo-title').textContent = stadiumFullName;
-
-  modal.style.display = 'grid';
-  setTimeout(() => {
-    modal.style.opacity = '1';
-    document.getElementById('stadium-photo-box').style.transform = 'scale(1)';
-  }, 10);
-};
-
-window.closeStadiumModal = function() {
-  const modal = document.getElementById('stadium-photo-modal');
-  if (modal) {
-    modal.style.opacity = '0';
-    document.getElementById('stadium-photo-box').style.transform = 'scale(0.95)';
-    setTimeout(() => {
-      modal.style.display = 'none';
-    }, 250);
-  }
-};
 </script>
 </body>
 </html>
