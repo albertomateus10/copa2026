@@ -378,13 +378,24 @@ const BOLAO = {
   "Estados Unidos":  { code:"us", v:["Diego Fraga"] },
 };
 
-// ===========================================================
-// DADOS DO CHAVEAMENTO
+const BOLAO_EN = {
+  "brazil":         "Brasil",
+  "spain":          "Espanha",
+  "argentina":      "Argentina",
+  "portugal":       "Portugal",
+  "netherlands":    "Holanda",
+  "france":         "França",
+  "germany":        "Alemanha",
+  "uruguay":        "Uruguai",
+  "senegal":        "Senegal",
+  "england":        "Inglaterra",
+  "united states":  "Estados Unidos",
+};
 // ===========================================================
 const R32 = [
   // Linha 1 (superior)
   { id:74,  date:"29 jun · 17:30", h:{n:"Alemanha",         c:"de"},  a:{n:"3° A/B/C/D/F",   c:null} },
-  { id:77,  date:"30 jun · 18:00", h:{n:"França",           c:"fr"},  a:{n:"3° C/D/F/G/H",   c:null} },
+  { id:77,  date:"30 jun · 18:00", h:{n:"França",           c:"fr"},  a:{n:"Suécia",           c:"se"} },
   { id:73,  date:"28 jun · 16:00", h:{n:"África do Sul",    c:"za"},  a:{n:"Canadá",          c:"ca"} },
   { id:75,  date:"29 jun · 22:00", h:{n:"Holanda",          c:"nl"},  a:{n:"Marrocos",        c:"ma"} },
   { id:83,  date:"2 jul · 20:00",  h:{n:"2° K",             c:null},  a:{n:"2° L",            c:null} },
@@ -436,7 +447,14 @@ const FINAL    = { id:104, date:"19 jul · 16:00 · East Rutherford", h:{n:"Venc
 // BUILD MATCH CARD HTML
 // ===========================================================
 function bolaoKey(name) {
-  return Object.keys(BOLAO).find(k => k.toLowerCase() === (name||'').toLowerCase()) || null;
+  if (!name) return null;
+  // Busca direta pelo nome PT
+  const direct = Object.keys(BOLAO).find(k => k.toLowerCase() === name.toLowerCase());
+  if (direct) return direct;
+  // Fallback: traduz EN -> PT e busca novamente
+  const pt = BOLAO_EN[name.toLowerCase()];
+  if (pt) return Object.keys(BOLAO).find(k => k.toLowerCase() === pt.toLowerCase()) || null;
+  return null;
 }
 
 function buildCard(m, extraCls='') {
@@ -637,11 +655,10 @@ async function loadLiveData() {
     const json = await resp.json();
     const games = json.games || [];
 
-    // Contador de jogos
-    let finished = games.filter(g => g.finished === 'TRUE').length;
-    let upcoming = games.filter(g => g.finished !== 'TRUE').length;
+    // Contador de jogos (case-insensitive)
+    let finished = games.filter(g => (g.finished||'').toUpperCase() === 'TRUE').length;
+    let upcoming = games.filter(g => (g.finished||'').toUpperCase() !== 'TRUE').length;
     document.getElementById('headerRight').innerHTML = `✅ ${finished} jogos encerrados<br>⏳ ${upcoming} por jogar`;
-
 
     // =========================================================
     // PASSO 2: Aplicar dados dos jogos do mata-mata
@@ -649,20 +666,18 @@ async function loadLiveData() {
     // =========================================================
     const allRounds = [...R32, ...OITAVAS, ...QUARTAS, ...SEMI, TERCEIRO, FINAL];
     const knockoutTypes = ['r32','r16','qf','sf','final','third'];
-    // IMPORTANTE: filtra apenas jogos de mata-mata E usa match_number (não id)
-    // pois o id da API pode coincidir com ids de jogos de grupo
     const koGames = games.filter(g => knockoutTypes.includes((g.type || '').toLowerCase()));
 
     koGames.forEach(g => {
-      // Usa match_number se disponível, senão usa id — mas só se o type for knockout
       const matchNum = parseInt(g.match_number || g.id || 0);
-      // IDs válidos do mata-mata: 73–104. Ignora qualquer outro (pode ser jogo de grupo).
+      // IDs válidos do mata-mata: 73-104. Ignora qualquer outro (pode ser jogo de grupo).
       if (matchNum < 73 || matchNum > 104) return;
       const found = allRounds.find(m => m.id === matchNum);
       if (!found) return;
 
-      // Placar
-      if (g.finished === 'TRUE') {
+      // Placar (case-insensitive para finished)
+      const isFinished = (g.finished||'').toUpperCase() === 'TRUE';
+      if (isFinished) {
         found.hs = parseInt(g.home_score) || 0;
         found.as = parseInt(g.away_score) || 0;
       } else {
@@ -670,26 +685,26 @@ async function loadLiveData() {
         found.as = null;
       }
 
-      // Só sobrescreve o time se a API confirmou com team_id != 0
-      // E se o label NÃO indica que o time ainda é "a definir" (Winner/Runner-up/3rd)
-      const labelPending = /winner|runner.?up|3rd/i;
+      // Sobrescreve o time APENAS se a API confirmou: team_id != 0 e nome válido
+      // NOTA: home_team_label SEMPRE tem "Winner Group X" mesmo em times confirmados — não usar para filtrar!
       const validHome = String(g.home_team_id) !== '0'
         && g.home_team_name_en
         && g.home_team_name_en !== 'None'
-        && g.home_team_name_en !== 'null'
-        && !labelPending.test(g.home_team_label || '');
+        && g.home_team_name_en !== 'null';
       const validAway = String(g.away_team_id) !== '0'
         && g.away_team_name_en
         && g.away_team_name_en !== 'None'
-        && g.away_team_name_en !== 'null'
-        && !labelPending.test(g.away_team_label || '');
+        && g.away_team_name_en !== 'null';
 
       if (validHome) {
-        found.h.n = g.home_team_name_en;
+        // Traduz EN -> PT para manter compatibilidade com BOLAO
+        const namePt = getTeamPt(g.home_team_name_en);
+        found.h.n = namePt;
         found.h.c = getTeamFlag(g.home_team_name_en) || found.h.c;
       }
       if (validAway) {
-        found.a.n = g.away_team_name_en;
+        const namePt = getTeamPt(g.away_team_name_en);
+        found.a.n = namePt;
         found.a.c = getTeamFlag(g.away_team_name_en) || found.a.c;
       }
     });

@@ -1349,34 +1349,35 @@
   // DADOS DOS PARTICIPANTES (do votos.csv)
   // =========================================================
   const PARTICIPANTES = [
-    { name: "Denis Guarda",           team: "Espanha",         code: "es" },
-    { name: "Vinicius Grassi",        team: "Senegal",         code: "sn" },
-    { name: "Roberto Joinvile",       team: "Espanha",         code: "es" },
-    { name: "Carlo Bigo",             team: "Brasil",          code: "br" },
-    { name: "Matheus Santos bigode",  team: "Portugal",        code: "pt" },
-    { name: "Tiago Bicuira",          team: "Holanda",         code: "nl" },
-    { name: "Maicon Espetinho",       team: "França",          code: "fr" },
-    { name: "Federico Renda",         team: "Argentina",       code: "ar" },
-    { name: "Leonardo Foesten",       team: "Brasil",          code: "br" },
-    { name: "Vinicius Reis",          team: "Alemanha",        code: "de" },
-    { name: "João Pacheco",           team: "Argentina",       code: "ar" },
-    { name: "Rodrigo Bender",         team: "Espanha",         code: "es" },
-    { name: "André Trento",           team: "Holanda",         code: "nl" },
-    { name: "Vicente Filho",          team: "Portugal",        code: "pt" },
-    { name: "Gustavo Cunha",          team: "Brasil",          code: "br" },
-    { name: "Francisco Lamaison",     team: "Uruguai",         code: "uy" },
-    { name: "Edu Alcará",             team: "França",          code: "fr" },
-    { name: "Gustavo Bassegio",       team: "Holanda",         code: "nl" },
-    { name: "Deivid Mendes",          team: "Holanda",         code: "nl" },
-    { name: "Felipe Pacheco",         team: "Argentina",       code: "ar" },
-    { name: "Alexandre Chaves",       team: "Espanha",         code: "es" },
-    { name: "Edson Fehlauer",         team: "Brasil",          code: "br" },
-    { name: "Omar Conversa Fiada",    team: "França",          code: "fr" },
-    { name: "Guilherme Pruinelli",    team: "Portugal",        code: "pt" },
-    { name: "Alberto Mateus",         team: "Portugal",        code: "pt" },
-    { name: "Seco",                   team: "Espanha",         code: "es" },
-    { name: "Rafael Pruinelli",       team: "Inglaterra",      code: "gb-eng" },
-    { name: "Diego Fraga",            team: "Estados Unidos",  code: "us" },
+    // teamEN = nome exato que a API retorna em home_team_name_en / away_team_name_en (lowercase)
+    { name: "Denis Guarda",           team: "Espanha",         code: "es",     teamEN: "spain" },
+    { name: "Vinicius Grassi",        team: "Senegal",         code: "sn",     teamEN: "senegal" },
+    { name: "Roberto Joinvile",       team: "Espanha",         code: "es",     teamEN: "spain" },
+    { name: "Carlo Bigo",             team: "Brasil",          code: "br",     teamEN: "brazil" },
+    { name: "Matheus Santos bigode",  team: "Portugal",        code: "pt",     teamEN: "portugal" },
+    { name: "Tiago Bicuira",          team: "Holanda",         code: "nl",     teamEN: "netherlands" },
+    { name: "Maicon Espetinho",       team: "França",          code: "fr",     teamEN: "france" },
+    { name: "Federico Renda",         team: "Argentina",       code: "ar",     teamEN: "argentina" },
+    { name: "Leonardo Foesten",       team: "Brasil",          code: "br",     teamEN: "brazil" },
+    { name: "Vinicius Reis",          team: "Alemanha",        code: "de",     teamEN: "germany" },
+    { name: "João Pacheco",           team: "Argentina",       code: "ar",     teamEN: "argentina" },
+    { name: "Rodrigo Bender",         team: "Espanha",         code: "es",     teamEN: "spain" },
+    { name: "André Trento",           team: "Holanda",         code: "nl",     teamEN: "netherlands" },
+    { name: "Vicente Filho",          team: "Portugal",        code: "pt",     teamEN: "portugal" },
+    { name: "Gustavo Cunha",          team: "Brasil",          code: "br",     teamEN: "brazil" },
+    { name: "Francisco Lamaison",     team: "Uruguai",         code: "uy",     teamEN: "uruguay" },
+    { name: "Edu Alcará",             team: "França",          code: "fr",     teamEN: "france" },
+    { name: "Gustavo Bassegio",       team: "Holanda",         code: "nl",     teamEN: "netherlands" },
+    { name: "Deivid Mendes",          team: "Holanda",         code: "nl",     teamEN: "netherlands" },
+    { name: "Felipe Pacheco",         team: "Argentina",       code: "ar",     teamEN: "argentina" },
+    { name: "Alexandre Chaves",       team: "Espanha",         code: "es",     teamEN: "spain" },
+    { name: "Edson Fehlauer",         team: "Brasil",          code: "br",     teamEN: "brazil" },
+    { name: "Omar Conversa Fiada",    team: "França",          code: "fr",     teamEN: "france" },
+    { name: "Guilherme Pruinelli",    team: "Portugal",        code: "pt",     teamEN: "portugal" },
+    { name: "Alberto Mateus",         team: "Portugal",        code: "pt",     teamEN: "portugal" },
+    { name: "Seco",                   team: "Espanha",         code: "es",     teamEN: "spain" },
+    { name: "Rafael Pruinelli",       team: "Inglaterra",      code: "gb-eng", teamEN: "england" },
+    { name: "Diego Fraga",            team: "Estados Unidos",  code: "us",     teamEN: "united states" },
   ];
 
   // Mapeamento de nomes de times da API (inglês) para português e código de bandeira
@@ -1479,7 +1480,14 @@
     let upcomingGames = [];
 
     games.forEach(g => {
-      if (g.finished !== 'TRUE') {
+      // Um jogo conta se estiver encerrado (TRUE, case-insensitive) OU ao vivo (com placar)
+      const isFinished = (g.finished || '').toUpperCase() === 'TRUE';
+      const isLive = (g.time_elapsed || '').toLowerCase() === 'live';
+      const hasScore = g.home_team_name_en && g.away_team_name_en &&
+                       g.home_score !== null && g.home_score !== 'null' &&
+                       g.away_score !== null && g.away_score !== 'null';
+
+      if (!isFinished && !(isLive && hasScore)) {
         upcomingGames.push(g);
         return;
       }
@@ -1489,7 +1497,7 @@
       const homeScore = parseInt(g.home_score) || 0;
       const awayScore = parseInt(g.away_score) || 0;
 
-      finishedGames.push(g);
+      if (isFinished) finishedGames.push(g);
 
       // Inicializar e acumular gols para os dois times
       if (homeEN) {
@@ -1532,9 +1540,9 @@
   // CALCULAR CHANCES DOS PARTICIPANTES
   // =========================================================
   function calcChances() {
-    // Para cada participante, pega as vitórias da seleção escolhida
+    // Lookup DIRETO pelo teamEN (nome em inglês exato da API) — sem tradução
     return PARTICIPANTES.map(p => {
-      const teamEN = Object.entries(TEAM_MAP).find(([k, v]) => v.pt === p.team)?.[0] || '';
+      const teamEN = (p.teamEN || '').toLowerCase().trim();
       const winsData = teamWins[teamEN] || { wins: 0, draws: 0, goals: 0, games: [] };
       const chance = Math.min(100, winsData.wins * 12.5 + winsData.draws * 6.2);
       return {
