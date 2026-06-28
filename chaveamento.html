@@ -510,6 +510,83 @@ function esc(s) {
 }
 
 // ===========================================================
+// PROPAGAR VENCEDORES PARA AS PRÓXIMAS FASES
+// ===========================================================
+function propagateWinners() {
+  const allRounds = [...R32, ...OITAVAS, ...QUARTAS, ...SEMI, TERCEIRO, FINAL];
+  const matchMap = {};
+  allRounds.forEach(m => { matchMap[m.id] = m; });
+
+  // Mapeamento: ID da partida de origem → partida de destino e posição (h=home, a=away)
+  const WINNER_MAP = {
+    // R32 (16 Avos) → Oitavas
+    74: { dest: 89, pos: 'h' }, 77: { dest: 89, pos: 'a' },
+    73: { dest: 90, pos: 'h' }, 75: { dest: 90, pos: 'a' },
+    83: { dest: 93, pos: 'h' }, 84: { dest: 93, pos: 'a' },
+    81: { dest: 94, pos: 'h' }, 82: { dest: 94, pos: 'a' },
+    76: { dest: 91, pos: 'h' }, 78: { dest: 91, pos: 'a' },
+    79: { dest: 92, pos: 'h' }, 80: { dest: 92, pos: 'a' },
+    86: { dest: 95, pos: 'h' }, 88: { dest: 95, pos: 'a' },
+    85: { dest: 96, pos: 'h' }, 87: { dest: 96, pos: 'a' },
+    // Oitavas → Quartas
+    89: { dest: 97, pos: 'h' }, 90: { dest: 97, pos: 'a' },
+    93: { dest: 98, pos: 'h' }, 94: { dest: 98, pos: 'a' },
+    91: { dest: 99, pos: 'h' }, 92: { dest: 99, pos: 'a' },
+    95: { dest: 100, pos: 'h' }, 96: { dest: 100, pos: 'a' },
+    // Quartas → Semis
+    97: { dest: 101, pos: 'h' }, 98: { dest: 101, pos: 'a' },
+    99: { dest: 102, pos: 'h' }, 100: { dest: 102, pos: 'a' },
+    // Semis → Final
+    101: { dest: 104, pos: 'h' }, 102: { dest: 104, pos: 'a' },
+  };
+
+  // Mapeamento para perdedores (3° lugar)
+  const LOSER_MAP = {
+    101: { dest: 103, pos: 'h' },
+    102: { dest: 103, pos: 'a' },
+  };
+
+  allRounds.forEach(match => {
+    if (match.hs == null || match.as == null) return; // partida não encerrada
+
+    let winner, loser;
+
+    // Prioriza campo winnerTeam (pênaltis) sobre placar simples
+    if (match.winnerTeam === 'h') {
+      winner = match.h; loser = match.a;
+    } else if (match.winnerTeam === 'a') {
+      winner = match.a; loser = match.h;
+    } else if (match.hs > match.as) {
+      winner = match.h; loser = match.a;
+    } else if (match.as > match.hs) {
+      winner = match.a; loser = match.h;
+    } else {
+      return; // empate sem definição de vencedor
+    }
+
+    // Propagar vencedor para a próxima fase
+    const winProp = WINNER_MAP[match.id];
+    if (winProp) {
+      const destMatch = matchMap[winProp.dest];
+      if (destMatch) {
+        destMatch[winProp.pos].n = winner.n;
+        destMatch[winProp.pos].c = winner.c;
+      }
+    }
+
+    // Propagar perdedor para a disputa de 3° lugar
+    const loseProp = LOSER_MAP[match.id];
+    if (loseProp) {
+      const destMatch = matchMap[loseProp.dest];
+      if (destMatch) {
+        destMatch[loseProp.pos].n = loser.n;
+        destMatch[loseProp.pos].c = loser.c;
+      }
+    }
+  });
+}
+
+// ===========================================================
 // RENDER FULL BRACKET
 // ===========================================================
 function renderBracket() {
@@ -719,6 +796,8 @@ async function loadLiveData() {
         away_score: isFinished || isLive ? away.score : null,
         home_team_id: isHomePlaceholder ? "0" : (home.team.id || "1"),
         away_team_id: isAwayPlaceholder ? "0" : (away.team.id || "1"),
+        homeWinner: home.winner === true,
+        awayWinner: away.winner === true,
         local_date: formattedDate,
         stadium: localDisplay
       };
@@ -745,31 +824,46 @@ async function loadLiveData() {
       if (isFinished) {
         found.hs = parseInt(g.home_score) || 0;
         found.as = parseInt(g.away_score) || 0;
+        // Capturar vencedor (útil para pênaltis onde o placar pode ser igual)
+        if (g.homeWinner) found.winnerTeam = 'h';
+        else if (g.awayWinner) found.winnerTeam = 'a';
       } else {
         found.hs = null;
         found.as = null;
       }
 
+      // Filtrar placeholders da ESPN (ex: "Winner of Match X", "TBD", etc.)
       const validHome = String(g.home_team_id) !== '0'
         && g.home_team_name_en
         && g.home_team_name_en !== 'None'
-        && g.home_team_name_en !== 'null';
+        && g.home_team_name_en !== 'null'
+        && !/Winner|Loser|Place|Runner|TBD|Determined/i.test(g.home_team_name_en);
       const validAway = String(g.away_team_id) !== '0'
         && g.away_team_name_en
         && g.away_team_name_en !== 'None'
-        && g.away_team_name_en !== 'null';
+        && g.away_team_name_en !== 'null'
+        && !/Winner|Loser|Place|Runner|TBD|Determined/i.test(g.away_team_name_en);
 
-      if (validHome) {
-        const namePt = getTeamPt(g.home_team_name_en);
-        found.h.n = namePt;
-        found.h.c = getTeamFlag(g.home_team_name_en) || found.h.c;
-      }
-      if (validAway) {
-        const namePt = getTeamPt(g.away_team_name_en);
-        found.a.n = namePt;
-        found.a.c = getTeamFlag(g.away_team_name_en) || found.a.c;
+      // Atualizar times APENAS para partidas da R32 (16 avos de final).
+      // As fases seguintes são preenchidas por propagateWinners() para evitar
+      // que dados antecipados ou incorretos da ESPN corrompam o chaveamento.
+      const isR32Match = R32.some(m => m.id === matchNum);
+      if (isR32Match) {
+        if (validHome) {
+          const namePt = getTeamPt(g.home_team_name_en);
+          found.h.n = namePt;
+          found.h.c = getTeamFlag(g.home_team_name_en) || found.h.c;
+        }
+        if (validAway) {
+          const namePt = getTeamPt(g.away_team_name_en);
+          found.a.n = namePt;
+          found.a.c = getTeamFlag(g.away_team_name_en) || found.a.c;
+        }
       }
     });
+
+    // Propagar vencedores para as próximas fases com base nos resultados reais
+    propagateWinners();
 
     renderBracket();
     setTimeout(drawConnectors, 80);
