@@ -1781,6 +1781,7 @@
     });
 
     const teams = Object.entries(byTeam)
+      .filter(([teamName]) => teamName !== 'Alemanha' && teamName !== 'Holanda' && teamName !== 'Uruguai')
       .sort((a, b) => b[1].chance - a[1].chance);
 
     const maxChance = teams[0]?.[1].chance || 100;
